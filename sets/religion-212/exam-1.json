@@ -1,0 +1,1007 @@
+{
+  "id": "religion-212-exam-1",
+  "class": "Religion 212",
+  "title": "Exam 1",
+  "subtitle": "New Testament — Backgrounds & Acts",
+  "categories": [
+    {
+      "category": "Historical Background",
+      "color": "#7C3AED",
+      "questions": [
+        {
+          "id": "h1",
+          "type": "mc",
+          "question": "Who was the first king of Israel?",
+          "options": [
+            "King David",
+            "King Solomon",
+            "King Saul",
+            "King Rehoboam"
+          ],
+          "answer": 2,
+          "explanation": "King Saul was the first king of Israel. King David established and consolidated the kingdom."
+        },
+        {
+          "id": "h2",
+          "type": "mc",
+          "question": "Who built the first Jewish Temple?",
+          "options": [
+            "King David",
+            "King Solomon",
+            "King Saul",
+            "Herod the Great"
+          ],
+          "answer": 1,
+          "explanation": "King Solomon built the first Jewish Temple in Jerusalem."
+        },
+        {
+          "id": "h3",
+          "type": "mc",
+          "question": "When and by whom was the Northern Kingdom conquered?",
+          "options": [
+            "586 BC by Babylonians",
+            "722 BC by the Assyrians",
+            "63 BC by the Romans",
+            "538 BC by the Persians"
+          ],
+          "answer": 1,
+          "explanation": "The Northern Kingdom fell in 722 BC to the Assyrians under Sargon II."
+        },
+        {
+          "id": "h4",
+          "type": "mc",
+          "question": "What are the people taken from the Northern tribes into captivity called?",
+          "options": [
+            "The Exiles",
+            "The Diaspora",
+            "The Lost Ten Tribes",
+            "The Remnant"
+          ],
+          "answer": 2,
+          "explanation": "They are called the Lost Ten Tribes — they were never recorded as returning."
+        },
+        {
+          "id": "h5",
+          "type": "mc",
+          "question": "When and by whom was the Southern Kingdom conquered?",
+          "options": [
+            "722 BC by the Assyrians",
+            "63 BC by the Romans",
+            "586 BC by the Babylonians",
+            "70 AD by the Romans"
+          ],
+          "answer": 2,
+          "explanation": "586 BC by Nebuchadnezzar II of Babylon. Jews returned to Jerusalem around 538 BC and built the Second Temple."
+        },
+        {
+          "id": "h6",
+          "type": "mc",
+          "question": "What is Hellenism?",
+          "options": [
+            "A Jewish religious movement",
+            "The mass-appeal popular culture of antiquity spread by Greek influence",
+            "A Roman political system",
+            "A form of Hebrew scripture"
+          ],
+          "answer": 1,
+          "explanation": "Hellenism was the mass-appeal popular culture of antiquity. Greek became the lingua franca; Near Eastern art adopted Greco-style forms; many regions adopted Greek gods under new names."
+        },
+        {
+          "id": "h7",
+          "type": "mc",
+          "question": "Who was responsible for spreading Greek culture throughout the world?",
+          "options": [
+            "Julius Caesar",
+            "Augustus",
+            "Alexander the Great",
+            "Herod the Great"
+          ],
+          "answer": 2,
+          "explanation": "Alexander the Great spread Greek culture (Hellenism) throughout the known world."
+        },
+        {
+          "id": "h8",
+          "type": "mc",
+          "question": "Which empire ruled Judea during Jesus's lifetime?",
+          "options": [
+            "Greek Empire",
+            "Babylonian Empire",
+            "Persian Empire",
+            "Rome"
+          ],
+          "answer": 3,
+          "explanation": "Rome ruled Judea from 63 BC onward. Jesus lived approximately 4 BC – 30 AD."
+        },
+        {
+          "id": "h9",
+          "type": "mc",
+          "question": "Who was Herod the Great?",
+          "options": [
+            "A Jewish high priest appointed by the Pharisees",
+            "A Roman Emperor who conquered Judea",
+            "An Idumean king appointed by Rome who expanded the Second Temple",
+            "A Hasmonean prince who revolted against Rome"
+          ],
+          "answer": 2,
+          "explanation": "Herod the Great was appointed by the Romans, reigned 37 BC–4 AD, was an Idumean convert who married a Hasmonean princess, expanded the Second Temple, and is known for the Massacre of the Infants."
+        },
+        {
+          "id": "h10",
+          "type": "mc",
+          "question": "Which Herod was responsible for beheading John the Baptist?",
+          "options": [
+            "Herod the Great",
+            "Herod Archelaus",
+            "Herod Antipas",
+            "Herod Philip"
+          ],
+          "answer": 2,
+          "explanation": "Herod Antipas was the tetrarch of Galilee and Perea, and was responsible for beheading John the Baptist."
+        },
+        {
+          "id": "h11",
+          "type": "multi",
+          "question": "What are the scriptural passages that support the Israelite conception of a Messiah? (Select all that apply)",
+          "options": [
+            "Deuteronomy 18:15",
+            "2 Samuel 7:12,13,16",
+            "Daniel 7:13",
+            "Isaiah 53",
+            "Genesis 3:15"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "Deuteronomy 18:15, 2 Samuel 7:12,13,16, and Daniel 7:13 are the key passages. The Messiah was conceived as a king and military-political leader, not primarily a redeemer from sin."
+        }
+      ]
+    },
+    {
+      "category": "Cultural Background",
+      "color": "#0EA5E9",
+      "questions": [
+        {
+          "id": "c1",
+          "type": "mc",
+          "question": "Why is it inaccurate to speak of 'Judaism' (singular) at the time of Jesus?",
+          "options": [
+            "Judaism had not yet developed as a religion",
+            "There were multiple types of Judaism — Pharisees, Sadducees, Essenes, Zealots, etc.",
+            "Judaism was banned by Rome",
+            "Most Jews had converted to Hellenism"
+          ],
+          "answer": 1,
+          "explanation": "There were multiple distinct Jewish sects and movements at the time, including Pharisees, Sadducees, Essenes, and Zealots — each with different beliefs and practices."
+        },
+        {
+          "id": "c2",
+          "type": "multi",
+          "question": "What were the three elements of Jewish orthodoxy (correct belief)? (Select all that apply)",
+          "options": [
+            "Monotheism",
+            "Election (Chosen People)",
+            "Eschatology",
+            "Temple Sacrifice",
+            "Sabbath Observance"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "The three elements were: Monotheism (one God), Election (chosen people), and Eschatology (hope for a future day of restoration)."
+        },
+        {
+          "id": "c3",
+          "type": "multi",
+          "question": "What were the three elements of Jewish orthopraxy (correct practice)? (Select all that apply)",
+          "options": [
+            "Temple",
+            "Torah",
+            "Priesthood",
+            "Synagogue",
+            "Baptism"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "The three elements were: Temple (center of sacrifice), Torah (law), and Priesthood (mediated the temple cult)."
+        },
+        {
+          "id": "c4",
+          "type": "mc",
+          "question": "Which Jewish group built a 'hedge' around the Law and was associated with synagogues?",
+          "options": [
+            "Sadducees",
+            "Essenes",
+            "Pharisees",
+            "Zealots"
+          ],
+          "answer": 2,
+          "explanation": "The Pharisees were known for their strict interpretation of the Torah AND oral traditions (Oral Law). They were law scholars associated with synagogues who built a 'hedge' around the law."
+        },
+        {
+          "id": "c5",
+          "type": "mc",
+          "question": "Which Jewish group denied the resurrection of the dead?",
+          "options": [
+            "Pharisees",
+            "Sadducees",
+            "Essenes",
+            "Zealots"
+          ],
+          "answer": 1,
+          "explanation": "The Sadducees were the priestly aristocracy. They accepted only the written Torah and Prophets, which led them to deny the resurrection."
+        },
+        {
+          "id": "c6",
+          "type": "mc",
+          "question": "What texts were the Essenes responsible for?",
+          "options": [
+            "The Septuagint",
+            "The Talmud",
+            "The Dead Sea Scrolls",
+            "The Apocrypha"
+          ],
+          "answer": 2,
+          "explanation": "The Essenes were an ascetic desert sect who acted as scribes and produced the Dead Sea Scrolls. They saw themselves as 'Sons of Light' and were focused on messianic texts."
+        },
+        {
+          "id": "c7",
+          "type": "mc",
+          "question": "Why are the Dead Sea Scrolls important?",
+          "options": [
+            "They are the original autographs of the New Testament",
+            "They contain the oldest known manuscript excerpts of the Hebrew Bible and illuminate Judaism's diversity",
+            "They prove Jesus was an Essene",
+            "They are the original source of the Torah"
+          ],
+          "answer": 1,
+          "explanation": "The Dead Sea Scrolls are the oldest known manuscript excerpts of the Hebrew Bible (including Isaiah, Daniel, and the Book of Enoch), illuminating the religious environment and Judaism's diversity."
+        },
+        {
+          "id": "c8",
+          "type": "multi",
+          "question": "How were Samaritans similar to Jews? (Select all that apply)",
+          "options": [
+            "Monotheistic",
+            "Believed in a Messiah",
+            "Used the same Temple in Jerusalem",
+            "Claimed to be Jewish",
+            "Accepted the full Hebrew canon"
+          ],
+          "answers": [
+            0,
+            1,
+            3
+          ],
+          "explanation": "Samaritans were monotheistic, believed in a Messiah, and claimed to be Jewish. However, they had mixed blood, their own temple, and their own Torah — and rejected other Jewish scripture."
+        },
+        {
+          "id": "c9",
+          "type": "mc",
+          "question": "When and by whom was Jerusalem destroyed (Second Temple)?",
+          "options": [
+            "586 BC by Nebuchadnezzar II",
+            "722 BC by the Assyrians",
+            "63 BC by Pompey",
+            "70 AD by Roman General Titus"
+          ],
+          "answer": 3,
+          "explanation": "70 AD by Roman General Titus. This triggered the second Jewish Diaspora and shifted Judaism from temple-centered to synagogue-centered (rabbinic Judaism)."
+        },
+        {
+          "id": "c10",
+          "type": "multi",
+          "question": "What were the three requirements to become a Jew? (Select all that apply)",
+          "options": [
+            "Ritual Purification",
+            "Circumcision",
+            "Living the Law of Moses",
+            "Animal Sacrifice",
+            "Speaking Hebrew"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "The three requirements were Ritual Purification, Circumcision, and Living the Law of Moses."
+        },
+        {
+          "id": "c11",
+          "type": "mc",
+          "question": "What does 'Soteriology' mean?",
+          "options": [
+            "The study of last things and afterlife",
+            "The study of the Jewish Diaspora",
+            "The study of Christ's role as Savior — how Jesus saves humanity",
+            "The study of Jewish law"
+          ],
+          "answer": 2,
+          "explanation": "'Soter' means savior. Soteriology is specifically a Christian theological concept — the study of Christ's role as Savior."
+        },
+        {
+          "id": "c12",
+          "type": "mc",
+          "question": "What is Sheol?",
+          "options": [
+            "The Jewish concept of Hell, a place of punishment",
+            "Heaven in Jewish theology",
+            "The Jewish concept of the underworld/spirit world, where people are reunited with ancestors",
+            "A synagogue in ancient Jerusalem"
+          ],
+          "answer": 2,
+          "explanation": "Sheol is the Jewish concept of the underworld/spirit world. After death, people go to Sheol and are reunited with ancestors — it is not a fully developed heaven/hell scheme."
+        }
+      ]
+    },
+    {
+      "category": "Literary Background",
+      "color": "#D97706",
+      "questions": [
+        {
+          "id": "l1",
+          "type": "mc",
+          "question": "What language did Jesus and his followers speak?",
+          "options": [
+            "Hebrew",
+            "Greek",
+            "Latin",
+            "Aramaic"
+          ],
+          "answer": 3,
+          "explanation": "Jesus and his followers spoke Aramaic, the common language of the region."
+        },
+        {
+          "id": "l2",
+          "type": "mc",
+          "question": "What language was the New Testament originally written in?",
+          "options": [
+            "Aramaic",
+            "Latin",
+            "Hebrew",
+            "Greek"
+          ],
+          "answer": 3,
+          "explanation": "The New Testament was originally written in Greek."
+        },
+        {
+          "id": "l3",
+          "type": "mc",
+          "question": "How many original manuscripts (autographs) of the New Testament still exist?",
+          "options": [
+            "A few dozen",
+            "Hundreds",
+            "One complete original",
+            "None"
+          ],
+          "answer": 3,
+          "explanation": "No original manuscripts (autographs) of the New Testament still exist."
+        },
+        {
+          "id": "l4",
+          "type": "mc",
+          "question": "What is the Vulgate and who produced it?",
+          "options": [
+            "A Greek manuscript collection by Origen",
+            "A Latin translation of the Bible by Jerome",
+            "The first English Bible by Wycliffe",
+            "An Aramaic targum by Ezra"
+          ],
+          "answer": 1,
+          "explanation": "The Vulgate is a Latin translation of the Bible produced by Jerome."
+        },
+        {
+          "id": "l5",
+          "type": "mc",
+          "question": "What process is most responsible for the majority of errors in New Testament manuscripts?",
+          "options": [
+            "Translation",
+            "Transmission (copying by hand)",
+            "Canonization decisions",
+            "Political censorship"
+          ],
+          "answer": 1,
+          "explanation": "Transmission — the process of copying manuscripts by hand — is responsible for the majority of errors in the New Testament manuscripts."
+        },
+        {
+          "id": "l6",
+          "type": "mc",
+          "question": "What was the first Bible printed in English?",
+          "options": [
+            "The King James Bible",
+            "The Tyndale Bible",
+            "The Wycliffe Bible",
+            "The Geneva Bible"
+          ],
+          "answer": 2,
+          "explanation": "The Wycliffe Bible (1382) was the first Bible printed in English."
+        },
+        {
+          "id": "l7",
+          "type": "mc",
+          "question": "Why is the Tyndale Bible so important?",
+          "options": [
+            "It was the first English Bible and was commissioned by a king",
+            "It was the first English translation directly from the original Greek, and the KJV is based on it",
+            "It was the first Bible with chapter and verse numbers",
+            "It was the first Catholic English translation"
+          ],
+          "answer": 1,
+          "explanation": "The Tyndale Bible was the first English translation directly from the original Greek. The King James Version is largely based on Tyndale's work."
+        },
+        {
+          "id": "l8",
+          "type": "mc",
+          "question": "When was the King James Bible printed, and why was it commissioned?",
+          "options": [
+            "1382, to create the first English Bible",
+            "1526, to challenge the Catholic Vulgate",
+            "1611, commissioned in 1604 by King James I to stop the Protestant trend",
+            "1769, to modernize the Tyndale Bible"
+          ],
+          "answer": 2,
+          "explanation": "The King James Bible was printed in 1611, commissioned in 1604 by King James I to produce a definitive translation and stop the Protestant trend."
+        },
+        {
+          "id": "l9",
+          "type": "mc",
+          "question": "What is the Apocrypha?",
+          "options": [
+            "Lost books of the Old Testament discovered recently",
+            "Books included in the Catholic and Eastern Orthodox canons but not Protestant, meaning 'of doubtful origin'",
+            "The oral traditions of the Pharisees",
+            "Alternative gospels rejected at Nicaea"
+          ],
+          "answer": 1,
+          "explanation": "The Apocrypha literally means 'of doubtful origin.' These books are canonical for Catholics and Eastern Orthodox Christians, but not Protestants. They provide valuable insight into the faith of that era."
+        },
+        {
+          "id": "l10",
+          "type": "mc",
+          "question": "Who provided the first list of 27 New Testament books matching our current canon?",
+          "options": [
+            "Jerome (382 AD)",
+            "Bishop Athanasius of Alexandria (367 AD)",
+            "Council of Nicaea (325 AD)",
+            "Pope Gregory I (590 AD)"
+          ],
+          "answer": 1,
+          "explanation": "Bishop Athanasius of Alexandria in 367 AD provided the first list of the 27 New Testament books that matches our current canon."
+        }
+      ]
+    },
+    {
+      "category": "Introduction to Acts",
+      "color": "#059669",
+      "questions": [
+        {
+          "id": "a1",
+          "type": "mc",
+          "question": "What is Exegesis vs. Eisegesis?",
+          "options": [
+            "Exegesis = original meaning; Eisegesis = modern application",
+            "Exegesis = literal reading; Eisegesis = symbolic reading",
+            "Exegesis = Jewish interpretation; Eisegesis = Christian interpretation",
+            "Exegesis = what they meant; Eisegesis = what it means to me"
+          ],
+          "answer": 3,
+          "explanation": "Exegesis means drawing out what the author originally meant. Eisegesis means reading one's own meaning into the text."
+        },
+        {
+          "id": "a2",
+          "type": "mc",
+          "question": "Who is Luke? What was his background and occupation?",
+          "options": [
+            "A Jewish fisherman from Galilee",
+            "A Gentile physician from Antioch",
+            "A Pharisee and lawyer from Jerusalem",
+            "A Roman soldier turned Christian"
+          ],
+          "answer": 1,
+          "explanation": "Luke was a Gentile physician from Antioch. He wrote the Gospel of Luke and the Book of Acts, and his Greek is the most sophisticated in the New Testament."
+        },
+        {
+          "id": "a3",
+          "type": "multi",
+          "question": "What are the four themes of the Book of Acts? (Select all that apply)",
+          "options": [
+            "Geographic spread of the Gospel",
+            "Jewish to Jew + Gentile inclusion",
+            "Role of the Holy Ghost",
+            "Defense of Christianity",
+            "Paul's journey to Rome"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "explanation": "The four themes are: (1) Geographic spread of the Gospel, (2) Jewish to Jew + Gentile inclusion, (3) Role of the Holy Ghost, and (4) Defense of Christianity."
+        },
+        {
+          "id": "a4",
+          "type": "mc",
+          "question": "To whom is the Book of Acts addressed?",
+          "options": [
+            "The Romans",
+            "The Church in Antioch",
+            "Theophilus",
+            "The Twelve Apostles"
+          ],
+          "answer": 2,
+          "explanation": "The Book of Acts is addressed to Theophilus (as is the Gospel of Luke)."
+        }
+      ]
+    },
+    {
+      "category": "Acts 1–5",
+      "color": "#DC2626",
+      "questions": [
+        {
+          "id": "a15_1",
+          "type": "mc",
+          "question": "What does 'passion' mean in a New Testament context?",
+          "options": [
+            "Intense love or emotion",
+            "The suffering and Atonement of Jesus",
+            "The resurrection of Jesus",
+            "The baptism of Jesus"
+          ],
+          "answer": 1,
+          "explanation": "In NT context, 'passion' refers to the suffering and Atonement of Jesus."
+        },
+        {
+          "id": "a15_2",
+          "type": "mc",
+          "question": "What happened during Jesus's forty-day ministry after the resurrection?",
+          "options": [
+            "Jesus traveled to Rome",
+            "Jesus relayed sacred teachings (gnosis) between His resurrection and Ascension",
+            "Jesus appeared to over 500 people in the marketplace",
+            "Jesus dictated scripture to the apostles"
+          ],
+          "answer": 1,
+          "explanation": "During the forty-day ministry, Jesus relayed sacred teachings (gnosis) between His resurrection and Ascension."
+        },
+        {
+          "id": "a15_3",
+          "type": "mc",
+          "question": "Who replaced Judas Iscariot as a member of the Twelve?",
+          "options": [
+            "Paul",
+            "Barnabas",
+            "Matthias",
+            "Stephen"
+          ],
+          "answer": 2,
+          "explanation": "Matthias was chosen to replace Judas Iscariot."
+        },
+        {
+          "id": "a15_4",
+          "type": "mc",
+          "question": "What is the Day of Pentecost?",
+          "options": [
+            "The day Jesus was baptized",
+            "50 days after Passover, first fruits harvest, to remember Noah's covenant; now associated with the miraculous manifestation of the Holy Spirit",
+            "The day Jesus ascended into heaven",
+            "The Jewish New Year"
+          ],
+          "answer": 1,
+          "explanation": "Pentecost is 50 days after Passover, originally a first fruits harvest celebration to remember Noah's covenant. It is now associated with the miraculous manifestation of the Holy Spirit described in Acts 2."
+        },
+        {
+          "id": "a15_5",
+          "type": "multi",
+          "question": "What are the four parts of the Pentecostal package (as described by Peter in Acts 2)? (Select all that apply)",
+          "options": [
+            "Repentance",
+            "Baptism",
+            "Gift of the Holy Ghost",
+            "Enduring to the End",
+            "Faith"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "explanation": "The four parts are: Repentance, Baptism, Gift of the Holy Ghost, and Enduring to the End. Peter does NOT explicitly mention faith in this passage."
+        },
+        {
+          "id": "a15_6",
+          "type": "mc",
+          "question": "Who was Barnabas?",
+          "options": [
+            "A Roman centurion who became a disciple",
+            "A Pharisee who debated Paul",
+            "A Levite from Cyprus who sold a field and gave proceeds to the apostles",
+            "One of the original Twelve Apostles"
+          ],
+          "answer": 2,
+          "explanation": "Barnabas was a Levite from Cyprus who sold a field and gave the proceeds to the apostles (Acts 4)."
+        },
+        {
+          "id": "a15_7",
+          "type": "mc",
+          "question": "What was the sin of Ananias and Sapphira?",
+          "options": [
+            "Worshipping idols in the Temple",
+            "Lying to the Holy Spirit about their donation while secretly keeping some back",
+            "Refusing to be baptized",
+            "Plotting against the apostles"
+          ],
+          "answer": 1,
+          "explanation": "Their sin was lying to the Holy Spirit about their donation — they claimed to give all the proceeds from their land sale but secretly kept some back (Acts 5)."
+        }
+      ]
+    },
+    {
+      "category": "Acts 6–8, 10–12",
+      "color": "#9333EA",
+      "questions": [
+        {
+          "id": "a2_1",
+          "type": "mc",
+          "question": "Who was Stephen?",
+          "options": [
+            "A Roman soldier who converted to Christianity",
+            "A Hellenist charged with blasphemy who became Christianity's first martyr",
+            "One of the original Twelve Apostles",
+            "A Pharisee who debated Paul"
+          ],
+          "answer": 1,
+          "explanation": "Stephen was a Hellenist charged with blasphemy and speaking against the Law and the Temple. He was stoned after his speech, becoming the first Christian martyr."
+        },
+        {
+          "id": "a2_2",
+          "type": "mc",
+          "question": "Who held the clothes of those who stoned Stephen?",
+          "options": [
+            "Barnabas",
+            "Peter",
+            "Saul",
+            "James"
+          ],
+          "answer": 2,
+          "explanation": "Saul (later Paul) held the clothes of those who stoned Stephen (Acts 7:58)."
+        },
+        {
+          "id": "a2_3",
+          "type": "mc",
+          "question": "What is the significance of the Ethiopian eunuch (Acts 8)?",
+          "options": [
+            "He was the first Gentile to receive the Holy Spirit",
+            "He crossed ethnic and physical inclusion boundaries — not circumcised, but a God-fearing person",
+            "He was a Roman soldier who believed in Jesus",
+            "He translated the scriptures into Amharic"
+          ],
+          "answer": 1,
+          "explanation": "The Ethiopian eunuch was a God-fearing person who was not circumcised. His baptism expanded the church's boundaries by crossing ethnic and physical lines."
+        },
+        {
+          "id": "a2_4",
+          "type": "mc",
+          "question": "Who was Cornelius and why is he significant?",
+          "options": [
+            "A Jewish high priest who believed in Jesus",
+            "A Roman Centurion and God-fearer who was baptized while uncircumcised",
+            "A Greek philosopher who converted to Christianity",
+            "A Samaritan leader who hosted the apostles"
+          ],
+          "answer": 1,
+          "explanation": "Cornelius was a Roman Centurion and God-fearer who was wealthy. He was baptized while uncircumcised, marking a key expansion of the church to Gentiles."
+        },
+        {
+          "id": "a2_5",
+          "type": "mc",
+          "question": "What was the significance of Peter's vision in Acts 10 (the sheet with animals)?",
+          "options": [
+            "It revealed that Peter would travel to Rome",
+            "It challenged dietary restrictions and redefined the church's boundaries — an 'Abrahamic test'",
+            "It predicted the destruction of the Temple",
+            "It confirmed that the Sabbath was no longer required"
+          ],
+          "answer": 1,
+          "explanation": "Peter's vision challenged dietary restrictions and boundaries of table fellowship. It served as an 'Abrahamic test' and redefined the church's boundaries to include Gentiles."
+        },
+        {
+          "id": "a2_6",
+          "type": "multi",
+          "question": "What were the four cultural markers of Judaism? (Select all that apply)",
+          "options": [
+            "Circumcision",
+            "Sabbath Observance",
+            "Purity Regulations",
+            "Dietary Restrictions",
+            "Temple Pilgrimage"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "explanation": "The four cultural markers were: Circumcision, Sabbath Observance, Purity Regulations, and Dietary Restrictions."
+        }
+      ]
+    },
+    {
+      "category": "Acts 9, 13–14 (Paul)",
+      "color": "#0891B2",
+      "questions": [
+        {
+          "id": "p1",
+          "type": "mc",
+          "question": "What were the earliest followers of Jesus called?",
+          "options": [
+            "Christians",
+            "Nazarenes",
+            "Followers of the Way",
+            "The Saints"
+          ],
+          "answer": 2,
+          "explanation": "The earliest followers of Jesus were called 'Followers of the Way.'"
+        },
+        {
+          "id": "p2",
+          "type": "multi",
+          "question": "How was Paul a citizen of three worlds? (Select all that apply)",
+          "options": [
+            "Jewish (religion)",
+            "Greek (culture)",
+            "Roman (citizen)",
+            "Aramaic (language)",
+            "Egyptian (birth)"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "Paul was a citizen of three worlds: Jewish by religion, Greek by culture, and Roman by citizenship."
+        },
+        {
+          "id": "p3",
+          "type": "mc",
+          "question": "Which Jewish party did Paul most closely align with?",
+          "options": [
+            "Sadducees",
+            "Essenes",
+            "Zealots",
+            "Pharisees"
+          ],
+          "answer": 3,
+          "explanation": "Paul was a Pharisee before his conversion."
+        },
+        {
+          "id": "p4",
+          "type": "mc",
+          "question": "What is the significance of the shift from 'Saul' to 'Paul'?",
+          "options": [
+            "Paul received a new name from God at his conversion",
+            "Paul was his Roman/Greek nickname meaning 'little dog'; not a new name — he used it as he went to the Gentiles",
+            "Paul changed his name to distance himself from his Jewish identity",
+            "The apostles gave him the name Paul after his baptism"
+          ],
+          "answer": 1,
+          "explanation": "Paul was his Roman/Greek nickname, meaning 'little dog.' It was not a new name given at conversion — he simply used it more as he ministered to Gentiles."
+        },
+        {
+          "id": "p5",
+          "type": "mc",
+          "question": "What was Saul's occupation prior to his vision of Jesus?",
+          "options": [
+            "A Roman tax collector",
+            "A fisherman",
+            "A tentmaker or leatherworker",
+            "A scribe in the Sanhedrin"
+          ],
+          "answer": 2,
+          "explanation": "Saul was a tentmaker or leatherworker before (and during) his ministry."
+        },
+        {
+          "id": "p6",
+          "type": "mc",
+          "question": "Who served as Paul's first missionary companion?",
+          "options": [
+            "Silas",
+            "Timothy",
+            "Mark",
+            "Barnabas"
+          ],
+          "answer": 3,
+          "explanation": "Barnabas served as Paul's first missionary companion."
+        },
+        {
+          "id": "p7",
+          "type": "mc",
+          "question": "What happened to Mark (John Mark) on Paul's first mission?",
+          "options": [
+            "He was martyred in Lystra",
+            "He was a young man who left the mission; later he was with Peter, wrote a gospel, and founded the church at Alexandria",
+            "He became Paul's main disciple and replaced Barnabas",
+            "He stayed in Antioch as leader of the church there"
+          ],
+          "answer": 1,
+          "explanation": "Mark (a relative of Barnabas) left the first mission early. He later worked with Peter, wrote the Gospel of Mark, and is credited with founding the church at Alexandria."
+        },
+        {
+          "id": "p8",
+          "type": "mc",
+          "question": "Where did Paul go on his first missionary journey (47–48 AD)?",
+          "options": [
+            "Rome, Corinth, Athens, Philippi",
+            "Perga, Antioch, Iconium, Lystra — centered in Antioch",
+            "Ephesus, Thessalonica, Berea, Athens",
+            "Damascus, Jerusalem, Tarsus, Antioch"
+          ],
+          "answer": 1,
+          "explanation": "Paul's first missionary journey (47–48 AD) covered Perga, Antioch, Iconium, and Lystra, with the center in Antioch."
+        },
+        {
+          "id": "p9",
+          "type": "multi",
+          "question": "What are the four parts of a Pauline epistle? (Select all that apply)",
+          "options": [
+            "Opening",
+            "Thanksgiving",
+            "Main Body (Indicative + Imperative)",
+            "Closing (Signature of sender)",
+            "Doxology"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "explanation": "The four parts are: Opening, Thanksgiving, Main Body (Indicative + Imperative), and Closing (Signature of sender)."
+        }
+      ]
+    },
+    {
+      "category": "Galatians & Acts 15",
+      "color": "#BE185D",
+      "questions": [
+        {
+          "id": "g1",
+          "type": "mc",
+          "question": "What is the core problem in Galatia that Paul addresses in his letter?",
+          "options": [
+            "Sexual immorality in the church",
+            "Circumcision being required; Judaizers claiming Paul is inferior and not a true apostle",
+            "Idol worship among Gentile converts",
+            "Rejection of the resurrection"
+          ],
+          "answer": 1,
+          "explanation": "Paul addresses the circumcision issue — Judaizers were claiming that Gentile converts must be circumcised and that Paul's authority was inferior to the Jerusalem apostles."
+        },
+        {
+          "id": "g2",
+          "type": "mc",
+          "question": "What does Paul mean by calling himself an 'apostle' in Galatians 1:1?",
+          "options": [
+            "He is claiming to be equal to Peter and James",
+            "He claims divine authority directly from the risen Christ, not from human appointment",
+            "He is using the term loosely to mean a traveling missionary",
+            "He received his authority from the church in Antioch"
+          ],
+          "answer": 1,
+          "explanation": "Paul uses 'apostle' (one sent) to claim direct divine authority from the risen Christ, not from human appointment — legitimizing his mission to the Gentiles."
+        },
+        {
+          "id": "g3",
+          "type": "mc",
+          "question": "What term do scholars use for Paul's opponents in Galatia?",
+          "options": [
+            "Ebionites",
+            "Judaizers",
+            "Gnostics",
+            "Marcionites"
+          ],
+          "answer": 1,
+          "explanation": "Paul's opponents are called Judaizers — Jewish Christians who insisted Gentiles must follow Torah (especially circumcision) to be saved."
+        },
+        {
+          "id": "g4",
+          "type": "mc",
+          "question": "Why did Paul have a dispute with Peter (Galatians 2)?",
+          "options": [
+            "Peter denied Jesus for a second time publicly",
+            "Peter stopped eating with Gentile believers after Jewish men from James arrived, which Paul called hypocrisy",
+            "Peter refused to baptize Gentiles",
+            "Peter taught that circumcision was unnecessary even for Jews"
+          ],
+          "answer": 1,
+          "explanation": "Peter stopped eating with Gentile believers after 'certain men from James' arrived, fearing criticism from the circumcision party. Paul rebuked this publicly as hypocrisy."
+        },
+        {
+          "id": "g5",
+          "type": "mc",
+          "question": "What does Paul mean by 'faith' (pistis)?",
+          "options": [
+            "Intellectual belief in God's existence",
+            "Allegiance and loyalty; trust in Christ",
+            "Following the Torah faithfully",
+            "The spiritual gift of miraculous belief"
+          ],
+          "answer": 1,
+          "explanation": "For Paul, pistis means allegiance/loyalty — trust and faithfulness to Christ."
+        },
+        {
+          "id": "g6",
+          "type": "mc",
+          "question": "What does Paul mean by 'works' in Galatians?",
+          "options": [
+            "Good deeds and charitable acts",
+            "Works of the Law of Moses (Torah observance)",
+            "Spiritual gifts and miracles",
+            "Faith expressed through action"
+          ],
+          "answer": 1,
+          "explanation": "For Paul, 'works' specifically means 'works of the Law' — Torah observance as a requirement for covenant membership."
+        },
+        {
+          "id": "g7",
+          "type": "mc",
+          "question": "What does 'justification' mean for Paul?",
+          "options": [
+            "Being morally perfect before God",
+            "Being declared not guilty; covenant membership/righteousness in Christ",
+            "The process of becoming holy over time",
+            "The act of confessing one's sins"
+          ],
+          "answer": 1,
+          "explanation": "Justification means being declared not guilty; it refers to covenant membership and righteousness in Christ."
+        },
+        {
+          "id": "g8",
+          "type": "mc",
+          "question": "Who is James at the Council of Jerusalem?",
+          "options": [
+            "James the son of Zebedee, one of the Twelve",
+            "The brother of Jesus, leader of the Jerusalem church, important at the Council",
+            "A Pharisee who converted after the resurrection",
+            "The author of the Epistle of James who wrote from Rome"
+          ],
+          "answer": 1,
+          "explanation": "James the brother of Jesus was the leader of the Jerusalem church and played a key role at the Council of Jerusalem."
+        },
+        {
+          "id": "g9",
+          "type": "mc",
+          "question": "What was the verdict at the Council of Jerusalem?",
+          "options": [
+            "All Gentile converts must be circumcised and follow the Law of Moses",
+            "Gentile converts do not need circumcision; they should abstain from idol food, sexual immorality, strangled animals, and blood",
+            "The church would split into Jewish and Gentile branches",
+            "Paul's teachings were declared heretical"
+          ],
+          "answer": 1,
+          "explanation": "The Council decided Gentiles did not need to be circumcised or keep the whole Law. They were asked to abstain from: (1) food polluted by idols, (2) sexual immorality, (3) meat of strangled animals, and (4) blood."
+        },
+        {
+          "id": "g10",
+          "type": "mc",
+          "question": "Why did Paul and Barnabas part ways?",
+          "options": [
+            "They disagreed about whether to preach to Gentiles",
+            "They fought over John Mark — Barnabas wanted to take him; Paul disagreed. Barnabas took Mark to Cyprus; Paul took Silas.",
+            "Paul was arrested and Barnabas left the mission",
+            "They had a theological disagreement about circumcision"
+          ],
+          "answer": 1,
+          "explanation": "Paul and Barnabas parted ways before the second missionary journey over John Mark. Barnabas took Mark to Cyprus; Paul took Silas."
+        }
+      ]
+    }
+  ]
+}

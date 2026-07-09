@@ -1,0 +1,17 @@
+{
+  "classes": [
+    {
+      "id": "religion-212",
+      "name": "Religion 212",
+      "color": "#7C3AED",
+      "sets": [
+        {
+          "id": "religion-212-exam-1",
+          "title": "Exam 1",
+          "subtitle": "New Testament — Backgrounds & Acts",
+          "file": "sets/religion-212/exam-1.json"
+        }
+      ]
+    }
+  ]
+}
