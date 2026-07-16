@@ -1,0 +1,734 @@
+{
+  "id": "ndfs-100-exam-2",
+  "class": "NDFS 100",
+  "title": "Exam 2",
+  "subtitle": "Lipids, Protein & Energy Balance (Ch. 5–7)",
+  "categories": [
+    {
+      "category": "Ch. 5 — Lipids",
+      "color": "#F59E0B",
+      "questions": [
+        {
+          "id": "l1",
+          "type": "mc",
+          "question": "What is the chemical structure of a triglyceride?",
+          "options": [
+            "1 glycerol backbone + 3 fatty acids",
+            "Glycerol + 2 fatty acids + a phosphate head",
+            "Four fused carbon rings",
+            "3 glycerol molecules + 1 fatty acid"
+          ],
+          "answer": 0,
+          "explanation": "A triglyceride is 1 glycerol backbone + 3 fatty acids — the main storage and dietary form of fat."
+        },
+        {
+          "id": "l2",
+          "type": "mc",
+          "question": "Why is a saturated fatty acid solid at room temperature?",
+          "options": [
+            "It has many double bonds that kink the chain",
+            "It has no double bonds, so its straight chains pack tightly",
+            "It contains a phosphate head",
+            "It is built from fused carbon rings"
+          ],
+          "answer": 1,
+          "explanation": "Saturated = no double bonds → straight chains pack tightly → solid (butter, lard). Unsaturated fats have kinks → liquid (oils)."
+        },
+        {
+          "id": "l3",
+          "type": "mc",
+          "question": "What distinguishes a monounsaturated from a polyunsaturated fatty acid?",
+          "options": [
+            "Mono has no double bonds; poly has one",
+            "Mono has one double bond; poly has two or more",
+            "Mono is always solid; poly is always liquid",
+            "Mono comes from animals; poly from plants"
+          ],
+          "answer": 1,
+          "explanation": "Mono = 1 double bond; Poly = 2 or more double bonds."
+        },
+        {
+          "id": "l4",
+          "type": "mc",
+          "question": "According to the exam tip, more double bonds in a fat means it is...",
+          "options": [
+            "More solid and more shelf-stable",
+            "More liquid and more prone to spoilage",
+            "Higher in cholesterol",
+            "Lower in calories"
+          ],
+          "answer": 1,
+          "explanation": "★ Exam tip: More double bonds = more liquid AND more prone to spoilage. Saturation drives whether a fat is solid or liquid."
+        },
+        {
+          "id": "l5",
+          "type": "mc",
+          "question": "A phospholipid such as lecithin acts in food as a(n)...",
+          "options": [
+            "Preservative",
+            "Emulsifier",
+            "Sweetener",
+            "Leavening agent"
+          ],
+          "answer": 1,
+          "explanation": "Phospholipids are amphipathic (water-loving head, fat-loving tails), so they build cell membranes and act as emulsifiers (e.g., lecithin)."
+        },
+        {
+          "id": "l6",
+          "type": "multi",
+          "question": "Which statements are true of phospholipids? (Select all that apply)",
+          "options": [
+            "Made of glycerol + 2 fatty acids + a phosphate head",
+            "Amphipathic — water-loving head and fat-loving tails",
+            "Make up cell membranes",
+            "Composed of four fused carbon rings",
+            "The body's main storage form of fat"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "Phospholipids = glycerol + 2 fatty acids + phosphate head, are amphipathic, and form cell membranes. Four fused rings describe sterols; the storage form of fat is triglycerides."
+        },
+        {
+          "id": "l7",
+          "type": "mc",
+          "question": "Cholesterol is a sterol the body uses to make...",
+          "options": [
+            "Chylomicrons only",
+            "Hormones, vitamin D, and bile",
+            "The essential fatty acids",
+            "Glycerol and phosphate"
+          ],
+          "answer": 1,
+          "explanation": "Cholesterol (four fused carbon rings) is the main sterol — used to make hormones, vitamin D, and bile."
+        },
+        {
+          "id": "l8",
+          "type": "mc",
+          "question": "Which two fatty acids are essential (the body cannot make them)?",
+          "options": [
+            "Oleic and stearic",
+            "Linoleic and linolenic",
+            "Palmitic and lauric",
+            "Lecithin and cholesterol"
+          ],
+          "answer": 1,
+          "explanation": "Linoleic and linolenic are the two essential fatty acids — the body can't make them, so they must come from food."
+        },
+        {
+          "id": "l9",
+          "type": "mc",
+          "question": "Saturated fats are mostly from animals. Which two PLANT oils are the exceptions (high in saturated fat)?",
+          "options": [
+            "Olive and canola",
+            "Corn and soybean",
+            "Palm and coconut",
+            "Peanut and sunflower"
+          ],
+          "answer": 2,
+          "explanation": "★ Exam tip: Saturated = solid + mostly animal; the two plant exceptions are palm and coconut oil."
+        },
+        {
+          "id": "l10",
+          "type": "mc",
+          "question": "Where does most fat digestion occur, and what emulsifies the fat there?",
+          "options": [
+            "Stomach; hydrochloric acid",
+            "Small intestine; bile (made in liver, stored in gallbladder)",
+            "Mouth; salivary lipase",
+            "Large intestine; bacteria"
+          ],
+          "answer": 1,
+          "explanation": "The small intestine is the main site. Bile (made in the liver, stored in the gallbladder) emulsifies fat; pancreatic lipase then breaks triglycerides into fatty acids + monoglycerides."
+        },
+        {
+          "id": "l11",
+          "type": "mc",
+          "question": "After absorption into intestinal cells, dietary fat is repackaged into chylomicrons and travels through the ___ before entering the blood.",
+          "options": [
+            "Liver",
+            "Lymph",
+            "Kidneys",
+            "Stomach"
+          ],
+          "answer": 1,
+          "explanation": "Fat digestion products enter intestinal cells, are repackaged into chylomicrons, and travel through the lymph before entering the blood."
+        },
+        {
+          "id": "l12",
+          "type": "mc",
+          "question": "As particles go chylomicron → VLDL → LDL → HDL, they become...",
+          "options": [
+            "Less dense (more fat, less protein)",
+            "Denser (less fat, more protein)",
+            "Larger and more buoyant",
+            "Higher in fat only"
+          ],
+          "answer": 1,
+          "explanation": "★ Exam tip: chylomicron → VLDL → LDL → HDL, particles get denser (less fat, more protein). Remember HDL = Healthy = to the liver."
+        },
+        {
+          "id": "l13",
+          "type": "mc",
+          "question": "Which vitamins does dietary fat carry and help absorb?",
+          "options": [
+            "B and C",
+            "A, D, E, and K",
+            "C and folate",
+            "Niacin and thiamin"
+          ],
+          "answer": 1,
+          "explanation": "Fat carries and absorbs the fat-soluble vitamins A, D, E, and K."
+        },
+        {
+          "id": "l14",
+          "type": "mc",
+          "question": "What is the AMDR (acceptable range) for total calories from fat?",
+          "options": [
+            "10–35%",
+            "20–35%",
+            "45–65%",
+            "Less than 10%"
+          ],
+          "answer": 1,
+          "explanation": "The Food & Nutrition Board's AMDR for fat is 20–35% of total calories."
+        },
+        {
+          "id": "l15",
+          "type": "mc",
+          "question": "What best describes atherosclerosis?",
+          "options": [
+            "A sudden drop in blood cholesterol",
+            "Plaque (cholesterol, fat, inflammation) builds up inside artery walls, narrowing them",
+            "A deficiency of essential fatty acids",
+            "Excess bile in the gallbladder"
+          ],
+          "answer": 1,
+          "explanation": "Atherosclerosis is plaque buildup (cholesterol, fat, inflammation) inside artery walls → arteries narrow and stiffen → can block blood flow → heart attack or stroke."
+        }
+      ],
+      "flashcards": [
+        {
+          "front": "Triglyceride",
+          "back": "1 glycerol backbone + 3 fatty acids — the main storage and dietary form of fat."
+        },
+        {
+          "front": "Amphipathic",
+          "back": "Having both a water-loving (hydrophilic) head and fat-loving (hydrophobic) tails — describes phospholipids."
+        },
+        {
+          "front": "Chylomicron",
+          "back": "Lipoprotein that carries absorbed dietary fat from intestinal cells through the lymph into the blood."
+        },
+        {
+          "front": "HDL",
+          "back": "\"Healthy\" lipoprotein; densest (most protein, least fat), carries cholesterol back to the liver."
+        }
+      ]
+    },
+    {
+      "category": "Ch. 6 — Protein",
+      "color": "#DC2626",
+      "questions": [
+        {
+          "id": "pr1",
+          "type": "mc",
+          "question": "Which element makes protein unique compared with carbohydrates and fats?",
+          "options": [
+            "Carbon",
+            "Oxygen",
+            "Nitrogen",
+            "Hydrogen"
+          ],
+          "answer": 2,
+          "explanation": "Protein contains carbon, hydrogen, oxygen, and — uniquely — nitrogen. Nitrogen sets protein apart from carbs and fat."
+        },
+        {
+          "id": "pr2",
+          "type": "mc",
+          "question": "How many amino acids are there in total, and how many are essential?",
+          "options": [
+            "9 total, 20 essential",
+            "20 total, 9 essential",
+            "20 total, 11 essential",
+            "11 total, 9 essential"
+          ],
+          "answer": 1,
+          "explanation": "There are 20 amino acids total; 9 are essential (must come from food)."
+        },
+        {
+          "id": "pr3",
+          "type": "mc",
+          "question": "Why must ALL essential amino acids be present to build a given protein?",
+          "options": [
+            "Protein synthesis is all-or-nothing — if one runs low (the limiting amino acid), that protein can't be built",
+            "Each amino acid builds a separate organ",
+            "The body stores extra amino acids for later use",
+            "Non-essential amino acids cannot be made by the body"
+          ],
+          "answer": 0,
+          "explanation": "Protein synthesis is all-or-nothing. If even one essential amino acid runs low (the 'limiting' amino acid), the body can't build that protein."
+        },
+        {
+          "id": "pr4",
+          "type": "mc",
+          "question": "A peptide bond forms through a condensation reaction when...",
+          "options": [
+            "Two fatty acids attach to a glycerol",
+            "The amino group of one amino acid links to the acid group of the next",
+            "Heat unravels a protein's shape",
+            "Nitrogen is removed as urea"
+          ],
+          "answer": 1,
+          "explanation": "A peptide bond forms when the amino group of one amino acid links to the acid group of the next (a condensation reaction)."
+        },
+        {
+          "id": "pr5",
+          "type": "mc",
+          "question": "What is denaturation of a protein?",
+          "options": [
+            "Building a protein from amino acids",
+            "Heat, acid, or agitation unravels the protein's shape, so it loses function (usually permanent)",
+            "Removing nitrogen as urea",
+            "Absorbing amino acids into the blood"
+          ],
+          "answer": 1,
+          "explanation": "Denaturation: heat, acid, or agitation unravels the shape → the protein loses function (e.g., cooking an egg, stomach acid). The unfolding is generally permanent."
+        },
+        {
+          "id": "pr6",
+          "type": "mc",
+          "question": "What ultimately determines a protein's function?",
+          "options": [
+            "Its total calorie content",
+            "The order of amino acids, which sets its folded 3-D shape",
+            "The number of peptide bonds only",
+            "Whether it is animal- or plant-based"
+          ],
+          "answer": 1,
+          "explanation": "Sequence → shape → function: the order of amino acids makes the chain fold into a specific 3-D shape, and that shape determines what the protein does."
+        },
+        {
+          "id": "pr7",
+          "type": "multi",
+          "question": "Which foods are HIGH-quality (complete) proteins containing all essential amino acids? (Select all that apply)",
+          "options": [
+            "Meat, fish, eggs, dairy",
+            "Soy",
+            "Grains",
+            "Vegetables",
+            "Legumes (beans, lentils)"
+          ],
+          "answers": [
+            0,
+            1
+          ],
+          "explanation": "Complete proteins are animal foods (meat, fish, eggs, dairy) plus soy. Legumes are moderate quality; grains and vegetables are low quality (incomplete)."
+        },
+        {
+          "id": "pr8",
+          "type": "mc",
+          "question": "Legumes (beans, lentils, peanuts) are considered what quality of protein?",
+          "options": [
+            "High / complete",
+            "Moderate quality",
+            "Low / incomplete",
+            "Not a protein source"
+          ],
+          "answer": 1,
+          "explanation": "Legumes (beans, lentils, peanuts) are moderate-quality protein."
+        },
+        {
+          "id": "pr9",
+          "type": "mc",
+          "question": "What are complementary proteins?",
+          "options": [
+            "Two animal proteins eaten together",
+            "Combining two incomplete plant proteins so their limiting amino acids cover each other",
+            "Proteins that denature at the same temperature",
+            "Protein powders taken as supplements"
+          ],
+          "answer": 1,
+          "explanation": "Complementary proteins combine two incomplete plant proteins so their limiting amino acids cover each other (e.g., rice + beans, peanut butter + bread)."
+        },
+        {
+          "id": "pr10",
+          "type": "mc",
+          "question": "Which nutrient is the classic 'vegan gap' because it occurs naturally in animal foods only?",
+          "options": [
+            "Vitamin C",
+            "Iron",
+            "Vitamin B12",
+            "Calcium"
+          ],
+          "answer": 2,
+          "explanation": "★ Exam tip: B12 is the classic vegan gap — it's naturally found in animal foods only."
+        },
+        {
+          "id": "pr11",
+          "type": "mc",
+          "question": "In the stomach, what starts breaking protein into shorter chains?",
+          "options": [
+            "Bile",
+            "The enzyme pepsin (with hydrochloric acid denaturing the protein first)",
+            "Pancreatic lipase",
+            "Amylase"
+          ],
+          "answer": 1,
+          "explanation": "In the stomach, hydrochloric acid denatures protein and the enzyme pepsin starts breaking it into shorter chains."
+        },
+        {
+          "id": "pr12",
+          "type": "mc",
+          "question": "Where is protein finally broken into individual amino acids, and by what?",
+          "options": [
+            "Stomach; pepsin",
+            "Small intestine; pancreatic and intestinal proteases",
+            "Mouth; salivary enzymes",
+            "Large intestine; bacteria"
+          ],
+          "answer": 1,
+          "explanation": "In the small intestine, pancreatic and intestinal proteases finish the job, breaking chains into individual amino acids, which are absorbed into the blood and sent to the liver."
+        },
+        {
+          "id": "pr13",
+          "type": "multi",
+          "question": "Which are functions of protein in the body? (Select all that apply)",
+          "options": [
+            "Build and repair tissue (its top priority)",
+            "Make enzymes, hormones, and antibodies",
+            "Maintain fluid and acid–base (pH) balance",
+            "Serve as the body's FIRST choice for energy",
+            "Transport substances in the blood"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            4
+          ],
+          "explanation": "Protein builds/repairs tissue, makes enzymes/hormones/antibodies, maintains fluid & pH balance, and transports substances. It provides energy only as a LAST resort — not the first choice."
+        },
+        {
+          "id": "pr14",
+          "type": "mc",
+          "question": "A person in POSITIVE nitrogen balance is...",
+          "options": [
+            "Losing tissue (illness, injury, starvation)",
+            "A healthy, stable adult at equilibrium",
+            "Building tissue (growth, pregnancy, muscle gain)",
+            "Eating no protein at all"
+          ],
+          "answer": 2,
+          "explanation": "Positive = building tissue (growth, pregnancy, muscle gain). Equilibrium = healthy stable adult. Negative = losing tissue (illness, injury, starvation)."
+        },
+        {
+          "id": "pr15",
+          "type": "mc",
+          "question": "What is the AMDR for calories from protein?",
+          "options": [
+            "10–35%",
+            "20–35%",
+            "45–65%",
+            "0.8%"
+          ],
+          "answer": 0,
+          "explanation": "The AMDR for protein is 10–35% of calories."
+        },
+        {
+          "id": "pr16",
+          "type": "mc",
+          "question": "What is the RDA for protein?",
+          "options": [
+            "0.8 g per kg of body weight",
+            "2.2 g per kg of body weight",
+            "0.8 g per lb of body weight",
+            "35 g per day for everyone"
+          ],
+          "answer": 0,
+          "explanation": "The RDA is 0.8 g of protein per kg of body weight."
+        },
+        {
+          "id": "pr17",
+          "type": "mc",
+          "question": "A 175-lb person's protein RDA is about 64 g/day. How is that calculated?",
+          "options": [
+            "175 × 0.8",
+            "175 ÷ 2.2 = 79.5 kg, then × 0.8",
+            "175 × 2.2 × 0.8",
+            "175 ÷ 0.8"
+          ],
+          "answer": 1,
+          "explanation": "Weight in lb ÷ 2.2 = kg, then × 0.8 = grams/day. 175 ÷ 2.2 = 79.5 kg × 0.8 ≈ 64 g."
+        },
+        {
+          "id": "pr18",
+          "type": "mc",
+          "question": "What happens to protein eaten beyond what the body needs?",
+          "options": [
+            "It is stored as extra muscle protein",
+            "Nitrogen is removed (as urea) and the carbon skeleton is burned for energy or stored as fat",
+            "It is excreted unchanged",
+            "It converts directly into vitamins"
+          ],
+          "answer": 1,
+          "explanation": "★ Exam tip: Extra protein isn't stored as protein — nitrogen is removed (as urea) and the carbon skeleton is burned for energy or stored as fat."
+        },
+        {
+          "id": "pr19",
+          "type": "mc",
+          "question": "Which best describes KWASHIORKOR?",
+          "options": [
+            "Too little of BOTH calories and protein → severe wasting, 'skin and bones'",
+            "Enough calories but too little protein → swelling/edema and fatty liver",
+            "Excess protein intake straining the kidneys",
+            "A vitamin B12 deficiency"
+          ],
+          "answer": 1,
+          "explanation": "Kwashiorkor = enough calories but too little protein → swelling/edema (belly) and fatty liver, often when a child switches to a starchy diet."
+        },
+        {
+          "id": "pr20",
+          "type": "mc",
+          "question": "Which condition results from too little of BOTH calories and protein?",
+          "options": [
+            "Kwashiorkor",
+            "Marasmus",
+            "Positive nitrogen balance",
+            "Denaturation"
+          ],
+          "answer": 1,
+          "explanation": "Marasmus results from too little of both calories and protein → severe wasting, 'skin and bones,' stunted growth."
+        }
+      ],
+      "flashcards": [
+        {
+          "front": "Limiting amino acid",
+          "back": "The essential amino acid in shortest supply; it caps how much of a protein the body can build."
+        },
+        {
+          "front": "Denaturation",
+          "back": "Unraveling of a protein's 3-D shape by heat, acid, or agitation, causing loss of function (usually permanent)."
+        },
+        {
+          "front": "Complementary proteins",
+          "back": "Two incomplete plant proteins combined so their limiting amino acids cover each other (e.g., rice + beans)."
+        },
+        {
+          "front": "Kwashiorkor",
+          "back": "Enough calories but too little protein → edema (swollen belly) and fatty liver."
+        },
+        {
+          "front": "Marasmus",
+          "back": "Too little of BOTH calories and protein → severe wasting, 'skin and bones.'"
+        }
+      ]
+    },
+    {
+      "category": "Ch. 7 — Energy Balance & Body Weight",
+      "color": "#0EA5E9",
+      "questions": [
+        {
+          "id": "en1",
+          "type": "mc",
+          "question": "Which of these RAISES basal metabolic rate (BMR)?",
+          "options": [
+            "Aging and muscle loss",
+            "Low-calorie dieting",
+            "More lean muscle mass, fever, or stimulants like caffeine",
+            "Extended sleep"
+          ],
+          "answer": 2,
+          "explanation": "BMR is raised by more lean muscle mass, growth, fever, stress, stimulants (caffeine/nicotine), cold exposure, and a taller/larger body."
+        },
+        {
+          "id": "en2",
+          "type": "multi",
+          "question": "Which factors RAISE BMR? (Select all that apply)",
+          "options": [
+            "More lean muscle mass",
+            "Fever",
+            "Caffeine or nicotine",
+            "Aging",
+            "Low-calorie dieting / fasting"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "Raise BMR: more lean muscle, growth, fever, stress, stimulants, cold exposure, larger body. Aging and low-calorie dieting LOWER BMR."
+        },
+        {
+          "id": "en3",
+          "type": "mc",
+          "question": "Which of these LOWERS BMR?",
+          "options": [
+            "Gaining muscle",
+            "Fever",
+            "Aging, muscle loss, and low-calorie dieting",
+            "Cold exposure"
+          ],
+          "answer": 2,
+          "explanation": "BMR is lowered by aging, loss of muscle, and low-calorie dieting/fasting (the body conserves energy)."
+        },
+        {
+          "id": "en4",
+          "type": "mc",
+          "question": "Where does digestion fit into energy expenditure?",
+          "options": [
+            "It is the largest part of basal metabolism",
+            "It is NOT part of basal metabolism — it's the separate thermic effect of food",
+            "It lowers BMR",
+            "It is counted the same as physical activity"
+          ],
+          "answer": 1,
+          "explanation": "★ Exam tip: Digestion is NOT part of basal metabolism — it's the separate thermic effect of food."
+        },
+        {
+          "id": "en5",
+          "type": "mc",
+          "question": "What is the METRIC formula for BMI?",
+          "options": [
+            "weight (kg) ÷ height (m)²",
+            "weight (lb) × height (in)²",
+            "height (m)² ÷ weight (kg)",
+            "weight (kg) × 703"
+          ],
+          "answer": 0,
+          "explanation": "Metric BMI = kg ÷ m². (Imperial: lb ÷ in² × 703.)"
+        },
+        {
+          "id": "en6",
+          "type": "mc",
+          "question": "What is the IMPERIAL (US) formula for BMI?",
+          "options": [
+            "lb ÷ in²",
+            "lb ÷ in² × 703",
+            "kg ÷ m² × 703",
+            "lb × in² ÷ 703"
+          ],
+          "answer": 1,
+          "explanation": "Imperial BMI = lb ÷ in² × 703. Metric = kg ÷ m²."
+        },
+        {
+          "id": "en7",
+          "type": "mc",
+          "question": "What is a key limitation of BMI?",
+          "options": [
+            "It requires a blood test",
+            "It doesn't directly measure body fat — muscular people can read as 'overweight,' and it ignores where fat sits",
+            "It only works for children",
+            "It measures visceral fat directly"
+          ],
+          "answer": 1,
+          "explanation": "BMI doesn't directly measure body fat — muscular people can read as 'overweight,' and it ignores where fat is distributed."
+        },
+        {
+          "id": "en8",
+          "type": "mc",
+          "question": "Upper-body / central ('apple-shaped') fat distribution is associated with...",
+          "options": [
+            "Lower disease risk",
+            "Visceral fat around the abdomen and higher risk of heart disease and diabetes",
+            "Fat stored mainly on the hips and thighs",
+            "No difference in health risk"
+          ],
+          "answer": 1,
+          "explanation": "Upper-body/central ('apple') = visceral fat around the abdomen → higher risk of heart disease and diabetes."
+        },
+        {
+          "id": "en9",
+          "type": "mc",
+          "question": "Lower-body ('pear-shaped') fat on the hips and thighs is associated with...",
+          "options": [
+            "Higher risk of heart disease and diabetes",
+            "Lower disease risk",
+            "Visceral fat around the organs",
+            "Kwashiorkor"
+          ],
+          "answer": 1,
+          "explanation": "Lower-body ('pear') = fat on hips/thighs → lower disease risk than central/visceral fat."
+        },
+        {
+          "id": "en10",
+          "type": "mc",
+          "question": "Waist-circumference 'red flags' signaling higher risk are greater than...",
+          "options": [
+            "30 in (men) or 25 in (women)",
+            "40 in (men) or 35 in (women)",
+            "35 in (men) or 40 in (women)",
+            "50 in for everyone"
+          ],
+          "answer": 1,
+          "explanation": "Waist circumference red flags: greater than 40 inches (men) or 35 inches (women) signals higher risk."
+        },
+        {
+          "id": "en11",
+          "type": "mc",
+          "question": "What is a healthy, sustainable rate of weight loss?",
+          "options": [
+            "5–10 lb per week",
+            "1–2 lb per week",
+            "0.1 lb per week",
+            "As fast as possible"
+          ],
+          "answer": 1,
+          "explanation": "Aim for slow, steady loss — about 1–2 lb per week."
+        },
+        {
+          "id": "en12",
+          "type": "mc",
+          "question": "Why do fad diets (like a cereal 'kick start') typically fail long-term?",
+          "options": [
+            "They add too many calories",
+            "Weight drops short-term, but returns once old habits resume because the change wasn't sustainable",
+            "They build too much muscle",
+            "They permanently raise BMR"
+          ],
+          "answer": 1,
+          "explanation": "★ Exam tip: Fad diets cut calories short-term so weight drops — but it returns once old habits resume because the change wasn't sustainable. Focus on sustainable lifestyle change."
+        },
+        {
+          "id": "en13",
+          "type": "multi",
+          "question": "Which are healthy weight-management strategies? (Select all that apply)",
+          "options": [
+            "Aim for 1–2 lb loss per week",
+            "Control portions and choose whole/nutrient-dense foods",
+            "Watch liquid calories",
+            "Rely on fad/crash diets for fast results",
+            "Be physically active most days"
+          ],
+          "answers": [
+            0,
+            1,
+            2,
+            4
+          ],
+          "explanation": "Healthy strategies: slow steady loss (1–2 lb/wk), portion control, whole foods, watching liquid calories, and staying active. Fad/crash diets aren't sustainable."
+        }
+      ],
+      "flashcards": [
+        {
+          "front": "Basal Metabolic Rate (BMR)",
+          "back": "Calories the body burns at rest to stay alive. Raised by muscle, fever, stimulants; lowered by aging and dieting."
+        },
+        {
+          "front": "Thermic effect of food",
+          "back": "Energy used to digest food — separate from basal metabolism (digestion is NOT part of BMR)."
+        },
+        {
+          "front": "Apple vs. pear shape",
+          "back": "Apple = central/visceral abdominal fat (higher heart-disease & diabetes risk); pear = hip/thigh fat (lower risk)."
+        },
+        {
+          "front": "Visceral fat",
+          "back": "Fat stored around abdominal organs; linked to higher risk of heart disease and diabetes."
+        }
+      ]
+    }
+  ]
+}
