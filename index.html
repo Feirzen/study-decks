@@ -76,6 +76,20 @@
   a { color: #7cc; }
   @keyframes pulse { 0%{opacity:0} 20%{opacity:1} 70%{opacity:.6} 100%{opacity:0} }
   .glow { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+  /* --- answer feedback fx --- */
+  @keyframes shake {
+    0%,100%{transform:translateX(0)} 15%{transform:translateX(-10px)} 30%{transform:translateX(9px)}
+    45%{transform:translateX(-7px)} 60%{transform:translateX(5px)} 75%{transform:translateX(-3px)}
+  }
+  .confetti-layer { position: fixed; inset: 0; pointer-events: none; z-index: 9998; overflow: hidden; }
+  .confetti-layer i { position: absolute; top: 52%; width: 9px; height: 9px; border-radius: 2px;
+    opacity: 0; animation: confetti .9s ease-out forwards; }
+  @keyframes confetti {
+    0%{opacity:1; transform: translate(0,0) rotate(0)}
+    100%{opacity:0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot))}
+  }
+  @keyframes pop { 0%{transform:scale(.92); opacity:0} 60%{transform:scale(1.02)} 100%{transform:scale(1); opacity:1} }
+  .fbpop { animation: pop .28s ease-out; }
 </style>
 </head>
 <body>
@@ -105,7 +119,7 @@ function loadProgress(setId) {
     const raw = localStorage.getItem("fc:" + setId);
     if (raw) return JSON.parse(raw);
   } catch (e) {}
-  return { results: {}, starred: {}, known: {}, high: 0 };
+  return { results: {}, starred: {}, known: {}, high: 0, starOnly: false };
 }
 function saveProgress() {
   if (!S.set) return;
@@ -125,6 +139,8 @@ function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 function allQuestions(set) { return set.categories.flatMap(c => c.questions.map(q => ({ ...q, _cat: c }))); }
+function starredCount() { return S.set ? allQuestions(S.set).filter(q => progress.starred[q.id]).length : 0; }
+function activeScope() { return (progress.starOnly && starredCount() > 0) ? "starred" : "all"; }
 function optionOrder(q) {
   if (!orders[q.id]) orders[q.id] = shuffle(q.options.map((_, i) => i));
   return orders[q.id];
@@ -245,6 +261,7 @@ function viewSetHome() {
   const incorrect = qs.filter(q => progress.results[q.id] === "incorrect").length;
   const unanswered = total - correct - incorrect;
   const starredN = qs.filter(q => progress.starred[q.id]).length;
+  const starOnly = !!progress.starOnly && starredN > 0;
 
   const catCards = set.categories.map(c => {
     const cc = c.questions.filter(q => progress.results[q.id] === "correct").length;
@@ -262,6 +279,13 @@ function viewSetHome() {
     </button>`;
   }).join("");
 
+  const toggleBg = starOnly ? "#2a1f00" : "#161620";
+  const toggleBorder = starOnly ? "#F59E0B" : "#2a2a38";
+  const toggleColor = starOnly ? "#F59E0B" : (starredN ? "#9a9aa5" : "#555");
+  const toggleLabel = starredN
+    ? (starOnly ? `Starred only — ${starredN} card${starredN === 1 ? "" : "s"}` : `Using all cards · tap for starred only (${starredN})`)
+    : "Star questions to build a focused set";
+
   return `<div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
       <button class="backbtn" data-act="backToClass">${I.chevL}</button>
@@ -275,11 +299,14 @@ function viewSetHome() {
       <div class="stat"><div class="n" style="color:#555">${unanswered}</div><div class="l">Unanswered</div></div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <button class="pill" data-act="startFlash" data-scope="all" style="background:#1a1a24;border:1.5px solid #2a2a38;color:#f0f0f5;justify-content:center;height:52px">🃏 Flashcards</button>
-      <button class="pill" data-act="startShuffle" data-scope="all" style="background:linear-gradient(135deg,#f97316,#dc2626);color:#fff8e0;justify-content:center;height:52px">⚡ Shuffle</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <button class="pill" data-act="startFlash" style="background:#1a1a24;border:1.5px solid #2a2a38;color:#f0f0f5;justify-content:center;height:52px">Flashcards</button>
+      <button class="pill" data-act="startShuffle" style="background:linear-gradient(135deg,#f97316,#dc2626);color:#fff8e0;justify-content:center;height:52px">Shuffle</button>
     </div>
-    ${starredN ? `<button class="pill" data-act="startFlash" data-scope="starred" style="background:#2a1f00;border:1.5px solid #F59E0B;color:#F59E0B;justify-content:center;height:44px;width:100%;margin-bottom:20px">★ Review ${starredN} starred as flashcards</button>` : `<div style="margin-bottom:20px"></div>`}
+    <button class="pill" data-act="toggleStar" style="width:100%;justify-content:center;height:46px;margin-bottom:20px;background:${toggleBg};border:1.5px solid ${toggleBorder};color:${toggleColor}">
+      <span style="font-size:18px;line-height:1">${starOnly ? "★" : "☆"}</span>
+      <span>${toggleLabel}</span>
+    </button>
 
     <div class="eyebrow" style="margin-bottom:10px">Quiz by category</div>
     ${catCards}
@@ -311,7 +338,7 @@ function viewQuiz() {
   if (S.feedback) {
     const ok = S.feedback === "correct";
     const showExp = S.showAnswer || ok;
-    fb = `<div class="fb" style="background:${ok ? "#22d3a015" : "#f8717115"};border:1px solid ${ok ? "#22d3a0" : "#f87171"};margin-bottom:18px">
+    fb = `<div class="fb fbpop" style="background:${ok ? "#22d3a015" : "#f8717115"};border:1px solid ${ok ? "#22d3a0" : "#f87171"};margin-bottom:18px">
       ${ok ? I.check("#22d3a0") : I.x("#f87171")}
       <div><div style="font-weight:bold;color:${ok ? "#22d3a0" : "#f87171"};margin-bottom:4px">${ok ? "Correct!" : "Incorrect"}</div>
       ${showExp ? `<div style="color:#ccc;font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div>` : ""}</div>
@@ -322,7 +349,7 @@ function viewQuiz() {
   if (!S.feedback) {
     buttons = `<button class="primary" data-act="submitQuiz" style="background:${S.selected.length ? c.color : "#2a2a38"}" ${S.selected.length ? "" : "disabled"}>Submit Answer</button>`;
   } else if (S.feedback === "incorrect") {
-    buttons = `${!S.showAnswer ? `<button class="ghost" data-act="showAns">👁 Show Answer</button>` : ""}
+    buttons = `${!S.showAnswer ? `<button class="ghost" data-act="showAns">Show Answer</button>` : ""}
       <button class="ghost" data-act="retry" style="border-color:#f87171;color:#f87171">↻ Retry</button>
       <button class="primary" data-act="nextQuiz" style="background:${c.color};flex:1">${S.qi < c.questions.length - 1 ? "Next →" : "Finish"}</button>`;
   } else {
@@ -370,7 +397,7 @@ function viewQuizGrid() {
       <div><div class="eyebrow" style="color:${c.color}">${esc(c.category)}</div>
       <div style="font-size:20px;font-weight:bold">Question Grid</div></div>
     </div>
-    ${done ? `<div class="fb" style="background:#22d3a015;border:1px solid #22d3a0;justify-content:center;margin-bottom:20px;color:#22d3a0;font-weight:bold">🏆 All correct in this category!</div>` : ""}
+    ${done ? `<div class="fb" style="background:#22d3a015;border:1px solid #22d3a0;justify-content:center;margin-bottom:20px;color:#22d3a0;font-weight:bold">All correct in this category</div>` : ""}
     <div class="grid-q" style="margin-bottom:26px">${cells}</div>
     <button class="primary" data-act="goQ" data-idx="0" style="background:${c.color}">Start / Continue →</button>
   </div>`;
@@ -450,9 +477,9 @@ function viewShuffle() {
   let fb = "";
   if (S.feedback) {
     const ok = S.feedback === "correct";
-    fb = `<div class="fb" style="background:${ok ? "#f9731615" : "#1a1a1a"};border:1px solid ${ok ? "#f97316" : "#444"};margin-bottom:18px">
+    fb = `<div class="fb fbpop" style="background:${ok ? "#f9731615" : "#1a1a1a"};border:1px solid ${ok ? "#f97316" : "#444"};margin-bottom:18px">
       ${ok ? I.check("#f97316") : I.x("#888")}
-      <div><div style="font-weight:bold;color:${ok ? "#f97316" : "#f87171"};margin-bottom:4px">${ok ? "Correct! 🔥 " + S.streak : "Streak ended" + (S.high ? " — best: " + S.high : "")}</div>
+      <div><div style="font-weight:bold;color:${ok ? "#f97316" : "#f87171"};margin-bottom:4px">${ok ? "Correct!  Streak " + S.streak : "Streak ended" + (S.high ? " — best: " + S.high : "")}</div>
       <div style="color:#e0c0a0;font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div>
     </div>`;
   }
@@ -462,7 +489,7 @@ function viewShuffle() {
   return `<div class="wrap">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
       <button class="backbtn" data-act="backToSet">${I.chevL} </button>
-      <span class="eyebrow" style="color:#f97316">Shuffle</span>
+      <span class="eyebrow" style="color:#f97316">Shuffle${progress.starOnly && starredCount() ? " · starred" : ""}</span>
       <div style="display:flex;gap:16px;align-items:center">
         <div style="text-align:center"><div style="font-size:10px;color:#f9a86b;text-transform:uppercase;letter-spacing:1px">Streak</div><div style="font-size:20px;font-weight:bold;color:${S.streak ? "#f97316" : "#555"}">${S.streak}</div></div>
         ${S.high ? `<div style="text-align:center"><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:1px">Best</div><div style="font-size:20px;font-weight:bold;color:#f59e0b">${S.high}</div></div>` : ""}
@@ -509,6 +536,9 @@ document.addEventListener("click", (ev) => {
   }
   if (act === "backToSet") { S.screen = "setHome"; return render(); }
 
+  // star scope toggle (setHome) — controls both Flashcards and Shuffle
+  if (act === "toggleStar") { progress.starOnly = !progress.starOnly; saveProgress(); return render(); }
+
   // quiz nav
   if (act === "openCat") { S.cat = t.dataset.cat; S._grid = true; renderGrid(); return; }
   if (act === "toCatGrid") { renderGrid(); return; }
@@ -520,14 +550,14 @@ document.addEventListener("click", (ev) => {
   if (act === "nextQuiz") return nextQuiz();
 
   // flashcards
-  if (act === "startFlash") { S.flashList = buildFlashList(t.dataset.scope); S.flashIdx = 0; S.flipped = false; S.screen = "flash"; return render(); }
+  if (act === "startFlash") { S.flashList = buildFlashList(activeScope()); S.flashIdx = 0; S.flipped = false; S.screen = "flash"; return render(); }
   if (act === "flip") { S.flipped = !S.flipped; return render(); }
   if (act === "mark") { progress.known[S.flashList[S.flashIdx].id] = t.dataset.known; saveProgress(); return render(); }
   if (act === "flashPrev") { if (S.flashIdx > 0) { S.flashIdx--; S.flipped = false; } return render(); }
   if (act === "flashNext") { if (S.flashIdx < S.flashList.length - 1) S.flashIdx++; else S.flashIdx = 0; S.flipped = false; return render(); }
 
   // shuffle
-  if (act === "startShuffle") { S.shuffleQ = buildFlashList(t.dataset.scope).filter(x => !x._explicit); S.shuffleIdx = 0; S.streak = 0; resetQ(); if (S.shuffleQ[0]) freshOrder(S.shuffleQ[0]); S.screen = "shuffle"; return render(); }
+  if (act === "startShuffle") { S.shuffleQ = buildFlashList(activeScope()).filter(x => !x._explicit); S.shuffleIdx = 0; S.streak = 0; resetQ(); if (S.shuffleQ[0]) freshOrder(S.shuffleQ[0]); S.screen = "shuffle"; return render(); }
   if (act === "submitShuffle") return submitShuffle();
   if (act === "nextShuffle") return nextShuffle();
 
@@ -559,6 +589,7 @@ function submitQuiz() {
   saveProgress();
   S.feedback = ok ? "correct" : "incorrect";
   render();
+  celebrate(ok);
 }
 function nextQuiz() {
   const c = currentCat();
@@ -577,7 +608,7 @@ function submitShuffle() {
   S.feedback = ok ? "correct" : "incorrect";
   if (!ok) S.showAnswer = true;
   render();
-  if (ok) flashGlow("#f9731650"); else flashGlow("#00000088", 700);
+  celebrate(ok);
 }
 function nextShuffle() {
   S.shuffleIdx++;
@@ -586,6 +617,8 @@ function nextShuffle() {
   freshOrder(S.shuffleQ[S.shuffleIdx]);
   render();
 }
+
+// =================== FEEDBACK FX (color + sound) ===================
 function flashGlow(color, ms) {
   const g = document.createElement("div");
   g.className = "glow";
@@ -593,6 +626,52 @@ function flashGlow(color, ms) {
   g.style.animation = "pulse " + ((ms || 1200) / 1000) + "s ease-out forwards";
   document.body.appendChild(g);
   setTimeout(() => g.remove(), ms || 1200);
+}
+let _actx = null;
+function audioCtx() {
+  try {
+    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_actx.state === "suspended") _actx.resume();
+  } catch (e) {}
+  return _actx;
+}
+function tone(freq, start, dur, type, vol) {
+  const ctx = audioCtx(); if (!ctx) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type || "triangle"; o.frequency.value = freq;
+  const t0 = ctx.currentTime + start;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(vol || 0.2, t0 + 0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+function sfxCorrect() { tone(659, 0, 0.13, "triangle", 0.22); tone(880, 0.085, 0.15, "triangle", 0.20); tone(1175, 0.17, 0.20, "triangle", 0.16); }
+function sfxWrong() { tone(196, 0, 0.20, "sine", 0.22); tone(147, 0.09, 0.26, "sine", 0.20); }
+function confettiBurst() {
+  const colors = ["#22d3a0", "#0EA5E9", "#f59e0b", "#f97316", "#a78bfa", "#f472b6"];
+  const box = document.createElement("div"); box.className = "confetti-layer";
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement("i");
+    p.style.background = colors[i % colors.length];
+    p.style.left = (50 + (Math.random() * 44 - 22)) + "%";
+    p.style.setProperty("--dx", (Math.random() * 260 - 130) + "px");
+    p.style.setProperty("--dy", (-(130 + Math.random() * 200)) + "px");
+    p.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
+    p.style.animationDelay = (Math.random() * 0.06) + "s";
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 1200);
+}
+function shakeApp() {
+  const a = document.getElementById("app");
+  a.style.animation = "shake .4s ease";
+  setTimeout(() => { a.style.animation = ""; }, 430);
+}
+function celebrate(ok) {
+  if (ok) { sfxCorrect(); confettiBurst(); flashGlow("#22d3a055", 900); }
+  else { sfxWrong(); shakeApp(); flashGlow("#f8717150", 600); }
 }
 
 boot();
