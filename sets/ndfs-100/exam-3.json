@@ -1,0 +1,1150 @@
+{
+  "id": "ndfs-100-exam-3",
+  "class": "NDFS 100",
+  "title": "Exam 3",
+  "subtitle": "Vitamins, Water & Minerals, Sports Nutrition",
+  "categories": [
+    {
+      "category": "Ch. 8 - Vitamins",
+      "color": "#F59E0B",
+      "questions": [
+        {
+          "id": "v1",
+          "type": "mc",
+          "question": "Which statement correctly describes fat-soluble vitamins compared with water-soluble vitamins?",
+          "options": [
+            "They are absorbed along with dietary fat, stored in the liver and adipose tissue, and are more likely to reach toxic levels",
+            "They dissolve in water, are freely excreted in the urine, and are almost never stored",
+            "They must be eaten every single day because the body keeps essentially no reserve",
+            "They are destroyed by cooking heat far more readily than water-soluble vitamins"
+          ],
+          "answer": 0,
+          "explanation": "Fat-soluble vitamins (A, D, E, K) ride along with dietary fat, get stored in the liver and fat tissue, and can accumulate - so supplement toxicity is a real risk. Water-soluble vitamins (B's and C) are excreted in urine and need more regular replacement."
+        },
+        {
+          "id": "v2",
+          "type": "multi",
+          "question": "Which of the following are fat-soluble vitamins? (Select all that apply)",
+          "options": ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin E", "Vitamin K", "Vitamin B-12"],
+          "answers": [0, 2, 3, 4],
+          "explanation": "KADE = the fat-soluble vitamins. Everything else (all the B vitamins plus C) is water-soluble."
+        },
+        {
+          "id": "v3",
+          "type": "mc",
+          "question": "Which practice best preserves the vitamin content of fresh vegetables?",
+          "options": [
+            "Steam or microwave briefly using little water, and leave skins on when possible",
+            "Boil them in a large pot of water until very soft",
+            "Chop them finely hours ahead and let them soak in water until cooking",
+            "Store them uncovered on the counter in direct sunlight"
+          ],
+          "answer": 0,
+          "explanation": "Water-soluble vitamins leach into cooking water and are degraded by heat, light, air, and long storage. Minimal water, short cook times, and intact surfaces preserve the most."
+        },
+        {
+          "id": "v4",
+          "type": "mc",
+          "question": "Phytochemicals are best defined as:",
+          "options": [
+            "Non-nutrient compounds made by plants that may reduce chronic disease risk",
+            "Essential nutrients found only in plant foods",
+            "Plant-derived vitamins that function as coenzymes",
+            "Indigestible plant carbohydrates that add bulk to stool"
+          ],
+          "answer": 0,
+          "explanation": "Phytochemicals are not essential nutrients - no deficiency disease exists for them - but compounds like lycopene, sulforaphane, and isoflavones appear to lower disease risk."
+        },
+        {
+          "id": "v5",
+          "type": "mc",
+          "question": "Which of the following are good sources of phytochemicals?",
+          "options": ["Fish", "Liver", "Dairy products", "Whole fruits and vegetables"],
+          "answer": 3,
+          "explanation": "Phytochemicals come from plants, so whole fruits, vegetables, whole grains, legumes, nuts, and tea are the sources. Animal foods contribute essentially none."
+        },
+        {
+          "id": "v6",
+          "type": "multi",
+          "question": "Which foods are notable phytochemical sources? (Select all that apply)",
+          "options": [
+            "Soybeans (isoflavones)",
+            "Tomatoes (lycopene)",
+            "Skim milk",
+            "Green tea (catechins)",
+            "Broccoli (sulforaphane)",
+            "Egg whites"
+          ],
+          "answers": [0, 1, 3, 4],
+          "explanation": "Deeply colored and strongly flavored plant foods carry the most phytochemicals. Milk and eggs are animal foods and contribute none."
+        },
+        {
+          "id": "v7",
+          "type": "mc",
+          "question": "Which set best describes the major functions of vitamin A?",
+          "options": [
+            "Vision, epithelial and mucous membrane health, cell differentiation, and immune function",
+            "Blood clotting and bone protein synthesis",
+            "Antioxidant protection of red blood cell membranes",
+            "Calcium and phosphorus absorption in the small intestine"
+          ],
+          "answer": 0,
+          "explanation": "Remember A-S-S: vision (retina), skin/epithelial cells, and immune support. The other options describe K, E, and D respectively."
+        },
+        {
+          "id": "v8",
+          "type": "mc",
+          "question": "What is provitamin A?",
+          "options": [
+            "Carotenoids such as beta-carotene from plant foods, which the body converts into active vitamin A",
+            "Retinol, the active form stored in the liver",
+            "The form of vitamin A bound to intrinsic factor for absorption",
+            "A synthetic vitamin A analog used only in acne medication"
+          ],
+          "answer": 0,
+          "explanation": "Plants supply inactive provitamin A carotenoids (beta-carotene); animal foods such as liver, egg yolk, and fortified dairy supply preformed, active retinoids."
+        },
+        {
+          "id": "v9",
+          "type": "mc",
+          "question": "Susie notices she cannot readapt to darkness after oncoming headlights flash while driving at night. Which vitamin deficiency does this suggest?",
+          "options": ["Vitamin D", "Vitamin E", "Vitamin A", "Vitamin K"],
+          "answer": 2,
+          "explanation": "Night blindness is the earliest sign of vitamin A deficiency, because retinal needs vitamin A to regenerate rhodopsin. Advanced deficiency progresses to xerophthalmia and permanent blindness."
+        },
+        {
+          "id": "v10",
+          "type": "multi",
+          "question": "Which foods are high in vitamin A value per cup? (Select all that apply)",
+          "options": ["Cantaloupe", "Cauliflower", "Cucumber", "Iceberg lettuce", "Pumpkin", "Spinach", "Radishes", "Zucchini squash"],
+          "answers": [0, 4, 5],
+          "explanation": "Deep orange and dark green produce carries the carotenoids. Pale vegetables - cauliflower, cucumber, iceberg lettuce, radishes, zucchini - contribute very little."
+        },
+        {
+          "id": "v11",
+          "type": "mc",
+          "question": "Members of an English expedition ate a stew made from a polar bear's liver, heart, and kidneys. All 19 became sluggish and irritable with severe headache, vomiting, and peeling skin. What is the vitamin toxicity?",
+          "options": ["Vitamin C", "Vitamin A", "Folate", "Vitamin K"],
+          "answer": 1,
+          "explanation": "Liver concentrates preformed vitamin A. Toxicity causes headache, nausea/vomiting, skin peeling, and liver damage - and in pregnancy it is teratogenic (birth defects)."
+        },
+        {
+          "id": "v12",
+          "type": "mc",
+          "question": "A 23-year-old vegetarian has yellow-orange skin but normal sclerae and a normal serum bilirubin. She eats large amounts of orange juice, pumpkin, and carrots. What is going on?",
+          "options": [
+            "Excess beta-carotene intake (carotenodermia), which is harmless and reversible",
+            "Preformed vitamin A toxicity, which requires urgent treatment",
+            "Jaundice from liver failure",
+            "Vitamin C toxicity"
+          ],
+          "answer": 0,
+          "explanation": "The key discriminator is the sclerae: jaundice yellows the whites of the eyes and raises bilirubin, carotenodermia does not. The body regulates conversion of beta-carotene, so plant carotenoids do not cause true vitamin A toxicity."
+        },
+        {
+          "id": "v13",
+          "type": "mc",
+          "question": "What is the major function of vitamin D?",
+          "options": [
+            "Increasing absorption of calcium and phosphorus in the small intestine to maintain blood calcium and bone mineralization",
+            "Serving as an antioxidant in cell membranes",
+            "Activating the clotting cascade",
+            "Acting as a coenzyme for energy metabolism"
+          ],
+          "answer": 0,
+          "explanation": "Vitamin D acts more like a hormone, working on the intestine, kidneys, and bone to keep blood calcium in range. Think SUN-D-LIGHT."
+        },
+        {
+          "id": "v14",
+          "type": "mc",
+          "question": "Children in a rural clinic in a low-income country present with bowed legs, rachitic rosary (beading at the ribs), and other abnormal bone growth. What is the deficiency name?",
+          "options": ["Pellagra", "Beriberi", "Rickets", "Scurvy"],
+          "answer": 2,
+          "explanation": "Vitamin D deficiency in children is rickets; the adult equivalent is osteomalacia (soft bones). Risk rises with limited sun exposure and limited fortified food access."
+        },
+        {
+          "id": "v15",
+          "type": "mc",
+          "question": "Which of the following factors would INCREASE the body's ability to synthesize vitamin D?",
+          "options": ["Advancing age", "Limited sun exposure", "Darker skin pigmentation", "Decreasing latitudes"],
+          "answer": 3,
+          "explanation": "Decreasing latitude means moving closer to the equator, where UVB is stronger year-round. Age, melanin, and less sun exposure all reduce synthesis."
+        },
+        {
+          "id": "v16",
+          "type": "multi",
+          "question": "What factor(s) would interfere with vitamin D synthesis or activation in the body? (Select all that apply)",
+          "options": ["Sunscreen", "Low calcium intake", "Far northern or southern latitude", "Heavy clothing", "Darker skin pigmentation"],
+          "answers": [0, 2, 3, 4],
+          "explanation": "Anything blocking UVB from reaching skin - sunscreen, clothing, melanin, high latitude - limits synthesis. Low calcium intake is a separate problem; it does not block vitamin D production."
+        },
+        {
+          "id": "v17",
+          "type": "mc",
+          "question": "Fred has taken a 50,000 IU daily supplement of a nutrient for 15 years. His blood calcium is high, and toxicity of this nutrient can calcify soft tissue such as the heart, kidneys, and arteries. What is the vitamin toxicity?",
+          "options": ["Riboflavin", "Vitamin B-12", "Vitamin D", "Vitamin E"],
+          "answer": 2,
+          "explanation": "Vitamin D toxicity comes from supplements, not sun or food, and causes hypercalcemia with calcium deposits in soft tissue."
+        },
+        {
+          "id": "v18",
+          "type": "mc",
+          "question": "What is the recommended vitamin D intake for a 50-year-old male?",
+          "options": ["RDA of 20 mg", "RDA of 1000 mcg", "UL of 600 mg", "RDA of 15 mcg"],
+          "answer": 3,
+          "explanation": "The RDA is 15 mcg/day (600 IU) for ages 19-70, rising to 20 mcg after age 70. Watch the units - mg vs mcg is the trap in this question."
+        },
+        {
+          "id": "v19",
+          "type": "mc",
+          "question": "Which combination correctly pairs vitamin D sources with a condition that raises deficiency risk?",
+          "options": [
+            "Fatty fish, UV-exposed mushrooms, and fortified milk; risk raised by cystic fibrosis and other fat malabsorption",
+            "Citrus fruit and peppers; risk raised by smoking",
+            "Leafy greens and plant oils; risk raised by antibiotic use",
+            "Red meat and shellfish; risk raised by vegetarian diets"
+          ],
+          "answer": 0,
+          "explanation": "Vitamin D occurs naturally in few foods, so fortification and sunlight matter most. Because it is fat-soluble, fat malabsorption conditions such as cystic fibrosis increase deficiency risk."
+        },
+        {
+          "id": "v20",
+          "type": "mc",
+          "question": "What is the major function of vitamin E?",
+          "options": [
+            "Antioxidant that protects polyunsaturated fatty acids and phospholipids in cell membranes, especially red blood cells",
+            "Coenzyme for carbohydrate metabolism",
+            "Regulator of blood calcium",
+            "Precursor to thyroid hormone"
+          ],
+          "answer": 0,
+          "explanation": "FrEE radicals - vitamin E neutralizes them. Its deficiency, though rare, shows up as hemolysis (red blood cell rupture) because membranes lose their protection."
+        },
+        {
+          "id": "v21",
+          "type": "mc",
+          "question": "What food could a person add to their diet to increase vitamin E intake?",
+          "options": ["Seeds", "Grapefruit", "Eggs", "White rice"],
+          "answer": 0,
+          "explanation": "Vitamin E concentrates in plant oils, seeds, nuts, and wheat germ. Because it is in oils, low-fat diets can fall short."
+        },
+        {
+          "id": "v22",
+          "type": "mc",
+          "question": "The CDC identified newborns in Tennessee with bleeding in the brain and GI tract after their parents declined a routine injection at birth. What is the nutrient deficiency?",
+          "options": ["Riboflavin", "Vitamin K", "Vitamin B-12", "Vitamin C"],
+          "answer": 1,
+          "explanation": "K = Koagulation. Newborns are born with low vitamin K stores and sterile guts (no bacterial synthesis yet), so a vitamin K injection at birth prevents hemorrhagic disease."
+        },
+        {
+          "id": "v23",
+          "type": "mc",
+          "question": "What food could a person add to increase vitamin K intake?",
+          "options": ["Chicken", "Spinach", "Blueberries", "White bread"],
+          "answer": 1,
+          "explanation": "Vitamin K comes from leafy green vegetables and some plant oils, plus synthesis by gut bacteria."
+        },
+        {
+          "id": "v24",
+          "type": "mc",
+          "question": "Excess supplemental intake of which nutrient can oppose the effects of anticlotting medication?",
+          "options": ["Vitamin B-12", "Vitamin E", "Vitamin K", "Folate"],
+          "answer": 2,
+          "explanation": "Vitamin K drives clotting factor synthesis, so it works directly against warfarin-type anticoagulants. Patients on those drugs are told to keep vitamin K intake steady, not to eliminate it."
+        },
+        {
+          "id": "v25",
+          "type": "mc",
+          "question": "What is the relationship between B vitamins and coenzymes?",
+          "options": [
+            "B vitamins form coenzymes that help enzymes release energy from carbohydrate, fat, and protein - they do not supply energy themselves",
+            "B vitamins are broken down directly for calories during exercise",
+            "B vitamins are enzymes that digest macronutrients in the small intestine",
+            "B vitamins bind minerals to prevent their absorption"
+          ],
+          "answer": 0,
+          "explanation": "This is the classic exam trap: B vitamins are needed to extract energy, but they contain no calories. Best sources are whole grains and protein foods."
+        },
+        {
+          "id": "v26",
+          "type": "mc",
+          "question": "Beriberi is often characterized by edema (fluid accumulation). What is the vitamin deficiency?",
+          "options": ["Riboflavin", "Thiamin", "Niacin", "Folate"],
+          "answer": 1,
+          "explanation": "Thiamin (B-1) deficiency causes beriberi. In the United States it is seen most often with chronic alcohol abuse, which impairs both intake and absorption."
+        },
+        {
+          "id": "v27",
+          "type": "mc",
+          "question": "What food would help address a thiamin deficiency?",
+          "options": ["Blueberries", "Refined grain cookies", "Steak", "Iceberg lettuce"],
+          "answer": 2,
+          "explanation": "Thiamin is found in pork and other meats, legumes, and whole or enriched grains. Highly refined, low-nutrient sweets do not deliver it."
+        },
+        {
+          "id": "v28",
+          "type": "mc",
+          "question": "A middle-aged male presents with cracks and redness at the corners of his mouth and a smooth, swollen, painful tongue. What is the vitamin deficiency?",
+          "options": ["Riboflavin", "Niacin", "Thiamin", "Vitamin K"],
+          "answer": 0,
+          "explanation": "Riboflavin (B-2) deficiency causes cheilosis (cracks at mouth corners) and glossitis (smooth, sore tongue)."
+        },
+        {
+          "id": "v29",
+          "type": "mc",
+          "question": "What food would best help address a riboflavin deficiency?",
+          "options": ["White rice", "Milk", "Corn", "Apples"],
+          "answer": 1,
+          "explanation": "Milk is the signature riboflavin source. Riboflavin is destroyed by light, which is why milk is sold in opaque containers rather than clear glass."
+        },
+        {
+          "id": "v30",
+          "type": "mc",
+          "question": "Which of the following is a characteristic of a NIACIN DEFICIENCY?",
+          "options": ["Poor wound healing", "Painful skin flushing", "Birth defects", "Diarrhea"],
+          "answer": 3,
+          "explanation": "Niacin deficiency is pellagra: the 4 D's - diarrhea, dermatitis, dementia, death. Painful skin flushing is niacin TOXICITY, poor wound healing is vitamin C, and birth defects are vitamin A toxicity."
+        },
+        {
+          "id": "v31",
+          "type": "mc",
+          "question": "In 1983, brunch guests developed rash, itching, and warmth about 30 minutes after eating bagels made from flour containing 60 times the normal level of a nutrient. What is the vitamin toxicity?",
+          "options": ["Riboflavin", "Niacin", "Folate", "Thiamin"],
+          "answer": 1,
+          "explanation": "Niacin flush - vasodilation causing rash, itching, and warmth - is the hallmark of excess niacin. Chronic high doses also damage the liver."
+        },
+        {
+          "id": "v32",
+          "type": "mc",
+          "question": "What food would help address pellagra?",
+          "options": ["White rice", "Steak", "Corn", "Apples"],
+          "answer": 1,
+          "explanation": "Niacin comes from meat, poultry, fish, and enriched grains; the body also makes it from tryptophan in protein foods. Corn-based diets historically caused pellagra because corn's niacin is poorly available."
+        },
+        {
+          "id": "v33",
+          "type": "mc",
+          "question": "An infant is born with spina bifida. The mother ate a diet high in animal products with limited grain intake and usually forgot her prenatal supplement. What is the vitamin deficiency?",
+          "options": ["Niacin", "Vitamin C", "Folate", "Vitamin K"],
+          "answer": 2,
+          "explanation": "Folate is required for cell division and neural tube closure, which happens in the first few weeks of pregnancy - often before a woman knows she is pregnant. That is why 400 mcg/day is recommended for all women who could become pregnant."
+        },
+        {
+          "id": "v34",
+          "type": "mc",
+          "question": "What food, if eaten often, would best help someone meet the RDA for folate?",
+          "options": ["Chicken", "Green leafy vegetables", "Strawberries", "Milk"],
+          "answer": 1,
+          "explanation": "Folate comes from foliage - leafy greens - plus legumes, orange juice, and enriched/fortified grains. Since 1998, U.S. enriched grain products have been fortified with folic acid."
+        },
+        {
+          "id": "v35",
+          "type": "mc",
+          "question": "Excess supplemental intake of which nutrient may MASK a vitamin B-12 deficiency?",
+          "options": ["Folate", "Niacin", "Vitamin E", "Vitamin C"],
+          "answer": 0,
+          "explanation": "High folate corrects the megaloblastic anemia caused by B-12 deficiency but does nothing for the nerve damage, which then progresses undetected. This is why the UL for folic acid exists."
+        },
+        {
+          "id": "v36",
+          "type": "mc",
+          "question": "A college student practicing a vegan lifestyle has enlarged red blood cells (megaloblastic anemia) on lab work. What is the vitamin deficiency?",
+          "options": ["Riboflavin", "Vitamin B-12", "Vitamin K", "Vitamin E"],
+          "answer": 1,
+          "explanation": "B-12 occurs naturally only in animal foods, so vegans need fortified foods or a supplement. Liver stores can mask deficiency for years before symptoms appear."
+        },
+        {
+          "id": "v37",
+          "type": "mc",
+          "question": "Which statement about vitamin B-12 is correct?",
+          "options": [
+            "It requires intrinsic factor from the stomach for absorption; without it, pernicious anemia develops",
+            "It is abundant in leafy greens and citrus fruit",
+            "Deficiency is quickly corrected by increasing folate intake",
+            "It is a fat-soluble vitamin stored in adipose tissue"
+          ],
+          "answer": 0,
+          "explanation": "B-12 also maintains the myelin sheath, so deficiency causes nerve damage in addition to anemia. Older adults often absorb food-bound B-12 poorly, so fortified foods or supplements are advised after age 50."
+        },
+        {
+          "id": "v38",
+          "type": "mc",
+          "question": "A 56-year-old man has pinpoint bleeding, corkscrew hair, bleeding gums, and poor wound healing after eating only snack cakes and frozen dinners. What is the deficiency name?",
+          "options": ["Beriberi", "Scurvy", "Rickets", "Pellagra"],
+          "answer": 1,
+          "explanation": "C-Sick = scurvy. Vitamin C is required for collagen synthesis, so deficiency breaks down connective tissue: bleeding gums, poor healing, and fragile capillaries. Citrus fruit and vegetables correct it."
+        },
+        {
+          "id": "v39",
+          "type": "multi",
+          "question": "Which of the following are major functions of vitamin C? (Select all that apply)",
+          "options": [
+            "Collagen formation for wound healing",
+            "Antioxidant and white blood cell support",
+            "Enhancing absorption of non-heme iron",
+            "Carnitine synthesis",
+            "Regulating blood calcium levels"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Blood calcium regulation is vitamin D's job. Vitamin C's iron-enhancing role is heavily tested - pairing citrus with plant iron sources boosts absorption."
+        },
+        {
+          "id": "v40",
+          "type": "mc",
+          "question": "What is the most likely consequence of very high supplemental vitamin C intake?",
+          "options": [
+            "GI distress, including diarrhea, and increased kidney stone risk in susceptible people",
+            "Liver damage and skin flushing",
+            "Calcification of soft tissue",
+            "Birth defects"
+          ],
+          "answer": 0,
+          "explanation": "Because vitamin C is water-soluble, excess is largely excreted, but megadoses draw water into the intestine and cause diarrhea. The flushing/liver answer describes niacin."
+        },
+        {
+          "id": "v41",
+          "type": "mc",
+          "question": "Who is MOST likely to benefit from a multivitamin-mineral supplement?",
+          "options": [
+            "A pregnant woman, an older adult, a vegan, or someone on a very low-calorie or malabsorptive diet",
+            "A healthy young adult eating a varied diet who wants extra energy",
+            "An athlete who already meets calorie and macronutrient needs",
+            "Anyone who eats fewer than three servings of red meat weekly"
+          ],
+          "answer": 0,
+          "explanation": "Supplements fill genuine gaps: folate/iron in pregnancy, B-12 and vitamin D in older adults and vegans, and broad coverage when intake is restricted. They do not provide energy."
+        },
+        {
+          "id": "v42",
+          "type": "multi",
+          "question": "Which are sound guidelines for selecting a supplement? (Select all that apply)",
+          "options": [
+            "Choose one providing close to 100% of the Daily Value rather than megadoses",
+            "Look for a third-party verification mark such as USP",
+            "Check that nutrient amounts stay below the Tolerable Upper Intake Level",
+            "Pick the product with the highest potency and most exotic added ingredients",
+            "Check the expiration date and store as directed"
+          ],
+          "answers": [0, 1, 2, 4],
+          "explanation": "Supplements are loosely regulated, so third-party verification and DV-level dosing matter. High-potency and herbal add-ins raise cost and risk without proven benefit."
+        },
+        {
+          "id": "v43",
+          "type": "mc",
+          "question": "Which sequence correctly describes the general process of cancer development?",
+          "options": [
+            "Initiation (DNA damage), promotion (altered cells multiply), progression (tumor grows and metastasizes)",
+            "Inflammation, oxidation, calcification",
+            "Mutation, remission, metastasis",
+            "Exposure, absorption, excretion"
+          ],
+          "answer": 0,
+          "explanation": "Diet and lifestyle mostly act at the promotion stage, which is why long-term eating patterns matter so much for cancer risk."
+        },
+        {
+          "id": "v44",
+          "type": "multi",
+          "question": "Which dietary and lifestyle factors INCREASE cancer risk? (Select all that apply)",
+          "options": [
+            "Regular processed and red meat intake",
+            "Alcohol consumption",
+            "Excess body fat",
+            "High intake of fruits, vegetables, and whole grains",
+            "Physical inactivity",
+            "Smoking or other tobacco use"
+          ],
+          "answers": [0, 1, 2, 4, 5],
+          "explanation": "Fruits, vegetables, whole grains, fiber, and physical activity are protective. For Laurie's case, the highest-yield changes are adding produce and whole grains, cutting processed meat and snack foods, staying active, and maintaining a healthy weight."
+        }
+      ],
+      "flashcards": [
+        { "front": "KADE", "back": "The fat-soluble vitamins: K, A, D, E. Absorbed with fat, stored in the body, higher toxicity risk." },
+        { "front": "Night blindness / xerophthalmia", "back": "Vitamin A deficiency. Xerophthalmia is the advanced, blinding form and the leading cause of preventable childhood blindness worldwide." },
+        { "front": "Provitamin A", "back": "Carotenoids (beta-carotene) from plant foods; inactive until the body converts them to retinol." },
+        { "front": "Rickets vs. osteomalacia", "back": "Both are vitamin D deficiency: rickets in children (bowed legs, rachitic rosary), osteomalacia in adults (soft, weak bones)." },
+        { "front": "Beriberi", "back": "Thiamin (B-1) deficiency. Edema, weakness, nerve and heart problems. Classic in chronic alcohol abuse." },
+        { "front": "Cheilosis and glossitis", "back": "Riboflavin (B-2) deficiency. Cracks at the corners of the mouth and a smooth, swollen, painful tongue. Milk is the signature source." },
+        { "front": "Pellagra - the 4 D's", "back": "Niacin (B-3) deficiency: diarrhea, dermatitis, dementia, death. Historically from corn-based diets." },
+        { "front": "Niacin flush", "back": "Niacin TOXICITY: painful skin flushing, itching, warmth. Chronic excess damages the liver. Not a deficiency sign." },
+        { "front": "Neural tube defect", "back": "Folate (B-9) deficiency in early pregnancy - spina bifida, anencephaly. 400 mcg/day recommended for all women who could become pregnant." },
+        { "front": "Pernicious anemia", "back": "Vitamin B-12 deficiency from lack of intrinsic factor. Causes megaloblastic anemia plus nerve damage from myelin breakdown." },
+        { "front": "Scurvy", "back": "Vitamin C deficiency. Bleeding gums, pinpoint bleeding, corkscrew hair, poor wound healing - all from failed collagen synthesis." },
+        { "front": "Carotenodermia", "back": "Yellow-orange skin from heavy beta-carotene intake. Sclerae stay white and bilirubin is normal - harmless and reversible, unlike jaundice." },
+        { "front": "Phytochemical", "back": "A non-nutrient plant compound (lycopene, sulforaphane, isoflavones, catechins) that may lower chronic disease risk. Not essential, no deficiency disease." },
+        { "front": "Coenzyme", "back": "A small molecule, often made from a B vitamin, that an enzyme needs to work. B vitamins help release energy but supply no calories themselves." },
+        { "front": "Stages of cancer development", "back": "Initiation (DNA damage), promotion (damaged cells proliferate), progression (tumor grows, invades, metastasizes)." }
+      ]
+    },
+    {
+      "category": "Ch. 9 - Water & Minerals",
+      "color": "#3B82F6",
+      "questions": [
+        {
+          "id": "m1",
+          "type": "multi",
+          "question": "Which are major roles of water in the body? (Select all that apply)",
+          "options": [
+            "Solvent for nutrients and waste products",
+            "Temperature regulation through sweating",
+            "Lubricant and cushion for joints, eyes, and the spinal cord",
+            "Transport medium in blood and lymph",
+            "Primary energy source during exercise"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Water supplies zero calories. Needs rise with heat, humidity, altitude, exercise, fever, high-protein or high-sodium diets, and breastfeeding."
+        },
+        {
+          "id": "m2",
+          "type": "mc",
+          "question": "Which group is at greatest risk for dehydration?",
+          "options": [
+            "Older adults and infants",
+            "Healthy adults with desk jobs",
+            "Teenagers who drink milk with meals",
+            "Adults living at sea level"
+          ],
+          "answer": 0,
+          "explanation": "Older adults have a blunted thirst sensation and reduced kidney concentrating ability; infants have a high surface-area-to-volume ratio and cannot ask for fluid. Athletes and people with vomiting/diarrhea or uncontrolled diabetes are also high risk."
+        },
+        {
+          "id": "m3",
+          "type": "mc",
+          "question": "Which statement about bottled versus tap water is accurate?",
+          "options": [
+            "Municipal tap water is usually fluoridated while most bottled water is not, and bottled water is not automatically safer",
+            "Bottled water is held to stricter safety standards than municipal tap water",
+            "Bottled water contains more essential minerals than any tap water",
+            "Tap water is regulated by the FDA and bottled water by the EPA"
+          ],
+          "answer": 0,
+          "explanation": "The EPA regulates public tap water and the FDA regulates bottled water. The practical nutrition difference is fluoride - families who drink only bottled water may miss the dental benefit. (Laurie's family drinks bottled water and soda.)"
+        },
+        {
+          "id": "m4",
+          "type": "multi",
+          "question": "Which substances in food LIMIT the absorption of certain minerals? (Select all that apply)",
+          "options": [
+            "Phytates (whole grains, legumes)",
+            "Oxalates (spinach, rhubarb, beet greens)",
+            "Tannins (tea, coffee)",
+            "Vitamin C",
+            "Excess of a competing mineral, such as high zinc reducing copper absorption"
+          ],
+          "answers": [0, 1, 2, 4],
+          "explanation": "Vitamin C is an enhancer, not an inhibitor - it boosts non-heme iron absorption. Phytates, oxalates, and tannins bind minerals in the gut so they pass through unabsorbed."
+        },
+        {
+          "id": "m5",
+          "type": "mc",
+          "question": "Why is spinach a poor practical source of calcium despite its calcium content on paper?",
+          "options": [
+            "Its oxalates bind the calcium so very little is absorbed",
+            "It contains no calcium at all",
+            "Cooking destroys calcium",
+            "Its fiber converts calcium to an inactive form"
+          ],
+          "answer": 0,
+          "explanation": "Low-oxalate greens such as kale, bok choy, and broccoli give far better calcium bioavailability than spinach."
+        },
+        {
+          "id": "m6",
+          "type": "mc",
+          "question": "Which of the following is NOT a major function of sodium?",
+          "options": ["Fluid balance", "Nerve impulse transmission", "Nutrient absorption", "Bone structure"],
+          "answer": 3,
+          "explanation": "Sodium handles fluid/osmotic balance, nerve transmission, and nutrient co-transport in the intestine. Bone structure is calcium, phosphorus, and magnesium - and high sodium actually increases urinary calcium loss."
+        },
+        {
+          "id": "m7",
+          "type": "mc",
+          "question": "What is the main consequence of chronically high sodium intake?",
+          "options": [
+            "Elevated blood pressure and increased urinary calcium loss",
+            "Iron deficiency anemia",
+            "Impaired night vision",
+            "Reduced thyroid hormone production"
+          ],
+          "answer": 0,
+          "explanation": "Sodium pulls water into the bloodstream, raising volume and pressure, and drags calcium into the urine - so it hits both hypertension and bone health."
+        },
+        {
+          "id": "m8",
+          "type": "mc",
+          "question": "In Laurie's diet, which foods contribute the MOST sodium?",
+          "options": [
+            "Lunchmeat, canned soup, boxed mixes, condiments, and salty snacks",
+            "The bagel's flour and the diet soda",
+            "The dessert and cookies",
+            "Bottled water"
+          ],
+          "answer": 0,
+          "explanation": "About 70% of dietary sodium comes from processed and restaurant foods, not the salt shaker. Laurie's convenience-food pattern makes her sodium intake probably too high."
+        },
+        {
+          "id": "m9",
+          "type": "mc",
+          "question": "What is the primary function of potassium relevant to blood pressure?",
+          "options": [
+            "Higher potassium intake helps LOWER blood pressure, counteracting sodium",
+            "Potassium raises blood pressure by increasing blood volume",
+            "Potassium hardens arterial walls",
+            "Potassium has no effect on blood pressure"
+          ],
+          "answer": 0,
+          "explanation": "Potassium also drives fluid balance and nerve impulses. Deficiency causes muscle cramps, weakness, constipation, and reduced heart function; it comes chiefly from fruits and vegetables, which Laurie barely eats."
+        },
+        {
+          "id": "m10",
+          "type": "mc",
+          "question": "Which food group is the best source of potassium?",
+          "options": ["Fruits and vegetables", "Refined grains", "Processed meats", "Vegetable oils"],
+          "answer": 0,
+          "explanation": "Potatoes, bananas, oranges, tomatoes, beans, and leafy greens lead the list. Processing tends to remove potassium and add sodium."
+        },
+        {
+          "id": "m11",
+          "type": "mc",
+          "question": "Which of the following is characteristic of a calcium deficiency?",
+          "options": ["Delayed sexual maturity", "Osteoporosis", "Constipation", "Weakness and fatigue"],
+          "answer": 1,
+          "explanation": "Blood calcium stays tightly regulated, so deficiency shows up as bone loss over time. Delayed sexual maturity points to zinc, and weakness/fatigue to iron deficiency anemia."
+        },
+        {
+          "id": "m12",
+          "type": "multi",
+          "question": "Which are major functions of calcium? (Select all that apply)",
+          "options": [
+            "Bone and tooth structure",
+            "Muscle contraction",
+            "Blood clotting",
+            "Nerve impulse transmission",
+            "Oxygen transport in blood"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "BONERS - bone, muscle, nerve, and clotting. Oxygen transport is iron's job."
+        },
+        {
+          "id": "m13",
+          "type": "mc",
+          "question": "How does the body regulate blood calcium when levels fall?",
+          "options": [
+            "Parathyroid hormone rises, activating vitamin D to increase intestinal absorption, reduce urinary loss, and pull calcium from bone",
+            "Calcitonin rises to release calcium from bone",
+            "The kidneys excrete more calcium to trigger absorption",
+            "Blood calcium is not regulated; it simply mirrors dietary intake"
+          ],
+          "answer": 0,
+          "explanation": "PTH raises blood calcium (with active vitamin D as its partner); calcitonin lowers it. Bone is the reservoir - which is why chronically low intake costs you skeleton, not blood levels."
+        },
+        {
+          "id": "m14",
+          "type": "mc",
+          "question": "What is a consequence of excessively high calcium intake, especially from supplements?",
+          "options": [
+            "Kidney stones and reduced absorption of iron and zinc",
+            "Osteoporosis",
+            "Goiter",
+            "Night blindness"
+          ],
+          "answer": 0,
+          "explanation": "Minerals compete for absorption, so calcium megadoses can crowd out iron and zinc. Constipation is also common."
+        },
+        {
+          "id": "m15",
+          "type": "mc",
+          "question": "Which of Laurie's foods provides meaningful calcium, and how would you judge her intake?",
+          "options": [
+            "Only the cream cheese and small amounts in enriched breads - her intake is probably too low",
+            "The canned soup and lunchmeat make her intake adequate",
+            "The bottled water provides plenty of calcium",
+            "Her intake is probably too high because of the dairy dessert"
+          ],
+          "answer": 0,
+          "explanation": "Cream cheese is mostly fat and a poor calcium source. As a 51-year-old post-menopausal woman she needs 1200 mg/day, and her diet has almost no milk, yogurt, cheese, fortified foods, or low-oxalate greens."
+        },
+        {
+          "id": "m16",
+          "type": "mc",
+          "question": "Which pairing correctly matches magnesium's functions and food sources?",
+          "options": [
+            "Bone structure, enzyme cofactor for hundreds of reactions, muscle and nerve function; from whole grains, nuts, seeds, legumes, and leafy greens",
+            "Oxygen transport; from red meat and shellfish",
+            "Thyroid hormone synthesis; from iodized salt",
+            "Antioxidant defense; from Brazil nuts and seafood only"
+          ],
+          "answer": 0,
+          "explanation": "Magnesium sits in the center of the chlorophyll molecule, so green plants are rich in it. Refining grains strips most of it out. Excess from supplements causes diarrhea."
+        },
+        {
+          "id": "m17",
+          "type": "mc",
+          "question": "What are iron's major functions in the body?",
+          "options": [
+            "Part of hemoglobin and myoglobin for oxygen transport and storage, plus a role in energy metabolism",
+            "Bone mineralization and blood clotting",
+            "Thyroid hormone production",
+            "Antioxidant protection of cell membranes"
+          ],
+          "answer": 0,
+          "explanation": "Hemoglobin carries oxygen in blood, myoglobin holds oxygen in muscle. That is why deficiency shows up as fatigue and poor exercise tolerance."
+        },
+        {
+          "id": "m18",
+          "type": "mc",
+          "question": "Which symptom set is characteristic of iron deficiency anemia?",
+          "options": [
+            "Weakness, fatigue, pallor, cold intolerance, and shortness of breath on exertion",
+            "Bleeding gums and poor wound healing",
+            "Bowed legs and rachitic rosary",
+            "Goiter and weight gain"
+          ],
+          "answer": 0,
+          "explanation": "Iron deficiency anemia produces small, pale red blood cells (microcytic hypochromic) that carry less oxygen. Highest risk: menstruating women, pregnant women, infants, and athletes."
+        },
+        {
+          "id": "m19",
+          "type": "mc",
+          "question": "Which of the following food combinations would be the MOST effective in increasing iron absorption?",
+          "options": [
+            "Rice and beans",
+            "Eggs and tea",
+            "Fortified whole grain cereal and strawberries",
+            "Spinach and ranch dressing"
+          ],
+          "answer": 2,
+          "explanation": "Vitamin C from strawberries dramatically boosts absorption of the non-heme iron in fortified cereal. Tea's tannins inhibit absorption, and spinach's oxalates bind its own iron."
+        },
+        {
+          "id": "m20",
+          "type": "multi",
+          "question": "Which factors ENHANCE non-heme iron absorption? (Select all that apply)",
+          "options": [
+            "Vitamin C eaten in the same meal",
+            "MFP factor (meat, fish, poultry) eaten with plant iron",
+            "Tea or coffee with the meal",
+            "Cooking in cast iron cookware",
+            "A high-calcium supplement taken with the meal"
+          ],
+          "answers": [0, 1, 3],
+          "explanation": "Enhancers: vitamin C, MFP factor, cast iron cookware, and low body iron stores. Inhibitors: tannins, phytates, oxalates, and competing minerals such as calcium and zinc."
+        },
+        {
+          "id": "m21",
+          "type": "mc",
+          "question": "What is a consequence of excessively high iron intake?",
+          "options": [
+            "GI distress and, with chronic overload, damage to the liver, heart, and pancreas",
+            "Goiter",
+            "Fluorosis",
+            "Hemolytic anemia"
+          ],
+          "answer": 0,
+          "explanation": "Iron has no efficient excretion route, so excess accumulates in organs. Iron supplements are also a leading cause of accidental poisoning in young children."
+        },
+        {
+          "id": "m22",
+          "type": "mc",
+          "question": "Which set describes zinc's functions and deficiency symptoms?",
+          "options": [
+            "Cofactor for hundreds of enzymes, immune function, growth, wound healing, and hormone activity; deficiency causes growth failure, delayed sexual maturation, and poor wound healing",
+            "Oxygen transport; deficiency causes microcytic anemia",
+            "Antioxidant defense; deficiency causes muscle and heart damage",
+            "Thyroid hormone synthesis; deficiency causes goiter"
+          ],
+          "answer": 0,
+          "explanation": "Zinc comes from meat, shellfish, dairy, whole grains, and legumes. Plant sources contain phytates, so vegetarians absorb less. Excess zinc induces a copper deficiency."
+        },
+        {
+          "id": "m23",
+          "type": "mc",
+          "question": "Which foods best provide zinc?",
+          "options": ["Beef, oysters, and poultry", "Apples and grapes", "Vegetable oil and butter", "Bottled water and diet soda"],
+          "answer": 0,
+          "explanation": "Animal protein foods lead for zinc because their zinc is more absorbable. Whole grains, legumes, and nuts contribute too, with lower bioavailability."
+        },
+        {
+          "id": "m24",
+          "type": "mc",
+          "question": "What is selenium's major function in the body?",
+          "options": [
+            "Antioxidant, as part of glutathione peroxidase, working alongside vitamin E",
+            "Oxygen transport in red blood cells",
+            "Regulating blood calcium",
+            "Strengthening tooth enamel"
+          ],
+          "answer": 0,
+          "explanation": "Selenium comes mainly from meat, seafood, and grains (content varies with soil). Toxicity causes hair and nail brittleness and loss; severe deficiency damages heart muscle."
+        },
+        {
+          "id": "m25",
+          "type": "mc",
+          "question": "What are iodine's major function and deficiency consequences?",
+          "options": [
+            "A component of thyroid hormone; deficiency causes goiter in adults and cretinism (impaired growth and brain development) in infants",
+            "A component of hemoglobin; deficiency causes anemia",
+            "An antioxidant; deficiency causes hemolysis",
+            "A bone mineral; deficiency causes rickets"
+          ],
+          "answer": 0,
+          "explanation": "Without iodine, the thyroid cannot make hormone, so TSH keeps rising and the gland enlarges - a goiter. Iodized salt, seafood, and dairy are the main sources."
+        },
+        {
+          "id": "m26",
+          "type": "mc",
+          "question": "Which set correctly describes fluoride?",
+          "options": [
+            "Strengthens tooth enamel and prevents dental caries; from fluoridated water, tea, and seafood; excess causes fluorosis (white spots or mottling of teeth)",
+            "Supports thyroid function; from iodized salt; excess causes goiter",
+            "Carries oxygen; from red meat; excess causes organ damage",
+            "Builds bone; from dairy; excess causes kidney stones"
+          ],
+          "answer": 0,
+          "explanation": "Fluorosis develops only during tooth formation in childhood, from excess intake such as swallowed toothpaste plus fluoridated water plus supplements."
+        },
+        {
+          "id": "m27",
+          "type": "mc",
+          "question": "Which blood pressure reading is classified as optimal (normal)?",
+          "options": ["Less than 120/80 mm Hg", "130/85 mm Hg", "140/90 mm Hg", "120/90 mm Hg"],
+          "answer": 0,
+          "explanation": "Normal is below 120/80. Current guidelines call 130/80 or higher hypertension (stage 1); some older sources use 140/90 - confirm which cutoff your course uses."
+        },
+        {
+          "id": "m28",
+          "type": "mc",
+          "question": "Which of the following is NOT a risk factor for hypertension?",
+          "options": ["High sodium intake", "Elevated blood pressure", "Adequate vegetable intake", "Low activity level"],
+          "answer": 2,
+          "explanation": "Adequate vegetable intake is protective - it supplies potassium, magnesium, and fiber. The other three all increase risk."
+        },
+        {
+          "id": "m29",
+          "type": "multi",
+          "question": "Which dietary and lifestyle changes help LOWER blood pressure? (Select all that apply)",
+          "options": [
+            "Following a DASH-style eating pattern rich in fruits, vegetables, and low-fat dairy",
+            "Reducing sodium intake",
+            "Losing excess body weight",
+            "Regular physical activity",
+            "Increasing intake of processed and canned convenience foods"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "DASH also raises potassium, calcium, and magnesium, all of which help. Limiting alcohol and not smoking round out the recommendations."
+        },
+        {
+          "id": "m30",
+          "type": "multi",
+          "question": "Which of these osteoporosis risk factors are NON-modifiable? (Select all that apply)",
+          "options": [
+            "Advancing age",
+            "Being female and post-menopausal",
+            "Family history and small body frame",
+            "Low calcium and vitamin D intake",
+            "Smoking and excess alcohol"
+          ],
+          "answers": [0, 1, 2],
+          "explanation": "Non-modifiable: age, sex, menopause status, genetics/frame size, and ethnicity. Modifiable: calcium and vitamin D intake, weight-bearing exercise, smoking, alcohol, and very low body weight. Laurie is 51 and post-menopausal with almost no dairy or produce - she carries several of both types."
+        },
+        {
+          "id": "m31",
+          "type": "mc",
+          "question": "Which combination best represents osteoporosis prevention and treatment recommendations?",
+          "options": [
+            "Adequate calcium and vitamin D, regular weight-bearing and resistance exercise, no smoking, moderate alcohol, and healthy body weight",
+            "High-protein diet with calcium supplements only",
+            "Swimming and cycling as the primary exercise, plus a multivitamin",
+            "Sodium loading to draw calcium into the bone"
+          ],
+          "answer": 0,
+          "explanation": "Weight-bearing loading is the key exercise stimulus - swimming and cycling do not load the skeleton. Peak bone mass built by the late 20s is the strongest long-term protection."
+        },
+        {
+          "id": "m32",
+          "type": "mc",
+          "question": "Which is NOT an example of complementary proteins?",
+          "options": ["Rice and beans", "Peanut butter sandwich", "Pancakes and strawberries", "Oatmeal and peanut butter"],
+          "answer": 2,
+          "explanation": "Complementary proteins pair two incomplete plant proteins - usually grains with legumes/nuts - so the limiting amino acids cover each other. Strawberries add essentially no protein."
+        },
+        {
+          "id": "m33",
+          "type": "mc",
+          "question": "Which of the following foods is highest in fiber?",
+          "options": ["Whole grain granola", "A chicken sandwich", "Potatoes", "Scrambled eggs"],
+          "answer": 0,
+          "explanation": "Fiber comes only from plant foods, and whole grains are among the densest sources. Eggs and meat have none."
+        }
+      ],
+      "flashcards": [
+        { "front": "Sodium - functions", "back": "Fluid/osmotic balance, nerve impulse transmission, nutrient absorption. NOT bone structure. Excess raises blood pressure and urinary calcium loss." },
+        { "front": "Potassium", "back": "Fluid balance, nerve impulses, and LOWERS blood pressure. Found in fruits and vegetables. Deficiency: cramps, weakness, constipation, reduced heart function." },
+        { "front": "BONERS (calcium)", "back": "Calcium's jobs: bone/teeth, muscle contraction, nerve transmission, blood clotting. Sources: dairy, fortified foods, low-oxalate greens." },
+        { "front": "Blood calcium regulation", "back": "Low blood calcium raises PTH, which activates vitamin D to increase absorption, cut urinary loss, and release calcium from bone. Calcitonin lowers blood calcium." },
+        { "front": "Heme vs. non-heme iron", "back": "Heme iron (meat, fish, poultry) is well absorbed. Non-heme iron (plants, fortified foods) is poorly absorbed and swings widely with enhancers and inhibitors." },
+        { "front": "Iron absorption enhancers", "back": "Vitamin C, MFP factor (meat/fish/poultry), cast iron cookware, and low body iron stores." },
+        { "front": "Iron absorption inhibitors", "back": "Phytates (whole grains, legumes), oxalates (spinach), tannins (tea, coffee), and high calcium or zinc intake." },
+        { "front": "Zinc", "back": "Enzyme cofactor, immune function, growth, wound healing, hormones. Deficiency: growth failure, delayed sexual maturation, poor wound healing. Excess causes copper deficiency." },
+        { "front": "Selenium", "back": "Antioxidant working with vitamin E as part of glutathione peroxidase. Sources: meat, seafood, grains. Toxicity: brittle hair and nails." },
+        { "front": "Goiter", "back": "Iodine deficiency. Low thyroid hormone means TSH keeps climbing and the thyroid enlarges. In infants, deficiency causes cretinism." },
+        { "front": "Fluorosis", "back": "Fluoride toxicity during tooth development - white spots or mottled, stained enamel. Fluoride's job is preventing dental caries." },
+        { "front": "Magnesium", "back": "Bone, cofactor for 300+ enzymes, muscle and nerve function. From whole grains, nuts, seeds, legumes, leafy greens. Excess from supplements causes diarrhea." },
+        { "front": "Hypertension cutoffs", "back": "Normal is under 120/80 mm Hg; 130/80 or higher is stage 1 hypertension under current guidelines (older sources use 140/90)." },
+        { "front": "DASH diet", "back": "Eating pattern emphasizing fruits, vegetables, whole grains, and low-fat dairy while limiting sodium, saturated fat, and sweets. Raises potassium, calcium, magnesium." },
+        { "front": "Bottled vs. tap water", "back": "EPA regulates tap, FDA regulates bottled. Bottled is not inherently safer or more nutritious, and it usually lacks the fluoride that tap water provides." }
+      ]
+    },
+    {
+      "category": "Ch. 10 - Nutrition, Fitness & Sports",
+      "color": "#EF4444",
+      "questions": [
+        {
+          "id": "f1",
+          "type": "multi",
+          "question": "Which are established benefits of regular physical activity? (Select all that apply)",
+          "options": [
+            "Improved cardiovascular health and blood lipid profile",
+            "Better blood glucose control and insulin sensitivity",
+            "Higher bone density and reduced osteoporosis risk",
+            "Improved mood, sleep, and cognitive function",
+            "Elimination of any need for dietary attention"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Fitness also improves weight management, immune function, and lowers risk for several cancers. It complements diet rather than replacing it."
+        },
+        {
+          "id": "f2",
+          "type": "mc",
+          "question": "What are the key physical activity recommendations for adults?",
+          "options": [
+            "At least 150 minutes/week of moderate-intensity (or 75 minutes vigorous) aerobic activity, plus muscle-strengthening on 2 or more days",
+            "30 minutes of vigorous activity once per week",
+            "10,000 steps daily with no strength training",
+            "60 minutes of aerobic activity daily with no rest days"
+          ],
+          "answer": 0,
+          "explanation": "More activity yields more benefit, and moving at all beats being sedentary. Matt's 30 minutes/day meets the aerobic target."
+        },
+        {
+          "id": "f3",
+          "type": "mc",
+          "question": "Most energy comes from _______ when a person is doing short, intense exercise.",
+          "options": ["Glucose", "Fatty acids", "Protein", "Ketones"],
+          "answer": 0,
+          "explanation": "Glucose (from muscle glycogen) breaks down anaerobically and fast. Fat requires oxygen and yields ATP too slowly for high-intensity work."
+        },
+        {
+          "id": "f4",
+          "type": "mc",
+          "question": "While Matt is running a 100-meter dash, what fuel is his body primarily using?",
+          "options": ["Carbohydrate", "Fat", "Protein", "Vitamins"],
+          "answer": 0,
+          "explanation": "For an all-out effort under about 10 seconds, stored ATP and creatine phosphate go first, then anaerobic glycolysis of glucose. Fat plays essentially no role at that intensity."
+        },
+        {
+          "id": "f5",
+          "type": "mc",
+          "question": "Which condition shifts the fuel mix MOST toward fat?",
+          "options": [
+            "Prolonged low-to-moderate intensity exercise in a trained person",
+            "A 200-meter sprint",
+            "Maximal weight lifting",
+            "The first 30 seconds of any activity"
+          ],
+          "answer": 0,
+          "explanation": "As intensity falls and duration rises, fat contributes a larger share. Training amplifies this by improving fat oxidation, which spares glycogen and delays fatigue."
+        },
+        {
+          "id": "f6",
+          "type": "mc",
+          "question": "Which statement about protein as an exercise fuel is correct?",
+          "options": [
+            "It normally supplies only a small share of energy, rising somewhat during prolonged endurance exercise or when glycogen is depleted",
+            "It is the primary fuel for all exercise lasting over 20 minutes",
+            "It provides no energy under any circumstances",
+            "It replaces carbohydrate as the main fuel during sprinting"
+          ],
+          "answer": 0,
+          "explanation": "Protein's job is building and repairing tissue, not fueling. Adequate carbohydrate spares protein for that structural role."
+        },
+        {
+          "id": "f7",
+          "type": "mc",
+          "question": "Which recommendation will best optimize muscle protein synthesis?",
+          "options": [
+            "5 grams protein/kg within 2 hours of exercise",
+            "20-30 grams of protein at each meal",
+            "10-15 grams of liquid protein during exercise",
+            "0.8 grams protein/kg within 2 hours of sleep"
+          ],
+          "answer": 1,
+          "explanation": "Muscle protein synthesis responds best to moderate protein doses spread evenly across the day, not one large load. Matt's shakes and bars likely push him well past need - and excess protein is stored as fat, not muscle."
+        },
+        {
+          "id": "f8",
+          "type": "mc",
+          "question": "What is the general protein recommendation for athletes?",
+          "options": [
+            "About 1.2-2.0 g/kg body weight per day, usually met through food alone",
+            "About 0.4 g/kg per day",
+            "At least 4 g/kg per day from supplements",
+            "Protein needs are identical to sedentary adults at 0.8 g/kg"
+          ],
+          "answer": 0,
+          "explanation": "Endurance athletes sit at the lower end, strength athletes higher. Most athletes already exceed this from a normal diet, which is why supplements are rarely necessary."
+        },
+        {
+          "id": "f9",
+          "type": "mc",
+          "question": "What are the carbohydrate recommendations for active people?",
+          "options": [
+            "Carbohydrate should be the primary fuel, roughly 45-65% of calories, with intake scaled up as training volume increases to keep glycogen stores full",
+            "Carbohydrate should be minimized to force fat burning",
+            "Carbohydrate is only needed on rest days",
+            "Carbohydrate should replace all dietary fat"
+          ],
+          "answer": 0,
+          "explanation": "Glycogen depletion is a main cause of fatigue - hitting the wall. Matt's roommate is right that carbohydrate supports performance, even for short sprint work."
+        },
+        {
+          "id": "f10",
+          "type": "mc",
+          "question": "How much fluid should John drink after his race if he lost 3 pounds?",
+          "options": ["6 to 9 cups", "3 to 5 cups", "10 to 12 cups", "1 to 3 cups"],
+          "answer": 0,
+          "explanation": "Replace roughly 2-3 cups (16-24 oz) of fluid per pound of body weight lost. Three pounds means about 6-9 cups."
+        },
+        {
+          "id": "f11",
+          "type": "mc",
+          "question": "Which of the following influences hydration status the least?",
+          "options": ["Caffeine consumption", "Alcohol intake", "Carbohydrate intake", "Living at a higher altitude"],
+          "answer": 0,
+          "explanation": "Alcohol suppresses ADH and clearly increases fluid loss, altitude increases respiratory and urinary water loss, and carbohydrate/glycogen storage binds water. Moderate caffeine has only a minimal diuretic effect and does not meaningfully dehydrate. NOTE: this one is worth confirming with your TA - some course keys mark carbohydrate intake instead."
+        },
+        {
+          "id": "f12",
+          "type": "mc",
+          "question": "Which beverage would be best for Matt to drink during his 30-minute exercise routine at the indoor track?",
+          "options": ["Water", "Sports drink", "Chocolate milk", "Regular soda pop"],
+          "answer": 0,
+          "explanation": "For exercise under about 60 minutes, plain water is sufficient. Sports drinks add value beyond an hour or in heavy heat; chocolate milk is a recovery drink, not a during-exercise one."
+        },
+        {
+          "id": "f13",
+          "type": "mc",
+          "question": "When does a sports drink become genuinely useful?",
+          "options": [
+            "For continuous exercise lasting longer than about 60 minutes, or heavy sweating in the heat, because it replaces carbohydrate and electrolytes",
+            "For any workout, regardless of length",
+            "Only after exercise ends",
+            "Only for strength training sessions"
+          ],
+          "answer": 0,
+          "explanation": "Beyond an hour, glycogen and sodium losses become limiting. The 6-8% carbohydrate concentration in sports drinks empties from the stomach without causing GI upset."
+        },
+        {
+          "id": "f14",
+          "type": "multi",
+          "question": "Which are criteria for a good pre-event meal? (Select all that apply)",
+          "options": [
+            "Eaten about 1-4 hours before the event",
+            "High in carbohydrate",
+            "Low in fat and fiber",
+            "Familiar, well-tolerated foods",
+            "Includes plenty of fluid",
+            "High in protein, such as steak and ribs"
+          ],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "Fat, fiber, and large protein loads slow gastric emptying and risk GI distress. Matt's roommate's steak-and-ribs advice is exactly wrong."
+        },
+        {
+          "id": "f15",
+          "type": "mc",
+          "question": "Which meal, eaten about 2 hours before a race, best meets pre-event criteria?",
+          "options": [
+            "Toast with a thin layer of jam, a banana, low-fat yogurt, and water",
+            "Steak, ribs, french fries, and a milkshake",
+            "A bean-and-broccoli burrito with hot sauce",
+            "A protein shake with fiber supplement and coffee"
+          ],
+          "answer": 0,
+          "explanation": "Familiar, high-carbohydrate, low-fat, low-fiber, and hydrating. The other options are heavy in fat, fiber, or gas-producing foods."
+        },
+        {
+          "id": "f16",
+          "type": "mc",
+          "question": "What are the recovery recommendations after an event?",
+          "options": [
+            "Carbohydrate plus some protein within about 2 hours, along with fluid and electrolytes to replace losses",
+            "Protein only, with no carbohydrate",
+            "Fasting for 4 hours to maximize fat burning",
+            "Fluid only, since food slows recovery"
+          ],
+          "answer": 0,
+          "explanation": "Carbohydrate refills glycogen and protein supports muscle repair. Chocolate milk is a common recommendation because it delivers both plus fluid and electrolytes."
+        },
+        {
+          "id": "f17",
+          "type": "mc",
+          "question": "Which best describes Relative Energy Deficiency in Sport (RED-S)?",
+          "options": [
+            "Low energy availability - not eating enough to cover training plus basic function - leading to hormonal, menstrual, bone, immune, and performance problems in both sexes",
+            "Excessive protein intake causing kidney damage in athletes",
+            "Dehydration during endurance events",
+            "Overtraining without adequate sleep, unrelated to nutrition"
+          ],
+          "answer": 0,
+          "explanation": "RED-S expanded the older female athlete triad (disordered eating, amenorrhea, low bone density) to include men and a wider set of consequences. The root cause is a chronic gap between energy intake and energy expenditure."
+        },
+        {
+          "id": "f18",
+          "type": "mc",
+          "question": "Which micronutrients are the most common concerns for athletes?",
+          "options": [
+            "Iron and calcium with vitamin D",
+            "Vitamin K and biotin",
+            "Selenium and chromium",
+            "Vitamin C and niacin"
+          ],
+          "answer": 0,
+          "explanation": "Iron matters because of losses through sweat, foot-strike hemolysis, and menstruation; calcium and vitamin D protect against stress fractures. Athletes meeting their calorie needs from varied food rarely need other supplements."
+        },
+        {
+          "id": "f19",
+          "type": "mc",
+          "question": "How adequate is Matt's diet (meat, bread, rice, peanut butter, protein shakes and bars) in vitamins A and C?",
+          "options": [
+            "Too low in both vitamins A and C",
+            "Too low in vitamin A only",
+            "Too low in vitamin C only",
+            "Adequate in vitamins A and C"
+          ],
+          "answer": 0,
+          "explanation": "Both vitamins come primarily from fruits and vegetables, and Matt eats essentially none. Sustained over months this could produce poor wound healing and easy bruising from low vitamin C."
+        },
+        {
+          "id": "f20",
+          "type": "mc",
+          "question": "Which lipoprotein helps return cholesterol to the liver to be removed from the body?",
+          "options": ["Chylomicrons", "HDL", "VLDL", "LDL"],
+          "answer": 1,
+          "explanation": "HDL is the Healthy one - reverse cholesterol transport back to the liver. Regular exercise is one of the most reliable ways to raise it."
+        }
+      ],
+      "flashcards": [
+        { "front": "Fuel mix by intensity", "back": "Short and intense = carbohydrate (glycogen, anaerobic glycolysis). Long and lower intensity = increasing share of fat. Protein contributes only a small amount." },
+        { "front": "ATP-CP system", "back": "Stored ATP and creatine phosphate power all-out effort for roughly the first 10 seconds - a 100-meter dash." },
+        { "front": "Glycogen sparing", "back": "A training adaptation: trained muscle burns more fat at a given workload, preserving glycogen and delaying fatigue (hitting the wall)." },
+        { "front": "Physical activity recommendation", "back": "150 min/week moderate or 75 min/week vigorous aerobic activity, plus muscle-strengthening on 2 or more days per week." },
+        { "front": "Athlete protein needs", "back": "About 1.2-2.0 g/kg/day, spread as 20-30 g per meal. Excess protein is not stored as muscle - it is used for energy or stored as fat." },
+        { "front": "Fluid replacement rule", "back": "Drink about 2-3 cups (16-24 oz) per pound of body weight lost during exercise." },
+        { "front": "Water vs. sports drink", "back": "Water for exercise under about 60 minutes. Sports drink beyond 60 minutes or in heavy heat, to replace carbohydrate and electrolytes." },
+        { "front": "Pre-event meal criteria", "back": "1-4 hours before, high carbohydrate, low fat, low fiber, moderate protein, familiar foods, plenty of fluid." },
+        { "front": "Post-event recovery", "back": "Carbohydrate plus protein within about 2 hours, plus fluid and electrolytes. Chocolate milk hits all of it." },
+        { "front": "RED-S", "back": "Relative Energy Deficiency in Sport: chronically low energy availability causing hormonal, menstrual, bone, immune, GI, and performance problems in athletes of any sex." },
+        { "front": "Female athlete triad", "back": "The older model RED-S replaced: disordered eating, menstrual dysfunction (amenorrhea), and low bone mineral density." },
+        { "front": "Athlete micronutrients of concern", "back": "Iron (sweat loss, foot-strike hemolysis, menstruation) and calcium with vitamin D (stress fracture risk)." }
+      ]
+    }
+  ]
+}
