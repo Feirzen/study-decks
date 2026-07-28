@@ -23,6 +23,12 @@
           "title": "Exam 2",
           "subtitle": "Lipids, Protein & Energy Balance",
           "file": "sets/ndfs-100/exam-2.json"
+        },
+        {
+          "id": "ndfs-100-exam-3",
+          "title": "Exam 3",
+          "subtitle": "Vitamins, Water & Minerals, Sports Nutrition",
+          "file": "sets/ndfs-100/exam-3.json"
         }
       ]
     }
