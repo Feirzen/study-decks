@@ -1,26 +1,56 @@
 # Study Decks
 
-A self-contained flashcard + quiz app that runs on GitHub Pages. Open one URL on your PC, laptop, or iPhone. Progress (scores, stars, streaks, known cards) is saved per device in the browser and survives closing/reopening.
+A self-contained quiz app that runs on GitHub Pages. Open one URL on your PC, laptop, or iPhone. Progress (scores, stars, misses, streaks, battle level) is saved per device in the browser and survives closing and reopening.
 
 ## Structure
 
 ```
-index.html                     the whole app (no build step, no dependencies)
-.nojekyll                       tells GitHub Pages to serve files as-is
+index.html      markup shell
+styles.css      themes + all styling (every color is a CSS custom property)
+core.js         state, persistence, themes, audio, effects, keyboard nav
+game.js         Battle Mode + pixel sprites
+app.js          boot, routing, screens, events
+.nojekyll       tells GitHub Pages to serve files as-is
 sets/
-  manifest.json                list of classes and their sets
+  manifest.json list of classes and their sets
   religion-212/
-    exam-1.json                one study set
+    exam-1.json one study set
 ```
+
+No build step and no dependencies. Edit a file, commit, refresh.
 
 Adding a **class** = a new folder under `sets/` + an entry in `manifest.json`.
 Adding a **set** = one `.json` file + a line in that class's `sets` array.
 
 ## Modes
 
-- **Quiz** — by category, multiple-choice and select-all, immediate feedback with explanations, star any question, per-question grid.
-- **Flashcards** — flip cards (tap to reveal), "Got it / Still learning". Every quiz question becomes a flashcard automatically (front = question, back = answer + explanation). You can also add dedicated cards (see below).
-- **Shuffle** — infinite random questions with a live streak + best-streak counter.
+- **Quiz** — by chapter, multiple-choice and select-all, immediate feedback with explanations, star any question, per-question grid.
+- **Shuffle** — endless questions with a live streak and best-streak counter.
+- **Battle** — every answer is an attack. Five enemies then a boss, floor after floor, until your HP runs out. XP and levels persist per deck.
+
+All three write to the same progress record, so anything you answer anywhere shows up in the chapter grids.
+
+## How progress works
+
+- A correct answer marks a question green; a miss marks it red. A question can move back and forth freely, so the grid always reflects how you are actually doing right now.
+- Every miss is counted for the lifetime of the deck. Miss something twice and it stars itself automatically.
+- **Starred** and **Misses** are mutually exclusive filters that scope Shuffle and Battle. Misses covers anything you have *ever* missed, with currently-wrong questions weighted to come up first.
+- Shuffle and Battle order questions by weight rather than pure random: currently wrong beats previously missed beats never missed. Every question still appears once per pass.
+
+## Themes
+
+Four, picked from the palette button in the top right and remembered across sessions:
+
+- **Midnight** — the original dark theme
+- **Paper** — light
+- **Sepia** — warm and low-light
+- **Chameleon** — a fresh generated palette every 3 answers. Hue is random; saturation and lightness are constrained so contrast is always readable. Tap the lizard to lock a palette you like, tap again to release it.
+
+Category and deck colors from the JSON are automatically re-fitted to whichever theme is active, so authored colors stay legible on light and dark alike.
+
+## Keyboard
+
+Arrow keys move the highlight, Enter selects or submits, Backspace leaves the current screen.
 
 ## Set file schema
 
@@ -33,7 +63,7 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
   "categories": [
     {
       "category": "Historical Background",
-      "color": "#7C3AED",               // accent color for this category
+      "color": "#7C3AED",               // accent color for this chapter
       "questions": [
         {
           "id": "h1",                   // unique within the set
@@ -51,9 +81,6 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
           "answers": [0, 2],            // 0-based indices of ALL correct options
           "explanation": "..."
         }
-      ],
-      "flashcards": [                   // OPTIONAL dedicated cards (not derived from questions)
-        { "id": "fc1", "front": "Define Hellenism", "back": "The popular Greek-influenced culture of antiquity." }
       ]
     }
   ]
@@ -62,14 +89,25 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
 
 Options are shuffled on every visit, so answer order never matters.
 
+`manifest.json` entries take an optional `"color"` per set, used for that deck's accent on the class screen. Older set files may still contain a `"flashcards"` array; it is ignored.
+
+### Writing options
+
+Keep all options within roughly the same length. A correct answer that is noticeably longer or more specific than its distractors is guessable without knowing the material.
+
 ## One-time setup (GitHub Pages)
 
 1. Create a new GitHub repo (e.g. `study-decks`).
 2. Upload everything in this folder to the repo root.
 3. Repo **Settings → Pages → Build and deployment → Source: Deploy from a branch**, branch `main`, folder `/ (root)`, Save.
-4. Wait ~1 minute, then open `https://<your-username>.github.io/study-decks/`.
+4. Wait about a minute, then open `https://<your-username>.github.io/study-decks/`.
 5. On iPhone: open that URL in Safari → Share → **Add to Home Screen**. It launches full-screen like an app.
 
 ## Adding a new set later
 
-Give Claude your study material and say which class it belongs to. Claude generates the set `.json`, drops it in the right folder, and adds it to `manifest.json`. Commit + push and refresh the page.
+Give Claude your study material and say which class it belongs to. Claude generates the set `.json`, drops it in the right folder, and adds it to `manifest.json`. Commit and push, then refresh the page.
+
+## Not done yet
+
+- Cross-device sync (planned: a Cloudflare Worker + KV with a per-question merge, so a phone and a laptop can't clobber each other).
+- Offline / installable PWA (web app manifest + service worker).
