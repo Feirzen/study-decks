@@ -29,6 +29,18 @@
           "title": "Exam 3",
           "subtitle": "Vitamins, Water & Minerals, Sports Nutrition",
           "file": "sets/ndfs-100/exam-3.json"
+        },
+        {
+          "id": "ndfs-100-final-review",
+          "title": "Final: Ch. 1-10 Review",
+          "subtitle": "Comprehensive carryover material (~45% of the final)",
+          "file": "sets/ndfs-100/final-review.json"
+        },
+        {
+          "id": "ndfs-100-final-new",
+          "title": "Final: Ch. 11-16 New Material",
+          "subtitle": "Eating disorders, food safety, pregnancy, infancy, adulthood (~55%)",
+          "file": "sets/ndfs-100/final-new.json"
         }
       ]
     }

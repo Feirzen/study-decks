@@ -1,0 +1,686 @@
+{
+  "id": "ndfs-100-final-new",
+  "class": "NDFS 100",
+  "title": "Final: Ch. 11-16 New Material",
+  "subtitle": "Eating disorders, food safety, pregnancy, infancy, adulthood (~55% of the final)",
+  "categories": [
+    {
+      "category": "Ch. 11 - Eating Disorders",
+      "color": "#EC4899",
+      "questions": [
+        {
+          "id": "ed1",
+          "type": "mc",
+          "question": "Which of the following is a physical effect of bulimia nervosa?",
+          "options": ["Gastric ulcers and esophageal tears", "Lanugo and hypothermia", "Atherosclerosis", "Type 1 diabetes"],
+          "answer": 0,
+          "explanation": "Repeated vomiting damages the esophagus and stomach lining and erodes tooth enamel. Lanugo and hypothermia belong to anorexia nervosa."
+        },
+        {
+          "id": "ed2",
+          "type": "mc",
+          "question": "Which is NOT a typical characteristic of binge-eating disorder?",
+          "options": [
+            "Purging following the binge-eating episodes",
+            "Binge episodes not accompanied by compensatory behaviors",
+            "Binge episodes occurring at least once a week for 3 months",
+            "Consuming a large amount of calories in a short period of time"
+          ],
+          "answer": 0,
+          "explanation": "The absence of compensatory behavior is what defines binge-eating disorder. Once purging enters the picture, the diagnosis becomes bulimia nervosa."
+        },
+        {
+          "id": "ed3",
+          "type": "mc",
+          "question": "Which term describes the absence of or irregular menstrual periods, a common physical effect of anorexia nervosa?",
+          "options": ["Amenorrhea", "Hyperinsulinemia", "Osteoporosis", "Hypothermia"],
+          "answer": 0,
+          "explanation": "Amenorrhea results from too little body fat and energy availability to sustain normal reproductive hormone function. It contributes to the low bone density also seen in anorexia."
+        },
+        {
+          "id": "ed4",
+          "type": "mc",
+          "question": "An 18-year-old at 5'7\" and 140 lbs repeatedly eats large amounts of food and then induces vomiting. Which best describes her?",
+          "options": ["Bulimia nervosa", "Anorexia nervosa", "Binge-eating disorder", "Normal adolescent eating"],
+          "answer": 0,
+          "explanation": "Bingeing plus compensatory purging at a normal body weight is bulimia nervosa. Anorexia requires significant underweight, and binge-eating disorder has no compensatory behavior."
+        },
+        {
+          "id": "ed5",
+          "type": "mc",
+          "question": "Which is NOT a physical effect of anorexia nervosa?",
+          "options": ["Esophageal tears", "Low blood potassium", "Poor immunity", "Osteoporosis"],
+          "answer": 0,
+          "explanation": "Esophageal tears come from repeated vomiting, which points to bulimia. Anorexia produces low potassium, poor immunity, osteoporosis, amenorrhea, lanugo, hypothermia, and bradycardia."
+        },
+        {
+          "id": "ed6",
+          "type": "mc",
+          "question": "Which is most likely to be a consequence of prolonged binge-eating disorder?",
+          "options": ["Type 2 diabetes", "Low blood potassium", "Gastric ulcers", "Progressive deafness"],
+          "answer": 0,
+          "explanation": "Because there is no compensatory behavior, binge-eating disorder often leads to obesity and its consequences: type 2 diabetes, hypertension, high cholesterol, cardiovascular disease, and sleep apnea."
+        },
+        {
+          "id": "ed7",
+          "type": "mc",
+          "question": "You are worried about a close friend who expresses a lot of concern about her weight and often skips meals. What is the best course of action?",
+          "options": [
+            "Kindly encourage her to get professional help and offer your support",
+            "Educate her on MyPlate",
+            "Tell her she is skinny enough and there is nothing to worry about",
+            "Help her measure out her food and eat with her"
+          ],
+          "answer": 0,
+          "explanation": "Eating disorders require a professional team - medical, nutritional, and psychological. Nutrition education, reassurance about appearance, and taking over her food choices do not address the underlying disorder."
+        },
+        {
+          "id": "ed8",
+          "type": "multi",
+          "question": "Which of the following are signs of a developing eating disorder? (Select all that apply)",
+          "options": [
+            "Severe calorie restriction",
+            "Constantly thinking about food or eating",
+            "Intense fear of gaining weight",
+            "Excessive exercise",
+            "Increased intake of low-calorie or calorie-free foods",
+            "Occasionally enjoying a normal-sized dessert"
+          ],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "All five are warning signs, along with skipping meals, eating alone, and frequent bathroom trips after meals. Occasionally enjoying dessert is normal eating, not a symptom."
+        },
+        {
+          "id": "ed9",
+          "type": "mc",
+          "question": "A patient presents with fine downy body hair, constant coldness, a slow heart rate, and a significantly low body weight. Which disorder does this describe?",
+          "options": ["Anorexia nervosa", "Bulimia nervosa", "Binge-eating disorder", "Celiac disease"],
+          "answer": 0,
+          "explanation": "Lanugo is the body's attempt to insulate itself when body fat is lost, and hypothermia and bradycardia reflect the metabolic slowdown of starvation. These are anorexia hallmarks."
+        },
+        {
+          "id": "ed10",
+          "type": "mc",
+          "question": "Why is bulimia nervosa often harder to detect than anorexia nervosa?",
+          "options": [
+            "People with bulimia are usually at or slightly above a normal body weight",
+            "Bulimia produces no physical effects at all",
+            "Bulimia only occurs in adults over 40",
+            "People with bulimia never binge in private"
+          ],
+          "answer": 0,
+          "explanation": "Because weight often stays in the normal range, bulimia is frequently hidden for years. Physical clues are subtler: dental enamel erosion, swollen parotid glands, and calluses on the knuckles."
+        },
+        {
+          "id": "ed11",
+          "type": "mc",
+          "question": "Which statement about eating disorder treatment and prognosis is accurate?",
+          "options": [
+            "Treatment requires a team addressing medical, nutritional, and psychological needs, and anorexia has the highest mortality rate of any psychiatric disorder",
+            "A structured meal plan alone resolves most cases",
+            "Eating disorders resolve on their own once the person reaches a normal weight",
+            "Only inpatient hospitalization is ever effective"
+          ],
+          "answer": 0,
+          "explanation": "Eating disorders are psychiatric illnesses with serious medical consequences, so treatment combines medical monitoring, a registered dietitian, and therapy. Anorexia's mortality rate is the highest of any psychiatric diagnosis."
+        }
+      ],
+      "flashcards": [
+        { "front": "The three main eating disorders", "back": "Anorexia nervosa (restriction, underweight), bulimia nervosa (binge plus compensatory purging, usually normal weight), binge-eating disorder (binge with no compensatory behavior, often overweight)." },
+        { "front": "Fastest way to tell bulimia from binge-eating disorder", "back": "Ask whether there is compensatory behavior - vomiting, laxatives, fasting, or excessive exercise. If yes, bulimia. If no, BED." },
+        { "front": "Fastest way to tell anorexia from bulimia", "back": "Ask about body weight. Anorexia requires significant underweight; bulimia is usually normal weight or slightly above." },
+        { "front": "Frequency criterion", "back": "Both bulimia nervosa and binge-eating disorder require episodes at least once a week for 3 months." }
+      ]
+    },
+    {
+      "category": "Ch. 12 - Protecting Our Food Supply",
+      "color": "#F59E0B",
+      "questions": [
+        {
+          "id": "fs1",
+          "type": "mc",
+          "question": "What is the lowest safe internal temperature for grilling chicken?",
+          "options": ["165 F", "160 F", "155 F", "145 F"],
+          "answer": 0,
+          "explanation": "All poultry must reach 165 F. Ground meat is 160 F and whole cuts of beef, pork, and fish are 145 F with a 3-minute rest. The 160 F option is the classic trap for poultry."
+        },
+        {
+          "id": "fs2",
+          "type": "mc",
+          "question": "Which food preservation method destroys microbes on foods using gamma rays?",
+          "options": ["Irradiation", "Pasteurization", "Fermentation", "Dehydration"],
+          "answer": 0,
+          "explanation": "Irradiation uses gamma rays to kill microbes and insects and extend shelf life. It does NOT make food radioactive and causes only minor nutrient loss. Irradiated foods carry the radura symbol."
+        },
+        {
+          "id": "fs3",
+          "type": "mc",
+          "question": "Which process poses the greatest risk of foodborne illness?",
+          "options": [
+            "Thawing steaks on the kitchen counter",
+            "Thawing chicken in the refrigerator",
+            "Thawing beef in the microwave",
+            "Thawing hot dogs under cold running water"
+          ],
+          "answer": 0,
+          "explanation": "Counter thawing lets the outer surface sit in the 40-140 F danger zone while the interior is still frozen. The three safe methods are the refrigerator, cold running water, and the microwave (cook immediately after)."
+        },
+        {
+          "id": "fs4",
+          "type": "mc",
+          "question": "What is the temperature danger zone?",
+          "options": ["40 F to 140 F", "0 F to 40 F", "32 F to 100 F", "37 F to 145 F"],
+          "answer": 0,
+          "explanation": "Bacteria multiply rapidly between 40 F and 140 F. Keep the refrigerator at or below 40 F and the freezer at 0 F."
+        },
+        {
+          "id": "fs5",
+          "type": "mc",
+          "question": "What is NOT accurate about organic foods compared with conventional foods? Organic foods...",
+          "options": [
+            "are more nutritious",
+            "are more expensive",
+            "are produced under stricter standards",
+            "have a shorter shelf life"
+          ],
+          "answer": 0,
+          "explanation": "Organic production has stricter standards, higher cost, and shorter shelf life, but organic food is NOT more nutritious than conventional. The USDA organic seal requires at least 95% organic ingredients."
+        },
+        {
+          "id": "fs6",
+          "type": "mc",
+          "question": "Which statement about food additives is accurate?",
+          "options": [
+            "They lengthen shelf life, enhance flavors, or add nutrients",
+            "They are added to cover up spoilage in foods",
+            "Sugar is the only approved food additive",
+            "Allowed concentrations are just below the level observed to cause harm"
+          ],
+          "answer": 0,
+          "explanation": "Additives extend shelf life, prevent rancidity, improve flavor, color, and texture, and fortify foods. The allowed amount is set at 1/100th of the highest dose showing no effect in animal studies - a 100-fold margin of safety, not 'just below' harm."
+        },
+        {
+          "id": "fs7",
+          "type": "mc",
+          "question": "An older adult leaves leftover chicken soup covered on the cold stove until he eats it over 2-3 days. What is the best change he could make?",
+          "options": [
+            "Immediately refrigerate leftovers in small, shallow containers so they cool quickly",
+            "Leave the soup out but reheat it thoroughly before each meal",
+            "Set the refrigerator to 42 F so the soup does not freeze",
+            "Freeze the soup at 25 F so it thaws faster later"
+          ],
+          "answer": 0,
+          "explanation": "Leftovers need refrigeration within 2 hours (1 hour above 90 F) in shallow containers so they move through the danger zone fast, and should be used within 3-4 days. A refrigerator must be at or BELOW 40 F, and 25 F is not a frozen state."
+        },
+        {
+          "id": "fs8",
+          "type": "multi",
+          "question": "Who is at the highest risk for serious foodborne illness? (Select all that apply)",
+          "options": [
+            "Pregnant women",
+            "Infants and young children",
+            "Older adults",
+            "People who are immunocompromised",
+            "Healthy adults in their 20s",
+            "Competitive athletes"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Immature, weakened, or compromised immune systems raise the stakes. These groups are advised to avoid unpasteurized dairy and juice, raw sprouts, undercooked eggs and meat, and deli meats unless steaming hot."
+        },
+        {
+          "id": "fs9",
+          "type": "multi",
+          "question": "What are the four actions of the USDA food safety program? (Select all that apply)",
+          "options": ["Clean", "Separate", "Cook", "Chill", "Freeze", "Sterilize"],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Clean (hands and surfaces), Separate (avoid cross-contamination), Cook (to safe internal temperatures), Chill (refrigerate promptly)."
+        },
+        {
+          "id": "fs10",
+          "type": "mc",
+          "question": "Which statement about cooking meat safely is accurate?",
+          "options": [
+            "Use a thermometer and cook ground beef to 160 F",
+            "Cook hamburgers until they are brown inside to be sure they are done",
+            "Use a thermometer and cook chicken to 160 F",
+            "Ground beef and chicken are both safe at 145 F"
+          ],
+          "answer": 0,
+          "explanation": "Ground beef is 160 F. Color is never a reliable doneness indicator - only a thermometer is. Chicken needs 165 F, not 160 F."
+        },
+        {
+          "id": "fs11",
+          "type": "multi",
+          "question": "Which actions reduce a consumer's exposure to pesticide residues? (Select all that apply)",
+          "options": [
+            "Wash produce under running water and scrub firm produce",
+            "Peel produce when practical",
+            "Eat a variety of foods rather than the same items daily",
+            "Buy organic versions of high-residue items",
+            "Stop eating fruits and vegetables entirely",
+            "Rinse raw chicken in the sink before cooking"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Washing, peeling, variety, and choosing organic for high-residue items all help. Avoiding produce is counterproductive - the benefits far outweigh residue risk - and washing raw poultry actually spreads pathogens around the kitchen."
+        },
+        {
+          "id": "fs12",
+          "type": "multi",
+          "question": "Which of the following are potential BENEFITS of genetically modified foods? (Select all that apply)",
+          "options": [
+            "Higher crop yields",
+            "Pest and drought resistance",
+            "Reduced pesticide application",
+            "Added nutrients, such as vitamin A in golden rice",
+            "Guaranteed elimination of all food allergens",
+            "Increased biodiversity of crops"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "GMO benefits include yield, resistance, less pesticide use, longer shelf life, and nutrient enhancement. Drawbacks are the opposite of the last two options: possible new allergens, cross-pollination with non-GM crops, and REDUCED biodiversity."
+        }
+      ],
+      "flashcards": [
+        { "front": "Safe minimum internal temperatures", "back": "145 F whole cuts of beef, pork, lamb, fish (3-minute rest). 160 F ground meat and egg dishes. 165 F all poultry, stuffing, casseroles, and reheated leftovers." },
+        { "front": "Refrigerator, freezer, danger zone", "back": "Refrigerator at or below 40 F. Freezer at 0 F. Danger zone 40-140 F." },
+        { "front": "Safe thawing methods", "back": "In the refrigerator, under cold running water, or in the microwave (cook immediately after). Never on the counter." },
+        { "front": "Leftover rules", "back": "Refrigerate within 2 hours (1 hour if above 90 F), in small shallow containers, and use within 3-4 days." },
+        { "front": "Pasteurization vs irradiation", "back": "Pasteurization uses heat to kill pathogens in milk, juice, and eggs. Irradiation uses gamma rays and is marked with the radura symbol." },
+        { "front": "Foods that grow microbes fastest", "back": "Moist, protein-rich, low-acid foods: raw meat, poultry, seafood, eggs, dairy, cooked rice and pasta, cut melon, sprouts, and deli salads." },
+        { "front": "USDA organic seal levels", "back": "'100% organic' = all ingredients. The USDA seal requires at least 95% organic. 'Made with organic ingredients' = at least 70%, no seal." },
+        { "front": "GRAS", "back": "Generally Recognized As Safe - additives with a long history of safe use that are exempt from the standard approval process." }
+      ]
+    },
+    {
+      "category": "Ch. 14 - Pregnancy & Breastfeeding",
+      "color": "#8B5CF6",
+      "questions": [
+        {
+          "id": "pg1",
+          "type": "mc",
+          "question": "A woman is 5'3\" (63 inches) and weighs 177 lbs at conception. What is her recommended weight gain during pregnancy?",
+          "options": ["11-20 lbs", "15-25 lbs", "25-35 lbs", "28-40 lbs"],
+          "answer": 0,
+          "explanation": "Calculate BMI first: 177 / (63 x 63) x 703 = 31.4, which is obese. Obese = 11-20 lb. The higher the starting BMI, the lower the recommended gain."
+        },
+        {
+          "id": "pg2",
+          "type": "mc",
+          "question": "A 21-year-old is 5'5\" and weighed 130 lbs before pregnancy (BMI 21.6). What is her recommended weight gain?",
+          "options": ["25-35 lbs", "11-20 lbs", "15-25 lbs", "28-40 lbs"],
+          "answer": 0,
+          "explanation": "BMI 21.6 is in the normal range (18.5-24.9), so the target is 25-35 lb. Underweight is 28-40 lb, overweight is 15-25 lb, and obese is 11-20 lb."
+        },
+        {
+          "id": "pg3",
+          "type": "mc",
+          "question": "Which set of nutrient needs increases for a pregnant woman?",
+          "options": [
+            "Iron, folate, iodine, zinc",
+            "Vitamin C, sodium, potassium",
+            "Iron, vitamin K, fluoride",
+            "Nutrient needs do not increase during pregnancy"
+          ],
+          "answer": 0,
+          "explanation": "Iron rises to 27 mg for expanded blood volume, folate to 600 mcg to prevent neural tube defects, and iodine and zinc also increase. Protein rises by 25 g/day."
+        },
+        {
+          "id": "pg4",
+          "type": "mc",
+          "question": "Why is folate emphasized BEFORE conception rather than only after a pregnancy is confirmed?",
+          "options": [
+            "The neural tube closes in the first few weeks, often before a woman knows she is pregnant",
+            "Folate is only absorbed when a woman is not yet pregnant",
+            "Folate prevents morning sickness in the first trimester",
+            "Folate stores take a full year to build up"
+          ],
+          "answer": 0,
+          "explanation": "This is why all women who could become pregnant are advised to get 400 mcg per day. During pregnancy the recommendation rises to 600 mcg."
+        },
+        {
+          "id": "pg5",
+          "type": "mc",
+          "question": "A woman with a normal pre-pregnancy BMI plans to gain only 10-12 pounds. What is the greatest risk?",
+          "options": [
+            "The baby is at increased risk of health problems during his first year",
+            "The baby is at increased risk of being large for gestational age",
+            "There is less chance of the baby developing type 2 diabetes as an adult",
+            "She would be unable to breastfeed at all"
+          ],
+          "answer": 0,
+          "explanation": "Inadequate gestational weight gain leads to low birth weight and preterm delivery, which raise infant illness and mortality in the first year. Excessive gain carries the opposite risks: a large baby, difficult delivery, and gestational diabetes."
+        },
+        {
+          "id": "pg6",
+          "type": "mc",
+          "question": "Which is an advantage of breastfeeding an infant over formula feeding?",
+          "options": [
+            "Fewer infections for the infant",
+            "Higher protein content of human milk",
+            "Higher iron content of human milk",
+            "Longer sleep stretches for the infant"
+          ],
+          "answer": 0,
+          "explanation": "Breast milk carries antibodies and immune factors, especially in colostrum. Human milk is actually LOWER in protein than cow's milk and LOW in iron - the advantage is that its iron is exceptionally well absorbed."
+        },
+        {
+          "id": "pg7",
+          "type": "mc",
+          "question": "Which is NOT true regarding the advantages of breastfeeding?",
+          "options": [
+            "It decreases the risk of the mother developing allergies",
+            "It results in fewer infections for the infant",
+            "It decreases the risk of ovarian cancer for the mother",
+            "It reduces the risk of celiac disease in childhood"
+          ],
+          "answer": 0,
+          "explanation": "Breastfeeding lowers the INFANT's allergy and asthma risk, not the mother's. Maternal benefits are faster uterine involution, return toward pre-pregnancy weight, and lower ovarian and breast cancer risk."
+        },
+        {
+          "id": "pg8",
+          "type": "mc",
+          "question": "Which statement about human lactation is FALSE?",
+          "options": [
+            "A mother has to drink milk in order to produce milk",
+            "Colostrum is rich in immune factors and is produced during the first few days after birth",
+            "The amount of milk a mother produces responds to the infant's demand",
+            "Prolactin stimulates milk production and oxytocin triggers let-down"
+          ],
+          "answer": 0,
+          "explanation": "Milk production is supply and demand and does not depend on drinking milk. Adequate overall calories, fluid, and nutrients matter, but no specific food is required."
+        },
+        {
+          "id": "pg9",
+          "type": "mc",
+          "question": "Which is NOT a recommendation for relieving nausea and vomiting during pregnancy?",
+          "options": [
+            "Lie down right after eating",
+            "Consume small, frequent meals",
+            "Eat crackers or cereal before getting out of bed",
+            "Take ginger or vitamin B6"
+          ],
+          "answer": 0,
+          "explanation": "Lying down after eating worsens both nausea and heartburn by allowing stomach contents to move back up. Staying upright after meals is the recommendation."
+        },
+        {
+          "id": "pg10",
+          "type": "multi",
+          "question": "Which strategies help manage common pregnancy discomforts? (Select all that apply)",
+          "options": [
+            "Small frequent meals and avoiding spicy or fatty foods for heartburn",
+            "More fiber, more fluid, and regular activity for constipation",
+            "Staying upright after eating",
+            "Drinking fluids between meals rather than with them when nauseated",
+            "Taking a laxative daily throughout pregnancy",
+            "Skipping meals until nausea passes"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Dietary and positional strategies come first. Routine daily laxatives are not recommended, and skipping meals typically makes nausea worse because an empty stomach aggravates it."
+        },
+        {
+          "id": "pg11",
+          "type": "mc",
+          "question": "How do energy needs change across pregnancy?",
+          "options": [
+            "No increase in the first trimester, about +340 kcal in the second, and about +450 kcal in the third",
+            "About +500 kcal starting immediately in the first trimester",
+            "Energy needs double for the entire pregnancy",
+            "Energy needs do not change at any point"
+          ],
+          "answer": 0,
+          "explanation": "The 'eating for two' idea overshoots badly. Nutrient needs rise much more sharply than calorie needs, which is why nutrient density matters so much in pregnancy."
+        }
+      ],
+      "flashcards": [
+        { "front": "Pregnancy weight gain by pre-pregnancy BMI", "back": "Underweight (<18.5): 28-40 lb. Normal (18.5-24.9): 25-35 lb. Overweight (25-29.9): 15-25 lb. Obese (30+): 11-20 lb." },
+        { "front": "Consequences of too much gestational weight gain", "back": "Large-for-gestational-age baby, difficult delivery or C-section, gestational diabetes and hypertension, retained postpartum weight, higher childhood obesity risk for the child." },
+        { "front": "Foods to avoid during pregnancy", "back": "Alcohol (no safe amount), high-mercury fish, unpasteurized dairy and juice, deli meats and hot dogs unless steaming hot, raw sprouts, undercooked eggs and meat. Limit caffeine to about 200 mg/day." },
+        { "front": "Colostrum", "back": "The thick first milk produced in the days after birth. Rich in protein and immune factors, especially antibodies." },
+        { "front": "Prolactin vs oxytocin", "back": "Prolactin stimulates milk production. Oxytocin triggers the let-down reflex that releases it." },
+        { "front": "Maternal benefits of breastfeeding", "back": "Faster uterine involution and less postpartum bleeding, help returning to pre-pregnancy weight, lower ovarian and breast cancer risk, convenience and no cost." }
+      ]
+    },
+    {
+      "category": "Ch. 15 - Infancy Through Adolescence",
+      "color": "#3B82F6",
+      "questions": [
+        {
+          "id": "in1",
+          "type": "mc",
+          "question": "Which nutrient supplement is recommended to be added to an infant's diet around 4-6 months of age?",
+          "options": [
+            "Iron, in iron-fortified cereals",
+            "Calcium, found in cow's milk",
+            "Vitamin C, found in fruits",
+            "Fiber, in whole wheat bread"
+          ],
+          "answer": 0,
+          "explanation": "Fetal iron stores are depleted around 4-6 months, which is exactly when iron-fortified infant cereal is introduced. Cow's milk is not appropriate until 12 months."
+        },
+        {
+          "id": "in2",
+          "type": "mc",
+          "question": "Which food item would be a choking hazard for an 18-month-old?",
+          "options": ["Popcorn", "Soft crackers", "Diced, cooked carrots", "Small pieces of bread"],
+          "answer": 0,
+          "explanation": "Popcorn, nuts, whole grapes, hot dog rounds, hard candy, raw carrots, and large globs of peanut butter are choking hazards until about age 4. Soft, diced, and easily dissolved foods are safe."
+        },
+        {
+          "id": "in3",
+          "type": "mc",
+          "question": "Which of the following is NOT one of the major food allergens parents should watch for when introducing solids?",
+          "options": ["Bananas", "Milk", "Eggs", "Soybeans"],
+          "answer": 0,
+          "explanation": "The big allergens are milk, eggs, peanuts, tree nuts, soy, wheat, fish, shellfish, and sesame - together about 90% of reactions. Bananas are not among them."
+        },
+        {
+          "id": "in4",
+          "type": "multi",
+          "question": "Which indicate that an infant is developmentally ready for solid foods? (Select all that apply)",
+          "options": [
+            "Can sit up with support with good head and neck control",
+            "The extrusion (tongue-thrust) reflex has faded",
+            "Opens the mouth and leans toward the spoon",
+            "Can move food to the back of the mouth and swallow it",
+            "Has roughly doubled birth weight",
+            "Has reached exactly 6 months of age regardless of other signs"
+          ],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "Readiness is judged by development, not the calendar - though these signs typically appear around 4-6 months. If the tongue-thrust reflex is still active, the infant simply pushes food back out."
+        },
+        {
+          "id": "in5",
+          "type": "mc",
+          "question": "Which food should NOT be introduced before 12 months of age?",
+          "options": ["Both cow's milk and honey", "Iron-fortified infant cereal", "Pureed vegetables", "Soft finger foods"],
+          "answer": 0,
+          "explanation": "Cow's milk before 12 months can cause GI blood loss and iron deficiency and stresses the kidneys. Honey can cause infant botulism. Cereal starts at 4-6 months, purees follow, and finger foods come around 8-12 months."
+        },
+        {
+          "id": "in6",
+          "type": "mc",
+          "question": "Which infant needs a vitamin D supplement, and starting when?",
+          "options": [
+            "Breastfed infants, starting at birth",
+            "Formula-fed infants, starting at 3-4 months",
+            "All infants, starting at 12 months",
+            "Only infants born in winter, starting at 6 months"
+          ],
+          "answer": 0,
+          "explanation": "Breast milk is low in vitamin D, so breastfed infants need 400 IU per day from birth. Formula is already fortified. Fluoride is the one that starts at 6 months, and only if the water supply is not fluoridated."
+        },
+        {
+          "id": "in7",
+          "type": "mc",
+          "question": "What practice most increases the risk of early childhood dental caries?",
+          "options": [
+            "Putting an infant to bed with a bottle of milk or juice",
+            "Offering water in a cup at 6 months",
+            "Introducing iron-fortified cereal at 4-6 months",
+            "Feeding pureed vegetables before fruits"
+          ],
+          "answer": 0,
+          "explanation": "Sugars pool around the teeth during sleep because saliva flow drops, feeding the bacteria that cause decay. Prolonged sipping on juice throughout the day does the same thing."
+        },
+        {
+          "id": "in8",
+          "type": "mc",
+          "question": "A toddler refuses most vegetables. What is the recommended approach?",
+          "options": [
+            "The parent decides what, when, and where; the child decides whether and how much, with repeated non-pressured exposure",
+            "Require the child to finish the vegetables before leaving the table",
+            "Offer dessert as a reward for eating the vegetables",
+            "Cook a separate preferred meal so the child eats something"
+          ],
+          "answer": 0,
+          "explanation": "This is the division of responsibility. Accepting a new food can take 8-15 exposures. Pressuring, bribing with dessert, and short-order cooking all backfire long term."
+        },
+        {
+          "id": "in9",
+          "type": "multi",
+          "question": "Which are documented benefits of regular family meals? (Select all that apply)",
+          "options": [
+            "Better diet quality with more fruits, vegetables, and fiber",
+            "Lower risk of disordered eating and substance use in teens",
+            "Better academic performance and vocabulary development",
+            "Greater willingness to try new foods",
+            "Guaranteed weight loss for every family member",
+            "Elimination of all picky eating within a week"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Family meals improve diet quality, protect against risky behaviors, support language and school performance, and give parents a chance to model eating. They are not a weight-loss intervention or an instant fix for pickiness."
+        },
+        {
+          "id": "in10",
+          "type": "mc",
+          "question": "What is the recommended approach to treating overweight in a growing child?",
+          "options": [
+            "Family-based habit change with weight maintenance while the child grows into their weight",
+            "A calorie-restricted diet designed for the child alone",
+            "Rapid weight loss of 2-3 pounds per week",
+            "Eliminating all carbohydrates from the child's meals"
+          ],
+          "answer": 0,
+          "explanation": "The goal for most children is holding weight steady while height increases. Changes apply to the whole household - more activity, less screen time, fewer sugary drinks - so the child is never singled out."
+        },
+        {
+          "id": "in11",
+          "type": "multi",
+          "question": "Which nutrients are of greatest concern during adolescence? (Select all that apply)",
+          "options": ["Calcium", "Vitamin D", "Iron", "Zinc", "Vitamin K", "Sodium"],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Adolescence is the last major window for building peak bone mass (calcium and vitamin D) and brings increased iron needs from menstruation in girls and rising muscle mass in boys. Common problems are skipping breakfast, soda replacing milk, and frequent fast food."
+        },
+        {
+          "id": "in12",
+          "type": "multi",
+          "question": "Which are symptoms of a food allergy? (Select all that apply)",
+          "options": [
+            "Hives and itching",
+            "Swelling of the lips, tongue, or throat",
+            "Wheezing and difficulty breathing",
+            "Vomiting and diarrhea",
+            "Gradual tooth decay",
+            "Slow hair growth"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Food allergies are immune reactions to proteins and can involve skin, GI, and respiratory systems, up to life-threatening anaphylaxis. Introducing potential allergens early, around 4-6 months, actually REDUCES the chance of developing an allergy."
+        },
+        {
+          "id": "in13",
+          "type": "mc",
+          "question": "Which indicates that an infant is getting adequate nutrition?",
+          "options": [
+            "Steady growth along their curve on the growth chart and 6 or more wet diapers a day",
+            "Sleeping through the night by 3 months",
+            "Finishing every bottle offered",
+            "Weighing more than other infants the same age"
+          ],
+          "answer": 0,
+          "explanation": "Consistent growth along the infant's own percentile curve, adequate wet diapers, alertness, and meeting developmental milestones are the indicators. Sleeping through the night is a developmental milestone, not a nutrition marker."
+        }
+      ],
+      "flashcards": [
+        { "front": "Infant supplement timing", "back": "Vitamin D from BIRTH for breastfed infants (400 IU). Iron at 4-6 months. Fluoride at 6 months if the water is not fluoridated." },
+        { "front": "Infant feeding timeline", "back": "0-6 mo: breast milk or iron-fortified formula only. 4-6 mo: iron-fortified cereal, then single-ingredient purees. 6-8 mo: pureed meats, mashed foods. 8-12 mo: soft finger foods. 12 mo: cow's milk and honey." },
+        { "front": "Introducing new foods", "back": "One new food at a time, waiting 3-5 days before the next, so any reaction can be traced to a single food." },
+        { "front": "Choking hazards under age 4", "back": "Popcorn, nuts, whole grapes, hot dog rounds, hard candy, raw carrots, chunks of peanut butter, marshmallows, raisins, chunks of cheese or meat." },
+        { "front": "Division of responsibility in feeding", "back": "The parent decides WHAT, WHEN, and WHERE food is served. The child decides WHETHER and HOW MUCH to eat." },
+        { "front": "The major food allergens", "back": "Milk, eggs, peanuts, tree nuts, soy, wheat, fish, shellfish, and sesame - about 90% of all reactions. Allergens are almost always proteins." }
+      ]
+    },
+    {
+      "category": "Ch. 16 - Nutrition During Adulthood",
+      "color": "#10B981",
+      "questions": [
+        {
+          "id": "oa1",
+          "type": "mc",
+          "question": "What does the DETERMINE acronym assess?",
+          "options": [
+            "An older adult's risk factors for malnutrition",
+            "The stages of cancer development",
+            "The components of daily energy expenditure",
+            "The steps of the scientific method"
+          ],
+          "answer": 0,
+          "explanation": "DETERMINE stands for Disease, Eating poorly, Tooth loss or mouth pain, Economic hardship, Reduced social contact, Multiple medications, Involuntary weight loss or gain, Needs assistance in self-care, and Elderly (80+)."
+        },
+        {
+          "id": "oa2",
+          "type": "multi",
+          "question": "Which nutrients are of particular concern for older adults? (Select all that apply)",
+          "options": ["Vitamin B12", "Vitamin D", "Calcium", "Protein", "Fluid", "Sodium"],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "B12 (poor absorption from low stomach acid), vitamin D (less skin synthesis, RDA rises to 20 mcg after 70), calcium (1,200 mg), protein (to counter sarcopenia), and fluid (blunted thirst). Sodium is one to LIMIT, not increase."
+        },
+        {
+          "id": "oa3",
+          "type": "mc",
+          "question": "Why do many older adults absorb vitamin B12 from food poorly?",
+          "options": [
+            "Reduced stomach acid fails to release B12 from the protein it is bound to in food",
+            "The liver stops storing B12 after age 65",
+            "B12 is destroyed by cooking in older adults' typical diets",
+            "Older adults eat too much folate, which chemically destroys B12"
+          ],
+          "answer": 0,
+          "explanation": "Low stomach acid means food-bound B12 is not freed for absorption, which is why fortified foods or supplements (where B12 is already free) are recommended. Loss of intrinsic factor causes pernicious anemia."
+        },
+        {
+          "id": "oa4",
+          "type": "multi",
+          "question": "Which are benefits of regular physical activity for older adults? (Select all that apply)",
+          "options": [
+            "Preserves muscle mass and strength, countering sarcopenia",
+            "Improves balance and reduces fall risk",
+            "Maintains bone density",
+            "Supports blood glucose control, mood, sleep, and cognition",
+            "Eliminates the need for adequate protein intake",
+            "Replaces the need for calcium and vitamin D"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Activity should include balance and resistance training, not just walking. It works alongside adequate protein, calcium, and vitamin D rather than replacing them."
+        },
+        {
+          "id": "oa5",
+          "type": "multi",
+          "question": "An 82-year-old widower with good investment income lives alone, forgets to eat, dislikes fruit, has ill-fitting dentures, and eats every meal by himself. Which DETERMINE risk factors does he have? (Select all that apply)",
+          "options": [
+            "Eating poorly",
+            "Tooth loss or mouth pain",
+            "Reduced social contact",
+            "Needs assistance in self-care",
+            "Elderly",
+            "Economic hardship"
+          ],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "Economic hardship does not apply because he has good income - naming factors a person does NOT have is the usual way points are lost on these case questions. Read the vignette for income, medications, and diagnoses before assuming."
+        }
+      ],
+      "flashcards": [
+        { "front": "Why nutrient density matters most in older adulthood", "back": "Calorie needs go DOWN (lower BMR, less activity) while nutrient needs stay the same or rise, so every calorie has to carry more nutrition." },
+        { "front": "Sarcopenia", "back": "Age-related loss of muscle mass and strength. Countered with adequate protein and resistance training." },
+        { "front": "Calcium and vitamin D in older adults", "back": "Calcium RDA 1,200 mg for women 51+ and men 71+. Vitamin D RDA 15 mcg to age 70, then 20 mcg after 70." }
+      ]
+    }
+  ]
+}

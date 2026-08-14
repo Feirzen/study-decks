@@ -1,0 +1,589 @@
+{
+  "id": "ndfs-100-final-review",
+  "class": "NDFS 100",
+  "title": "Final: Ch. 1-10 Review",
+  "subtitle": "Comprehensive carryover material (~45% of the final)",
+  "categories": [
+    {
+      "category": "Ch. 1-2 - Research, Guidelines & MyPlate",
+      "color": "#3B82F6",
+      "questions": [
+        {
+          "id": "c1",
+          "type": "mc",
+          "question": "A snack contains 12 g carbohydrate, 5 g protein, and 9 g fat. How many calories does it provide?",
+          "options": ["149 kcal", "104 kcal", "134 kcal", "234 kcal"],
+          "answer": 0,
+          "explanation": "Carbohydrate and protein are 4 kcal/g, fat is 9 kcal/g. (12 x 4) + (5 x 4) + (9 x 9) = 48 + 20 + 81 = 149 kcal."
+        },
+        {
+          "id": "c2",
+          "type": "multi",
+          "question": "Which of the following supply the body with energy (calories)? (Select all that apply)",
+          "options": ["Carbohydrate", "Protein", "Fat", "Alcohol", "Vitamins", "Minerals", "Water"],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Carbohydrate and protein give 4 kcal/g, fat 9, and alcohol 7. Vitamins, minerals, and water supply no calories - vitamins only help release energy from the macronutrients."
+        },
+        {
+          "id": "c3",
+          "type": "mc",
+          "question": "Researchers survey 1,504 grocery shoppers one time about their food handling habits and report what percentage follow safe practices. What kind of study is this?",
+          "options": ["Cross-sectional observational study", "Randomized controlled trial", "Case-control study", "Meta-analysis"],
+          "answer": 0,
+          "explanation": "No treatment was assigned and everyone was measured at a single point in time, which makes it a cross-sectional observational study. It shows prevalence, not cause."
+        },
+        {
+          "id": "c4",
+          "type": "mc",
+          "question": "Which study design is the only one that can establish that a nutrient actually CAUSES an outcome?",
+          "options": ["Randomized controlled trial", "Cohort study", "Case-control study", "Cross-sectional survey"],
+          "answer": 0,
+          "explanation": "Random assignment to a treatment is what allows a causal claim. Cohort, case-control, and cross-sectional studies are all observational and can show association only."
+        },
+        {
+          "id": "c5",
+          "type": "mc",
+          "question": "Which food is the MOST nutrient dense?",
+          "options": ["Plain nonfat Greek yogurt", "Honey-sweetened granola bar", "Bagel with cream cheese", "100% fruit juice blend"],
+          "answer": 0,
+          "explanation": "Nutrient density is nutrients per calorie. Plain yogurt delivers protein, calcium, and B vitamins with few calories. Added sweeteners (honey) and solid fats (cream cheese) drive nutrient density down, and juice loses the fiber of whole fruit."
+        },
+        {
+          "id": "c6",
+          "type": "multi",
+          "question": "Which of the following are stated aims of the Dietary Guidelines for Americans? (Select all that apply)",
+          "options": [
+            "Follow a healthy dietary pattern at every life stage",
+            "Choose nutrient-dense foods and beverages with variety",
+            "Meet food group needs within calorie limits",
+            "Limit added sugars, saturated fat, sodium, and alcohol",
+            "Eliminate all carbohydrates from the diet",
+            "Take a daily multivitamin regardless of diet quality"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Those four points are the DGA framework, and the overall purpose is to promote health and prevent chronic disease. The Guidelines never call for eliminating a macronutrient or for universal supplementation."
+        },
+        {
+          "id": "c7",
+          "type": "mc",
+          "question": "Which of these counts as 1 ounce-equivalent from the Protein Foods group?",
+          "options": ["1 egg", "1/2 cup cooked beans", "2 Tablespoons peanut butter", "1 oz cheddar cheese"],
+          "answer": 0,
+          "explanation": "1 egg = 1 oz-eq. Half a cup of beans and 2 Tbsp of peanut butter are each 2 oz-eq, and cheese belongs to the Dairy group, not Protein Foods."
+        },
+        {
+          "id": "c8",
+          "type": "mc",
+          "question": "Which combination provides exactly 2 cup-equivalents of fruit?",
+          "options": [
+            "1 cup watermelon + 1 cup 100% grape juice",
+            "1/2 cup dried mango + 1 1/2 cups frozen pineapple",
+            "1/2 cup canned peaches + 1/2 cup raisins + 1 cup orange juice",
+            "1/4 cup dried apricots + 3/4 cup apple juice + 1 cup strawberries"
+          ],
+          "answer": 0,
+          "explanation": "Whole fruit and 100% juice count cup for cup, so 1 + 1 = 2. Dried fruit counts DOUBLE (1/2 cup dried = 1 cup-eq), which pushes the other three options to 2.5, 2.5, and 2.25."
+        },
+        {
+          "id": "c9",
+          "type": "mc",
+          "question": "On the DRI tables, what does the Tolerable Upper Intake Level (UL) tell you?",
+          "options": [
+            "The highest daily intake likely to pose no risk - a ceiling, not a goal",
+            "The intake that meets the needs of about 98% of healthy people",
+            "The intake that meets the needs of 50% of a group",
+            "The amount used as the reference number on a food label"
+          ],
+          "answer": 0,
+          "explanation": "The UL is a safety ceiling. The RDA (98% of people) is your target, the EAR covers 50% and is used to set the RDA, and the DV is the single label reference based on a 2,000-calorie diet."
+        },
+        {
+          "id": "c10",
+          "type": "mc",
+          "question": "A cereal label lists 22% DV for iron. How should this be described?",
+          "options": [
+            "High in iron",
+            "A good source of iron",
+            "Low in iron",
+            "Not enough information to say"
+          ],
+          "answer": 0,
+          "explanation": "The 5/20 rule: 5% DV or less is low, 10-19% DV is a 'good source,' and 20% DV or more is 'high in' that nutrient."
+        }
+      ],
+      "flashcards": [
+        { "front": "Nutrient density", "back": "Nutrients supplied per calorie. Calculate as nutrient amount divided by calories per serving. Added sweeteners and solid fats lower it." },
+        { "front": "EAR vs RDA vs AI vs UL", "back": "EAR = meets the need of 50% of a group. RDA = meets the need of ~98% (your target). AI = best estimate when data are too thin for an RDA. UL = safety ceiling." },
+        { "front": "EER and AMDR", "back": "EER = estimated calories to maintain current weight (age, sex, height, weight, activity). AMDR = healthy percentage-of-calories range for each macronutrient." },
+        { "front": "Unit conversions", "back": "1 g = 1,000 mg = 1,000,000 mcg. 1 kg = 2.2 lb. 1 inch = 2.54 cm. Always convert to a single unit before comparing." },
+        { "front": "Evaluating a nutrition claim", "back": "Ask who profits, whether it is peer-reviewed, whether it promises a quick fix, whether it sells a product, and whether it contradicts the overall body of evidence." },
+        { "front": "Ingredient list rule", "back": "Ingredients are listed in descending order by weight, so the first ingredient tells you what the product is mostly made of." }
+      ]
+    },
+    {
+      "category": "Ch. 3-4 - Digestion & Carbohydrates",
+      "color": "#F59E0B",
+      "questions": [
+        {
+          "id": "d1",
+          "type": "multi",
+          "question": "In which organs does chemical digestion of food actually take place? (Select all that apply)",
+          "options": ["Mouth", "Stomach", "Small intestine", "Liver", "Gallbladder", "Pancreas"],
+          "answers": [0, 1, 2],
+          "explanation": "Only GI tract organs digest food. The liver, gallbladder, and pancreas are accessory organs - they secrete bile and enzymes INTO the small intestine, but no food passes through them and no digestion happens inside them."
+        },
+        {
+          "id": "d2",
+          "type": "mc",
+          "question": "Which pairing of nutrient, starting organ, and enzyme is correct?",
+          "options": [
+            "Starch - mouth - salivary amylase",
+            "Protein - mouth - pepsin",
+            "Fat - stomach - bile",
+            "Protein - small intestine - hydrochloric acid"
+          ],
+          "answer": 0,
+          "explanation": "Carbohydrate digestion begins in the mouth with salivary amylase. Protein digestion begins in the stomach with pepsin (plus HCl to denature), and fat is handled mainly in the small intestine by bile and pancreatic lipase."
+        },
+        {
+          "id": "d3",
+          "type": "mc",
+          "question": "Which statement correctly distinguishes prebiotics from probiotics?",
+          "options": [
+            "Prebiotics are fibers that feed beneficial bacteria; probiotics are the live bacteria themselves",
+            "Prebiotics are live bacteria; probiotics are the fibers that feed them",
+            "Both terms describe live bacteria found only in yogurt",
+            "Prebiotics are antibiotics taken before a meal"
+          ],
+          "answer": 0,
+          "explanation": "Prebiotics (onions, garlic, bananas, whole grains) are non-digestible fibers that feed gut bacteria. Probiotics (yogurt, kefir, sauerkraut, kimchi) are the live beneficial organisms."
+        },
+        {
+          "id": "d4",
+          "type": "mc",
+          "question": "An individual with celiac disease must follow which kind of diet?",
+          "options": ["Gluten-free diet", "Lactose-free diet", "Sugar-free diet", "Low-fat diet"],
+          "answer": 0,
+          "explanation": "Celiac disease is an autoimmune reaction to gluten (wheat, rye, barley) that flattens the intestinal villi and causes malabsorption. The only treatment is a lifelong strict gluten-free diet."
+        },
+        {
+          "id": "d5",
+          "type": "mc",
+          "question": "Lactose is composed of which two monosaccharides?",
+          "options": ["Glucose and galactose", "Glucose and fructose", "Glucose and glucose", "Fructose and galactose"],
+          "answer": 0,
+          "explanation": "Lactose = glucose + galactose. Sucrose = glucose + fructose, and maltose = glucose + glucose."
+        },
+        {
+          "id": "d6",
+          "type": "multi",
+          "question": "Which are documented benefits of adequate dietary fiber? (Select all that apply)",
+          "options": [
+            "Lowers blood LDL cholesterol",
+            "Slows glucose absorption and blunts blood sugar spikes",
+            "Adds bulk and softness to stool, preventing constipation",
+            "Promotes satiety and helps with weight management",
+            "Supplies essential amino acids",
+            "Increases absorption of dietary cholesterol"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Fiber lowers LDL, slows glucose absorption, prevents constipation and diverticular disease, and increases fullness. It supplies no amino acids and it reduces cholesterol absorption rather than increasing it. Fiber is found only in plant foods."
+        },
+        {
+          "id": "d7",
+          "type": "mc",
+          "question": "What is the key difference between an enriched grain and a whole grain?",
+          "options": [
+            "Enrichment adds back B vitamins and iron but NOT fiber; whole grains keep all three kernel parts",
+            "Enriched grains contain more fiber than whole grains",
+            "Enriched and whole grain mean the same thing on a label",
+            "Whole grains have had the bran and germ removed"
+          ],
+          "answer": 0,
+          "explanation": "Refining strips the bran and germ. Enrichment restores certain B vitamins and iron but never the fiber, so enriched is not the same as whole grain. Check the first ingredient - 'wheat flour' and 'multigrain' are marketing, not proof."
+        },
+        {
+          "id": "d8",
+          "type": "mc",
+          "question": "A patient reports gas, bloating, and diarrhea after drinking milk, but has no trouble with hard cheese and small amounts of yogurt. What is going on and how is it managed?",
+          "options": [
+            "Lactose intolerance from low lactase; manage with low-lactose dairy, lactase pills, and smaller spread-out portions",
+            "Milk allergy; all dairy must be strictly eliminated",
+            "Celiac disease; a gluten-free diet is needed",
+            "Lactose intolerance; all dairy must be strictly eliminated"
+          ],
+          "answer": 0,
+          "explanation": "Lactose intolerance is an enzyme shortage with GI-only symptoms and is dose-dependent, so aged cheese and yogurt are usually tolerated. A milk allergy is an immune reaction to milk protein with multi-system symptoms (hives, swelling, breathing trouble) requiring strict avoidance."
+        }
+      ],
+      "flashcards": [
+        { "front": "Insulin vs glucagon", "back": "Insulin LOWERS blood glucose by moving it into cells. Glucagon RAISES it by breaking down liver glycogen." },
+        { "front": "Type 1 vs Type 2 diabetes management", "back": "Type 1: autoimmune loss of insulin production, managed with insulin matched to carbohydrate intake. Type 2: insulin resistance, managed with diet, weight loss, activity, and oral medication." },
+        { "front": "Complications of chronic high blood glucose", "back": "Kidney failure, blindness, nerve damage, heart disease, poor wound healing and amputation. NOT anemia." },
+        { "front": "Polysaccharides", "back": "Starch = plant storage. Glycogen = animal storage in liver and muscle. Fiber/cellulose = indigestible structural carbohydrate." },
+        { "front": "Fuel when glucose runs low", "back": "Glycogen breaks down first, then gluconeogenesis makes glucose from amino acids, then fat breakdown produces ketones. Adequate carbohydrate spares protein." },
+        { "front": "Large intestine", "back": "No digestive enzymes. Absorbs water and electrolytes; bacteria ferment fiber into short-chain fatty acids and gas and make some vitamin K and biotin." },
+        { "front": "Carbohydrate AMDR", "back": "45-65% of total calories, at 4 kcal/g." },
+        { "front": "Ways to increase fiber", "back": "Whole grains over refined, whole fruit over juice, skins on, add legumes, nuts and seeds. Increase gradually and add fluid." }
+      ]
+    },
+    {
+      "category": "Ch. 5-6 - Lipids & Protein",
+      "color": "#EF4444",
+      "questions": [
+        {
+          "id": "lp1",
+          "type": "mc",
+          "question": "Which food is highest in cholesterol?",
+          "options": ["Tuna fish", "Coconut oil", "Margarine", "Peanut butter"],
+          "answer": 0,
+          "explanation": "Cholesterol is a sterol found only in animal foods, and tuna is the only animal product listed. Coconut oil is the trap - it is very high in saturated fat but, being a plant, it contains zero cholesterol."
+        },
+        {
+          "id": "lp2",
+          "type": "mc",
+          "question": "Which food is the best source of EPA and DHA omega-3 fatty acids?",
+          "options": ["Fatty fish such as salmon", "Olive oil", "Cheese", "Peanut butter"],
+          "answer": 0,
+          "explanation": "EPA and DHA come from fatty fish. Plant sources like flaxseed, walnuts, and chia supply ALA. Olive oil is mostly monounsaturated and peanut butter is mono plus omega-6."
+        },
+        {
+          "id": "lp3",
+          "type": "mc",
+          "question": "Which lipoprotein picks up cholesterol from the tissues and returns it to the liver?",
+          "options": ["HDL", "LDL", "VLDL", "Chylomicron"],
+          "answer": 0,
+          "explanation": "HDL does reverse transport - Healthy, Home to the liver. LDL delivers cholesterol to tissues and artery walls, VLDL carries liver-made triglycerides out, and chylomicrons carry dietary fat from the intestine."
+        },
+        {
+          "id": "lp4",
+          "type": "mc",
+          "question": "After a fatty meal, absorbed fat is packaged into chylomicrons that first enter which system?",
+          "options": ["The lymphatic system", "The bloodstream directly", "The portal vein to the liver", "The stomach"],
+          "answer": 0,
+          "explanation": "Chylomicrons are too large to enter capillaries directly, so they travel through the lymph before draining into the bloodstream. Water-soluble nutrients like amino acids and glucose go straight to the liver via the portal vein."
+        },
+        {
+          "id": "lp5",
+          "type": "mc",
+          "question": "Why is a saturated fat solid at room temperature while an unsaturated fat is liquid?",
+          "options": [
+            "Saturated fatty acids have no double bonds, so the straight chains pack tightly together",
+            "Saturated fats contain more cholesterol, which hardens them",
+            "Unsaturated fats contain water, which keeps them liquid",
+            "Saturated fats have more double bonds, which stiffens the chain"
+          ],
+          "answer": 0,
+          "explanation": "No double bonds means straight chains that stack tightly, so the fat is solid. Double bonds create kinks that prevent tight packing, so unsaturated fats stay liquid - and more double bonds also means more prone to rancidity."
+        },
+        {
+          "id": "lp6",
+          "type": "multi",
+          "question": "Which of the following are risk factors for cardiovascular disease? (Select all that apply)",
+          "options": [
+            "High LDL cholesterol",
+            "Low HDL cholesterol",
+            "Cigarette smoking",
+            "Hypertension",
+            "Physical inactivity",
+            "High dietary fiber intake",
+            "Regular aerobic exercise"
+          ],
+          "answers": [0, 1, 2, 3, 4],
+          "explanation": "High LDL, low HDL, smoking, high blood pressure, inactivity, diabetes, obesity, age, and family history all raise risk. Fiber and regular exercise are protective."
+        },
+        {
+          "id": "lp7",
+          "type": "mc",
+          "question": "Which food provides high quality (complete) protein?",
+          "options": ["Eggs", "Whole wheat bread", "Almond milk", "Chia seeds"],
+          "answer": 0,
+          "explanation": "Complete proteins contain all nine essential amino acids: all animal foods plus soy. Grains, nuts, seeds, and most plant milks are incomplete, which is why complementary pairs like rice and beans matter."
+        },
+        {
+          "id": "lp8",
+          "type": "mc",
+          "question": "Danielle is a 21-year-old female who weighs 120 lbs. What is her RDA for protein?",
+          "options": ["44 grams", "55 grams", "96 grams", "120 grams"],
+          "answer": 0,
+          "explanation": "120 lb divided by 2.2 = 54.5 kg, times the RDA of 0.8 g/kg = 43.6, or about 44 g/day. Height is never part of the protein RDA calculation."
+        },
+        {
+          "id": "lp9",
+          "type": "mc",
+          "question": "A child eating enough calories but almost no protein develops a swollen belly and fatty liver. What is this?",
+          "options": ["Kwashiorkor", "Marasmus", "Celiac disease", "Pellagra"],
+          "answer": 0,
+          "explanation": "Kwashiorkor is protein deficiency with adequate calories, and the edema comes from too little blood protein to hold fluid in the vessels. Marasmus is deficiency of BOTH calories and protein, producing severe wasting instead."
+        },
+        {
+          "id": "lp10",
+          "type": "mc",
+          "question": "A man wants to order a direct-to-consumer DNA test and then pick a diet based on the results. What is the accurate assessment of this plan?",
+          "options": [
+            "Current consumer genetic tests have limited power to predict disease, since risk comes from many genes plus lifestyle",
+            "Genetic testing now reliably determines exactly which diet each person should follow",
+            "Genes fully determine chronic disease risk, so diet changes would not help him",
+            "Genetic testing can diagnose heart disease and diabetes before symptoms appear"
+          ],
+          "answer": 0,
+          "explanation": "Nutrigenomics is real - nutrients affect gene expression and genes affect nutrient response - but direct-to-consumer tests currently offer only rough guidance. Established behaviors like more produce, less saturated fat, and regular activity do far more."
+        }
+      ],
+      "flashcards": [
+        { "front": "The two essential fatty acids", "back": "Linoleic (omega-6) and linolenic (omega-3). The body cannot make them, so they must come from food." },
+        { "front": "Saturated fat sources", "back": "Fatty and red meat, butter, cheese, lard, plus the two plant exceptions: palm oil and coconut oil." },
+        { "front": "Lipid digestion", "back": "Mostly in the small intestine. Bile (made in the liver, stored in the gallbladder) emulsifies fat; pancreatic lipase does the chemical breakdown." },
+        { "front": "Fat AMDR and AHA advice", "back": "20-35% of calories from fat. AHA: keep saturated fat around 5-6% of calories and minimize trans fat." },
+        { "front": "What makes protein chemically unique", "back": "It contains nitrogen in addition to carbon, hydrogen, and oxygen. There are 20 amino acids and 9 are essential." },
+        { "front": "Denaturation", "back": "Heat, acid, or agitation unfolds a protein's shape and destroys its function - cooking an egg, stomach acid. Generally irreversible." },
+        { "front": "Nitrogen balance", "back": "Positive = building tissue (growth, pregnancy, muscle gain). Equilibrium = healthy stable adult. Negative = losing tissue (illness, injury, starvation)." },
+        { "front": "Functions of protein", "back": "Build and repair tissue, enzymes, hormones, antibodies, fluid balance, acid-base balance, transport, and energy only as a last resort." },
+        { "front": "Vegetarian nutrients of concern", "back": "B12 (animal foods only), iron, zinc, calcium, vitamin D, and omega-3s." }
+      ]
+    },
+    {
+      "category": "Ch. 7 - Energy Balance",
+      "color": "#8B5CF6",
+      "questions": [
+        {
+          "id": "en1",
+          "type": "mc",
+          "question": "Which of the following is included in basal metabolism?",
+          "options": ["Nerve and heart activity", "Digestion of food", "Physical activity", "Chewing and swallowing"],
+          "answer": 0,
+          "explanation": "Basal metabolism is what keeps you alive at rest - heartbeat, breathing, nerve activity, body temperature, organ function - and accounts for 60-70% of energy output. Digestion is the separate thermic effect of food (~10%), and activity is its own component."
+        },
+        {
+          "id": "en2",
+          "type": "mc",
+          "question": "A woman is 5'5\" (65 inches) and weighs 130 pounds. What is her BMI?",
+          "options": ["21.6", "18.9", "24.8", "26.2"],
+          "answer": 0,
+          "explanation": "BMI (imperial) = lb divided by inches squared, times 703. 130 / 4,225 = 0.03077, times 703 = 21.6, which falls in the normal range of 18.5-24.9."
+        },
+        {
+          "id": "en3",
+          "type": "mc",
+          "question": "Which statement about BMI and fat distribution is accurate?",
+          "options": [
+            "BMI does not measure body fat directly, and upper-body (visceral) fat carries higher disease risk than lower-body fat",
+            "BMI accurately measures body fat percentage in every population",
+            "Lower-body 'pear' fat carries the highest risk of heart disease and diabetes",
+            "Waist circumference adds no information beyond BMI"
+          ],
+          "answer": 0,
+          "explanation": "A muscular person can read as overweight and an older adult who has lost muscle can read normal while carrying excess fat. Visceral 'apple' fat around the abdomen raises heart disease and diabetes risk; waist circumference over 40 inches (men) or 35 inches (women) is the red flag."
+        },
+        {
+          "id": "en4",
+          "type": "multi",
+          "question": "Which are evidence-based strategies for achieving and maintaining a healthy weight? (Select all that apply)",
+          "options": [
+            "Aim for slow, steady loss of 1-2 pounds per week",
+            "Focus on sustainable lifestyle change rather than a short-term diet",
+            "Control portion sizes and choose nutrient-dense foods",
+            "Be physically active most days of the week",
+            "Follow a very low calorie crash diet until the goal weight is reached",
+            "Eliminate an entire food group"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Gradual loss, sustainable habits, portion control, and regular activity are what hold. Crash dieting also lowers BMR as the body conserves energy, and weight returns once old habits resume."
+        }
+      ],
+      "flashcards": [
+        { "front": "Three components of energy output", "back": "Basal metabolism ~60-70%, physical activity ~15-30% (most variable), thermic effect of food ~10%." },
+        { "front": "What raises BMR", "back": "More lean muscle mass, growth, pregnancy, fever, stress, caffeine and nicotine, cold exposure, larger body size, thyroid hormone." },
+        { "front": "What lowers BMR", "back": "Aging, loss of muscle, and low-calorie dieting or fasting (the body conserves energy)." },
+        { "front": "BMI categories", "back": "Under 18.5 underweight, 18.5-24.9 normal, 25-29.9 overweight, 30 and above obese." }
+      ]
+    },
+    {
+      "category": "Ch. 8-9 - Vitamins, Water & Minerals",
+      "color": "#10B981",
+      "questions": [
+        {
+          "id": "vm1",
+          "type": "mc",
+          "question": "A patient taking high-dose supplements develops facial flushing and tingling skin. Which nutrient problem is this?",
+          "options": ["Niacin toxicity", "Niacin deficiency", "Vitamin C deficiency", "Thiamin toxicity"],
+          "answer": 0,
+          "explanation": "Flushing is the signature of niacin TOXICITY (along with liver damage at high doses). Niacin DEFICIENCY is pellagra, remembered as the 4 D's: diarrhea, dermatitis, dementia, death."
+        },
+        {
+          "id": "vm2",
+          "type": "mc",
+          "question": "Why is excess folate intake risky for an older adult?",
+          "options": [
+            "It corrects the anemia of B12 deficiency while irreversible nerve damage keeps progressing undetected",
+            "It causes neural tube defects in adults",
+            "It blocks iron absorption in the small intestine",
+            "It builds up in the liver and causes toxicity within days"
+          ],
+          "answer": 0,
+          "explanation": "Folate masks B12 deficiency. Because both cause macrocytic anemia, extra folate fixes the blood picture while the demyelination continues, which is why folate has an upper limit. Older adults are already at risk because low stomach acid impairs food-bound B12 absorption."
+        },
+        {
+          "id": "vm3",
+          "type": "mc",
+          "question": "Which pairing of vitamin D deficiency to the correct age group is right?",
+          "options": [
+            "Rickets in children, osteomalacia in adults",
+            "Osteomalacia in children, rickets in adults",
+            "Rickets in both children and adults",
+            "Scurvy in children, osteoporosis in adults"
+          ],
+          "answer": 0,
+          "explanation": "Rickets is the childhood form with bowed legs and soft growing bone; osteomalacia is the adult form. Vitamin D's RDA is 15 mcg (600 IU) for ages 19-70 and rises to 20 mcg after 70."
+        },
+        {
+          "id": "vm4",
+          "type": "multi",
+          "question": "Which are established functions of vitamin C? (Select all that apply)",
+          "options": [
+            "Collagen synthesis and wound healing",
+            "Antioxidant protection",
+            "Immune function",
+            "Enhances absorption of non-heme iron",
+            "Blood clotting",
+            "Carries oxygen in the blood"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Vitamin C builds collagen, acts as an antioxidant, supports immunity, and strongly enhances non-heme iron absorption. Blood clotting is vitamin K, and oxygen transport is iron in hemoglobin. Vitamin C deficiency is scurvy."
+        },
+        {
+          "id": "vm5",
+          "type": "mc",
+          "question": "A man who drinks large amounts of carrot juice develops yellow-orange skin. His sclerae (whites of the eyes) are white and his bilirubin is normal. What is this?",
+          "options": [
+            "Carotenodermia from excess beta-carotene - harmless",
+            "Jaundice from vitamin A toxicity - liver damage",
+            "Xerophthalmia from vitamin A deficiency",
+            "Hypercalcemia from vitamin D toxicity"
+          ],
+          "answer": 0,
+          "explanation": "Beta-carotene is provitamin A and its conversion is regulated, so it cannot cause vitamin A toxicity - only orange skin. The discriminator versus jaundice is the sclerae: white in carotenodermia, yellow in jaundice."
+        },
+        {
+          "id": "vm6",
+          "type": "multi",
+          "question": "Which factors ENHANCE absorption of non-heme iron? (Select all that apply)",
+          "options": [
+            "Vitamin C eaten at the same meal",
+            "MFP factor from meat, fish, or poultry",
+            "Cooking in a cast iron pan",
+            "Low body iron stores",
+            "Tea or coffee with the meal",
+            "A calcium supplement with the meal"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Vitamin C, MFP factor, cast iron cookware, and low stores all increase non-heme iron absorption. Tannins in tea and coffee, calcium, zinc, phytates, and oxalates all inhibit it."
+        },
+        {
+          "id": "vm7",
+          "type": "mc",
+          "question": "When blood calcium falls, what happens?",
+          "options": [
+            "PTH rises, activates vitamin D, increases absorption, decreases urinary loss, and pulls calcium from bone",
+            "Calcitonin rises and pulls calcium out of the blood into bone",
+            "Blood calcium simply stays low until dietary calcium increases",
+            "The kidneys excrete more calcium to restore balance"
+          ],
+          "answer": 0,
+          "explanation": "The body defends blood calcium at the bone's expense, which is exactly why chronic calcium deficiency shows up as osteoporosis rather than a low lab value. Calcitonin does the reverse when blood calcium is too high."
+        },
+        {
+          "id": "vm8",
+          "type": "mc",
+          "question": "A teenage boy shows growth failure, poor wound healing, and delayed sexual maturation. Which mineral deficiency fits best?",
+          "options": ["Zinc", "Iron", "Iodine", "Calcium"],
+          "answer": 0,
+          "explanation": "Delayed sexual maturation plus poor growth and wound healing is the zinc signature. Iron deficiency gives weakness, fatigue, and pallor; iodine gives goiter; calcium gives osteoporosis."
+        },
+        {
+          "id": "vm9",
+          "type": "multi",
+          "question": "Which are MODIFIABLE risk factors for osteoporosis? (Select all that apply)",
+          "options": [
+            "Low calcium and vitamin D intake",
+            "Lack of weight-bearing and resistance exercise",
+            "Smoking and heavy alcohol use",
+            "Very low body weight",
+            "Being female",
+            "Family history"
+          ],
+          "answers": [0, 1, 2, 3],
+          "explanation": "Sex, age, menopause, family history, small frame, and ethnicity are non-modifiable. Note that swimming and cycling do not count as weight-bearing, and peak bone mass built by the late 20s is the best long-term protection."
+        }
+      ],
+      "flashcards": [
+        { "front": "Fat-soluble vitamins", "back": "KADE: A, D, E, K. Absorbed with fat, stored in liver and adipose, real toxicity risk. Water-soluble B's and C are excreted in urine and need regular intake." },
+        { "front": "Preserving vitamins in produce", "back": "Steam or microwave briefly, minimal water, skins on, cut just before cooking. The enemies are heat, light, air, water, and long storage." },
+        { "front": "Phytochemicals", "back": "Non-nutrient plant compounds (lycopene, sulforaphane, isoflavones, catechins). Not essential, no deficiency disease, plants only. They and antioxidants are the dietary factors that lower cancer risk." },
+        { "front": "Riboflavin deficiency", "back": "Cheilosis (cracked mouth corners) and glossitis (smooth sore tongue). Milk is the signature source, and light destroys it - hence opaque cartons." },
+        { "front": "Thiamin deficiency", "back": "Beriberi with edema and nerve and heart problems. Alcohol abuse is the classic U.S. cause." },
+        { "front": "B12 essentials", "back": "Animal foods only, so vegans are at risk. Needs intrinsic factor from the stomach - without it, pernicious anemia. Builds myelin; stored in the liver for years." },
+        { "front": "Best food source of niacin", "back": "Meat, poultry, and fish, plus enriched grains. The body can also make niacin from tryptophan." },
+        { "front": "Cancer development", "back": "Initiation (DNA damage), promotion (damaged cells multiply - where diet acts most), progression (growth, invasion, metastasis)." },
+        { "front": "Highest dehydration risk", "back": "Older adults (blunted thirst) and infants. Also athletes, people with vomiting or diarrhea, and uncontrolled diabetes." },
+        { "front": "Tap vs bottled water", "back": "Tap is EPA-regulated and usually fluoridated. Bottled is FDA-regulated, not inherently safer, and usually has no fluoride." },
+        { "front": "Mineral absorption inhibitors", "back": "Phytates (whole grains, legumes), oxalates (spinach, rhubarb), tannins (tea, coffee), and competing minerals. Spinach looks calcium-rich but oxalates block it - kale, bok choy, and broccoli are the bioavailable greens." },
+        { "front": "Sodium vs potassium", "back": "Sodium: fluid balance and nerve impulses, NOT bone. ~70% comes from processed food, and excess raises blood pressure and urinary calcium loss. Potassium LOWERS blood pressure." },
+        { "front": "DASH eating pattern", "back": "Produce, whole grains, and low-fat dairy, giving high potassium, calcium, and magnesium plus reduced sodium. Normal BP is under 120/80; stage 1 hypertension starts at 130/80." },
+        { "front": "Iodine and fluoride", "back": "Iodine makes thyroid hormone; deficiency causes goiter and cretinism in infants. Fluoride hardens enamel and prevents caries; excess during tooth formation causes fluorosis." }
+      ]
+    },
+    {
+      "category": "Ch. 10 - Fitness & Sports Nutrition",
+      "color": "#EC4899",
+      "questions": [
+        {
+          "id": "f1",
+          "type": "mc",
+          "question": "As exercise shifts from a 100-meter sprint to a two-hour run, how does the fuel mix change?",
+          "options": [
+            "Stored ATP and creatine phosphate, then carbohydrate, then an increasing share of fat",
+            "Fat first, then carbohydrate, then protein",
+            "Protein is the primary fuel throughout endurance exercise",
+            "Carbohydrate is the only fuel used at any intensity"
+          ],
+          "answer": 0,
+          "explanation": "The first ~10 seconds run on stored ATP and creatine phosphate, short intense work runs on glycogen through anaerobic glycolysis, and longer lower-intensity work uses progressively more fat. Training makes muscle burn more fat at a given workload, which spares glycogen and delays hitting the wall."
+        },
+        {
+          "id": "f2",
+          "type": "mc",
+          "question": "An athlete is doing a 90-minute training session in the heat. What should she drink during it?",
+          "options": [
+            "A sports drink with 6-8% carbohydrate plus electrolytes",
+            "Plain water only, since the session is under two hours",
+            "Nothing until the session is over",
+            "A high-protein shake"
+          ],
+          "answer": 0,
+          "explanation": "Water is fine under 60 minutes. Beyond 60 minutes or in heavy heat, a sports drink supplies carbohydrate and replaces sodium. Afterward, rehydrate with 2-3 cups (16-24 oz) per pound of body weight lost."
+        },
+        {
+          "id": "f3",
+          "type": "mc",
+          "question": "Which statement about RED-S (Relative Energy Deficiency in Sport) is accurate?",
+          "options": [
+            "It stems from chronic low energy availability and affects athletes of any sex across hormonal, bone, immune, and performance systems",
+            "It affects only female athletes and involves only menstrual dysfunction",
+            "It is caused by consuming too much protein",
+            "It only affects endurance athletes over age 40"
+          ],
+          "answer": 0,
+          "explanation": "RED-S expanded the older female athlete triad (disordered eating, amenorrhea, low bone density) to recognize that chronic under-fueling harms athletes of any sex across many body systems."
+        }
+      ],
+      "flashcards": [
+        { "front": "Physical activity recommendation", "back": "150 minutes per week of moderate aerobic activity (or 75 vigorous) PLUS muscle-strengthening on 2 or more days per week." },
+        { "front": "Athlete protein intake", "back": "1.2-2.0 g/kg/day, spread as 20-30 g per meal every 3-4 hours. Even distribution beats one big post-workout dose, and excess is stored as fat." },
+        { "front": "Pre-event meal", "back": "1-4 hours before: high carbohydrate, low fat, low fiber, moderate protein, familiar foods, plenty of fluid." },
+        { "front": "Post-event recovery", "back": "Carbohydrate plus protein within about 2 hours, along with fluid and electrolytes. Chocolate milk hits all three." },
+        { "front": "Micronutrients of concern for athletes", "back": "Iron (sweat losses, foot-strike hemolysis, menstruation) and calcium plus vitamin D (stress fractures)." }
+      ]
+    }
+  ]
+}
