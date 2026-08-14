@@ -9,6 +9,7 @@
           "id": "religion-212-exam-1",
           "title": "Exam 1",
           "subtitle": "New Testament — Backgrounds & Acts",
+          "color": "#A78BFA",
           "file": "sets/religion-212/exam-1.json"
         }
       ]
@@ -22,24 +23,28 @@
           "id": "ndfs-100-exam-2",
           "title": "Exam 2",
           "subtitle": "Lipids, Protein & Energy Balance",
+          "color": "#10B981",
           "file": "sets/ndfs-100/exam-2.json"
         },
         {
           "id": "ndfs-100-exam-3",
           "title": "Exam 3",
           "subtitle": "Vitamins, Water & Minerals, Sports Nutrition",
+          "color": "#06B6D4",
           "file": "sets/ndfs-100/exam-3.json"
         },
         {
           "id": "ndfs-100-final-review",
           "title": "Final: Ch. 1-10 Review",
           "subtitle": "Comprehensive carryover material (~45% of the final)",
+          "color": "#F59E0B",
           "file": "sets/ndfs-100/final-review.json"
         },
         {
           "id": "ndfs-100-final-new",
           "title": "Final: Ch. 11-16 New Material",
           "subtitle": "Eating disorders, food safety, pregnancy, infancy, adulthood (~55%)",
+          "color": "#EC4899",
           "file": "sets/ndfs-100/final-new.json"
         }
       ]
