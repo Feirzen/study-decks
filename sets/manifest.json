@@ -48,6 +48,20 @@
           "file": "sets/ndfs-100/final-new.json"
         }
       ]
+    },
+    {
+      "id": "chem-481",
+      "name": "CHEM 481 Biochemistry",
+      "color": "#E11D48",
+      "sets": [
+        {
+          "id": "chem-481-exam-1",
+          "title": "Exam 1",
+          "subtitle": "Water, Amino Acids, Protein Structure, Separations & Hemoglobin",
+          "color": "#F43F5E",
+          "file": "sets/chem-481/exam-1.json"
+        }
+      ]
     }
   ]
 }
