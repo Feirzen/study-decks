@@ -311,8 +311,9 @@ document.addEventListener("click", ev => {
 .rd-text { font-size: 14px; line-height: 1.45; flex: 1; }
 .rd-learn { background: none; border: none; color: var(--accent); cursor: pointer; font-family: inherit; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 0 0; display: block; }
 .rd-dots { display: flex; gap: 6px; flex: 0 0 auto; }
-.rd-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--dc); background: transparent; cursor: pointer; opacity: .45; padding: 0; }
-.rd-dot.on { background: var(--dc); opacity: 1; box-shadow: 0 0 8px var(--dc); }
+.rd-dot { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--dc); background: transparent; cursor: pointer; opacity: .45; padding: 0; transition: opacity .15s, background-color .15s, transform .2s cubic-bezier(.175,.885,.32,1.275); }
+.rd-dot:active { transform: scale(.85); }
+.rd-dot.on { background: var(--dc); opacity: 1; }
 `;
   document.head.appendChild(st);
 })();
@@ -370,15 +371,6 @@ function viewSetHome() {
     </button>`;
   }).join("");
 
-  const chips = `<div class="chiprow" style="margin-bottom:20px">
-    <button class="chip star ${f === "starred" ? "active" : ""}" data-act="filter" data-f="starred" ${starredN ? "" : "disabled"}>
-      ${I.star(f === "starred", 19)}<span>Starred${starredN ? " · " + starredN : ""}</span>
-    </button>
-    <button class="chip flag ${f === "missed" ? "active" : ""}" data-act="filter" data-f="missed" ${missedN ? "" : "disabled"}>
-      ${I.flag(f === "missed", 19)}<span>Misses${missedN ? " · " + missedN : ""}</span>
-    </button>
-  </div>`;
-
   return `<div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin:22px 0 22px">
       <button class="backbtn" data-act="backToClass">${I.chevL}</button>
@@ -394,11 +386,8 @@ function viewSetHome() {
       <div class="stat"><div class="n" style="color:var(--muted)">${unanswered}</div><div class="l">Unanswered</div></div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <button class="pill" data-act="startShuffle" style="background:var(--surface);border:1.5px solid var(--border);color:var(--text);justify-content:center;height:54px">${I.shuffle} Shuffle</button>
-      <button class="pill" data-act="startBattle" style="background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);justify-content:center;height:54px">${I.sword} Battle</button>
-    </div>
-    ${chips}
+    ${modeButtons()}
+    ${filterChips()}
 
     <div class="eyebrow" style="margin-bottom:10px">Quiz by chapter</div>
     ${catCards}

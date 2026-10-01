@@ -235,6 +235,33 @@ function viewClass() {
 }
 
 /* ===================== SET HOME ===================== */
+/* Shared by app.js and lessons.js so both versions of the screen match. */
+function modeButtons() {
+  const bt = progress.battle || {};
+  const shufSub = progress.high ? "Best streak " + progress.high : "Weighted toward misses";
+  const batSub = "Lv " + levelFor(bt.xp || 0) + (bt.bestFloor ? " · best floor " + bt.bestFloor : " · endless floors");
+  return `<div class="moderow">
+    <button class="mode" data-act="startShuffle">
+      <span class="mic" style="background:var(--accBg);color:var(--accent)">${I.shuffle}</span>
+      <span><span class="mt" style="display:block">Shuffle</span><span class="ms" style="display:block">${shufSub}</span></span>
+    </button>
+    <button class="mode" data-act="startBattle">
+      <span class="mic" style="background:var(--badBg);color:var(--bad)">${I.sword}</span>
+      <span><span class="mt" style="display:block">Battle</span><span class="ms" style="display:block">${batSub}</span></span>
+    </button>
+  </div>`;
+}
+function filterChips() {
+  const f = progress.filter, starredN = starredCount(), missedN = missedCount();
+  return `<div class="chiprow" style="margin-bottom:20px">
+    <button class="chip chip--star ${f === "starred" ? "active" : ""}" data-act="filter" data-f="starred" ${starredN ? "" : "disabled"}>
+      ${I.star(f === "starred", 18)}<span>Starred${starredN ? " · " + starredN : ""}</span>
+    </button>
+    <button class="chip chip--flag ${f === "missed" ? "active" : ""}" data-act="filter" data-f="missed" ${missedN ? "" : "disabled"}>
+      ${I.flag(f === "missed", 18)}<span>Misses${missedN ? " · " + missedN : ""}</span>
+    </button>
+  </div>`;
+}
 function viewSetHome() {
   const set = S.set;
   const qs = allQuestions(set);
@@ -266,15 +293,6 @@ function viewSetHome() {
     </button>`;
   }).join("");
 
-  const chips = `<div class="chiprow" style="margin-bottom:20px">
-    <button class="chip star ${f === "starred" ? "active" : ""}" data-act="filter" data-f="starred" ${starredN ? "" : "disabled"}>
-      ${I.star(f === "starred", 19)}<span>Starred${starredN ? " · " + starredN : ""}</span>
-    </button>
-    <button class="chip flag ${f === "missed" ? "active" : ""}" data-act="filter" data-f="missed" ${missedN ? "" : "disabled"}>
-      ${I.flag(f === "missed", 19)}<span>Misses${missedN ? " · " + missedN : ""}</span>
-    </button>
-  </div>`;
-
   return `<div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin:22px 0 22px">
       <button class="backbtn" data-act="backToClass">${I.chevL}</button>
@@ -288,11 +306,8 @@ function viewSetHome() {
       <div class="stat"><div class="n" style="color:var(--muted)">${unanswered}</div><div class="l">Unanswered</div></div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-      <button class="pill" data-act="startShuffle" style="background:var(--surface);border:1.5px solid var(--border);color:var(--text);justify-content:center;height:54px">${I.shuffle} Shuffle</button>
-      <button class="pill" data-act="startBattle" style="background:var(--surface);border:1.5px solid var(--accent);color:var(--accent);justify-content:center;height:54px">${I.sword} Battle</button>
-    </div>
-    ${chips}
+    ${modeButtons()}
+    ${filterChips()}
 
     <div class="eyebrow" style="margin-bottom:10px">Quiz by chapter</div>
     ${catCards}

@@ -297,133 +297,358 @@ function tint(hex, alpha) {              // translucent wash of an author color
   return `hsl(${h} ${Math.max(50, s)}% ${lig}% / ${alpha}%)`;
 }
 
-/* ===================== AUDIO (synthesized, no asset files) ===================== */
-let _actx = null;
+/* ===================== AUDIO (synthesized, no asset files) =====================
+   Two kits share one mixer:
+     soft kit  -> marimba / glass tones for browsing, quizzing, shuffle
+     chip kit  -> punchy 8-bit voices for Battle
+   Everything runs through a gentle compressor so stacked sounds never clip,
+   with a small generated room reverb for the soft kit.                    */
+let _actx = null, _bus = null, _verb = null, _pulse = {};
 function audioCtx() {
   if (settings.muted) return null;
   try {
-    if (!_actx) _actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!_actx) {
+      _actx = new (window.AudioContext || window.webkitAudioContext)();
+      const comp = _actx.createDynamicsCompressor();
+      comp.threshold.value = -16; comp.knee.value = 10; comp.ratio.value = 4;
+      comp.attack.value = 0.003; comp.release.value = 0.18;
+      _bus = _actx.createGain(); _bus.gain.value = 0.85;
+      _bus.connect(comp); comp.connect(_actx.destination);
+      // short airy room: decaying stereo noise impulse
+      const len = Math.floor(_actx.sampleRate * 1.1);
+      const ir = _actx.createBuffer(2, len, _actx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = ir.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3.2);
+      }
+      const conv = _actx.createConvolver(); conv.buffer = ir;
+      const lp = _actx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 5200;
+      _verb = _actx.createGain(); _verb.gain.value = 0.32;
+      _verb.connect(conv); conv.connect(lp); lp.connect(_bus);
+    }
     if (_actx.state === "suspended") _actx.resume();
   } catch (e) { return null; }
   return _actx;
 }
-function tone(freq, start, dur, type, vol) {
-  const ctx = audioCtx(); if (!ctx) return;
-  const o = ctx.createOscillator(), g = ctx.createGain();
-  o.type = type || "triangle"; o.frequency.value = freq;
-  const t0 = ctx.currentTime + start;
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.linearRampToValueAtTime(vol || 0.2, t0 + 0.012);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g); g.connect(ctx.destination);
-  o.start(t0); o.stop(t0 + dur + 0.03);
+/* Route a voice: dry to the bus, optional reverb send. */
+function route(node, wet) {
+  node.connect(_bus);
+  if (wet) { const s = _actx.createGain(); s.gain.value = wet; node.connect(s); s.connect(_verb); }
 }
-function sweep(f1, f2, start, dur, type, vol) {
-  const ctx = audioCtx(); if (!ctx) return;
-  const o = ctx.createOscillator(), g = ctx.createGain();
-  o.type = type || "sawtooth";
-  const t0 = ctx.currentTime + start;
-  o.frequency.setValueAtTime(f1, t0);
-  o.frequency.exponentialRampToValueAtTime(Math.max(30, f2), t0 + dur);
+function env(g, t0, vol, atk, dur) {
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.linearRampToValueAtTime(vol || 0.16, t0 + 0.02);
+  g.gain.linearRampToValueAtTime(vol, t0 + atk);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g); g.connect(ctx.destination);
-  o.start(t0); o.stop(t0 + dur + 0.03);
 }
-function noise(start, dur, vol, hp) {
+
+/* ---- soft kit ---- */
+/* Marimba-ish: sine body + quick 4th-partial "knock" on the attack. */
+function mallet(freq, start, o) {
   const ctx = audioCtx(); if (!ctx) return;
-  const n = Math.floor(ctx.sampleRate * dur);
-  const buf = ctx.createBuffer(1, n, ctx.sampleRate);
-  const d = buf.getChannelData(0);
-  for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n);
+  o = o || {};
+  const dur = o.dur || 0.45, vol = o.vol || 0.16, t0 = ctx.currentTime + start;
+  const out = ctx.createGain(); out.gain.value = 1;
+  const a = ctx.createOscillator(), ga = ctx.createGain();
+  a.type = "sine"; a.frequency.value = freq; env(ga, t0, vol, 0.004, dur);
+  const b = ctx.createOscillator(), gb = ctx.createGain();
+  b.type = "sine"; b.frequency.value = freq * 3.93; env(gb, t0, vol * 0.32 * (o.bright == null ? 1 : o.bright), 0.002, dur * 0.18);
+  const c = ctx.createOscillator(), gc = ctx.createGain();
+  c.type = "triangle"; c.frequency.value = freq * 2; env(gc, t0, vol * 0.18, 0.002, 0.03);
+  a.connect(ga); b.connect(gb); c.connect(gc); ga.connect(out); gb.connect(out); gc.connect(out);
+  route(out, o.wet == null ? 0.22 : o.wet);
+  [a, b, c].forEach(x => { x.start(t0); x.stop(t0 + dur + 0.05); });
+}
+/* Glass / bell: inharmonic partials, long shimmer. */
+function bell(freq, start, o) {
+  const ctx = audioCtx(); if (!ctx) return;
+  o = o || {};
+  const dur = o.dur || 1.1, vol = o.vol || 0.07, t0 = ctx.currentTime + start;
+  const out = ctx.createGain();
+  [[1, 1], [2.76, 0.34], [5.4, 0.13], [8.93, 0.05]].forEach(([m, v], i) => {
+    const osc = ctx.createOscillator(), g = ctx.createGain();
+    osc.type = "sine"; osc.frequency.value = freq * m;
+    env(g, t0, vol * v, 0.003, dur / (1 + i * 0.7));
+    osc.connect(g); g.connect(out);
+    osc.start(t0); osc.stop(t0 + dur + 0.05);
+  });
+  route(out, o.wet == null ? 0.45 : o.wet);
+}
+/* Filtered noise: whooshes, soft thuds. */
+function hush(start, dur, o) {
+  const ctx = audioCtx(); if (!ctx) return;
+  o = o || {};
+  const t0 = ctx.currentTime + start, n = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+  for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
   const src = ctx.createBufferSource(); src.buffer = buf;
-  const f = ctx.createBiquadFilter(); f.type = "highpass"; f.frequency.value = hp || 700;
-  const g = ctx.createGain(); g.gain.value = vol || 0.14;
-  src.connect(f); f.connect(g); g.connect(ctx.destination);
-  src.start(ctx.currentTime + start);
+  const f = ctx.createBiquadFilter(); f.type = o.type || "bandpass"; f.Q.value = o.q || 1.2;
+  f.frequency.setValueAtTime(o.f1 || 800, t0);
+  if (o.f2) f.frequency.exponentialRampToValueAtTime(o.f2, t0 + dur);
+  const g = ctx.createGain(); env(g, t0, o.vol || 0.1, o.atk || 0.01, dur);
+  src.connect(f); f.connect(g); route(g, o.wet || 0);
+  src.start(t0); src.stop(t0 + dur + 0.02);
 }
+
+/* ---- chip kit ---- */
+function pulseWave(duty) {                   // band-limited pulse via Fourier series
+  if (_pulse[duty]) return _pulse[duty];
+  const N = 48, re = new Float32Array(N), im = new Float32Array(N);
+  for (let k = 1; k < N; k++) im[k] = (2 / (k * Math.PI)) * Math.sin(k * Math.PI * duty);
+  return (_pulse[duty] = _actx.createPeriodicWave(re, im));
+}
+function chip(freq, start, dur, o) {
+  const ctx = audioCtx(); if (!ctx) return;
+  o = o || {};
+  const t0 = ctx.currentTime + start, vol = o.vol || 0.12;
+  const osc = ctx.createOscillator();
+  if (o.wave === "tri") osc.type = "triangle";
+  else if (o.wave === "square") osc.type = "square";
+  else osc.setPeriodicWave(pulseWave(o.duty || 0.25));
+  osc.frequency.setValueAtTime(freq, t0);
+  if (o.to) osc.frequency.exponentialRampToValueAtTime(Math.max(30, o.to), t0 + (o.slide || dur));
+  if (o.vib) {
+    const lfo = ctx.createOscillator(), lg = ctx.createGain();
+    lfo.frequency.value = o.vib; lg.gain.value = freq * 0.025;
+    lfo.connect(lg); lg.connect(osc.frequency); lfo.start(t0); lfo.stop(t0 + dur + 0.05);
+  }
+  const lp = ctx.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = o.lp || 5200;
+  const g = ctx.createGain();
+  // chip envelope: instant attack, short hold, then release
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.linearRampToValueAtTime(vol, t0 + 0.004);
+  g.gain.setValueAtTime(vol, t0 + Math.max(0.005, dur * (o.hold == null ? 0.55 : o.hold)));
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  osc.connect(lp); lp.connect(g); route(g, o.wet || 0);
+  osc.start(t0); osc.stop(t0 + dur + 0.03);
+}
+function crunch(start, dur, o) {             // 8-bit noise: stepped, filtered
+  const ctx = audioCtx(); if (!ctx) return;
+  o = o || {};
+  const t0 = ctx.currentTime + start, n = Math.floor(ctx.sampleRate * dur);
+  const buf = ctx.createBuffer(1, n, ctx.sampleRate), d = buf.getChannelData(0);
+  const step = o.step || 6; let v = 0;
+  for (let i = 0; i < n; i++) { if (i % step === 0) v = Math.random() * 2 - 1; d[i] = v; }
+  const src = ctx.createBufferSource(); src.buffer = buf;
+  const f = ctx.createBiquadFilter(); f.type = "lowpass";
+  f.frequency.setValueAtTime(o.f1 || 4000, t0);
+  if (o.f2) f.frequency.exponentialRampToValueAtTime(o.f2, t0 + dur);
+  const g = ctx.createGain(); env(g, t0, o.vol || 0.12, 0.003, dur);
+  src.connect(f); f.connect(g); route(g, 0);
+  src.start(t0); src.stop(t0 + dur + 0.02);
+}
+
+const NOTE = (n) => 440 * Math.pow(2, (n - 69) / 12);       // midi -> Hz
+const PENTA = [0, 2, 4, 7, 9];
 
 const sfx = {
-  tick()    { tone(1320, 0, 0.035, "square", 0.045); },
-  select()  { tone(880, 0, 0.05, "square", 0.07); tone(1320, 0.03, 0.05, "square", 0.045); },
-  submit()  { tone(587, 0, 0.06, "triangle", 0.13); tone(784, 0.05, 0.09, "triangle", 0.11); },
-  nav()     { tone(660, 0, 0.04, "sine", 0.06); },
-  correct() { tone(659, 0, 0.13, "triangle", 0.22); tone(880, 0.085, 0.15, "triangle", 0.20); tone(1175, 0.17, 0.20, "triangle", 0.16); },
-  /* The old wrong-answer sound sat at 147-196 Hz, which phone and laptop
-     speakers cannot reproduce. This one lives where small speakers work. */
-  wrong()   {
-    tone(415, 0, 0.09, "square", 0.16);
-    tone(311, 0.075, 0.11, "square", 0.16);
-    tone(233, 0.155, 0.24, "sawtooth", 0.13);
-    tone(466, 0.155, 0.20, "sine", 0.05);
+  /* ---------- soft kit ---------- */
+  tick()    { if (S.screen === "battle") return chip(1568, 0, 0.03, { vol: 0.05, duty: 0.125 });
+              mallet(NOTE(91), 0, { dur: 0.07, vol: 0.045, wet: 0.04, bright: 0.4 }); },
+  select()  { if (S.screen === "battle") { chip(NOTE(81), 0, 0.035, { vol: 0.07, duty: 0.125 }); chip(NOTE(88), 0.035, 0.05, { vol: 0.06, duty: 0.125 }); return; }
+              mallet(NOTE(83), 0, { dur: 0.22, vol: 0.1, wet: 0.12 }); },
+  nav()     { mallet(NOTE(88), 0, { dur: 0.06, vol: 0.035, wet: 0, bright: 0.3 }); },
+  submit()  { mallet(NOTE(79), 0, { dur: 0.2, vol: 0.1 }); },
+  correct() {                                         // bright rising major triad + sparkle
+    [84, 88, 91].forEach((n, i) => mallet(NOTE(n), i * 0.075, { dur: 0.5, vol: 0.15 }));
+    bell(NOTE(96), 0.2, { vol: 0.05, dur: 1.2 });
   },
-  streak(n) {                                    // pitch climbs with the streak
-    const step = Math.min(n, 14);
-    const base = 523 * Math.pow(2, step / 12);
-    tone(base, 0, 0.09, "triangle", 0.16);
-    tone(base * 1.5, 0.06, 0.13, "triangle", 0.12);
+  wrong()   {                                         // soft falling minor "nope", small-speaker safe
+    mallet(NOTE(69), 0, { dur: 0.35, vol: 0.17, bright: 0.6, wet: 0.12 });
+    mallet(NOTE(65), 0.11, { dur: 0.55, vol: 0.17, bright: 0.5, wet: 0.12 });
+    hush(0, 0.16, { f1: 420, q: 0.8, vol: 0.09 });
   },
-  modeStart() { sweep(220, 880, 0, 0.28, "sawtooth", 0.10); tone(880, 0.24, 0.16, "triangle", 0.14); },
-  hit()      { noise(0, 0.14, 0.16, 900); tone(180, 0, 0.1, "square", 0.10); },
-  enemyHit() { noise(0, 0.1, 0.12, 1400); tone(700, 0, 0.07, "square", 0.10); },
-  enemyDie() { sweep(700, 120, 0, 0.4, "square", 0.13); noise(0.02, 0.3, 0.1, 500); },
-  levelUp()  { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.075, 0.24, "triangle", 0.18)); },
-  gameOver() { [392, 349, 311, 233].forEach((f, i) => tone(f, i * 0.16, 0.4, "sawtooth", 0.14)); },
-  chapter()  { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.3, "triangle", 0.19)); },
-  deck()     {
-    [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => tone(f, i * 0.11, 0.42, "triangle", 0.2));
-    [131, 165, 196, 262].forEach((f, i) => tone(f, i * 0.22, 0.5, "sine", 0.1));
+  streak(n) {                                         // climbs a pentatonic ladder, chimes every 5
+    const k = Math.min(n, 15) - 1;
+    const base = 72 + 12 * Math.floor(k / 5) + PENTA[k % 5];
+    mallet(NOTE(base), 0, { dur: 0.4, vol: 0.15 });
+    mallet(NOTE(base + 7), 0.07, { dur: 0.45, vol: 0.12 });
+    if (n % 5 === 0) { bell(NOTE(base + 12), 0.15, { vol: 0.07 }); bell(NOTE(base + 19), 0.24, { vol: 0.05 }); }
   },
+  modeStart() {                                       // airy swish into a gentle chord
+    hush(0, 0.32, { f1: 300, f2: 3200, q: 1.4, vol: 0.07, atk: 0.14, wet: 0.2 });
+    [79, 86, 91].forEach((n, i) => mallet(NOTE(n), 0.17 + i * 0.03, { dur: 0.7, vol: 0.1 }));
+  },
+  chapter() {
+    [72, 76, 79, 84, 88].forEach((n, i) => mallet(NOTE(n), i * 0.08, { dur: 0.7, vol: 0.14 }));
+    bell(NOTE(96), 0.42, { vol: 0.07, dur: 1.6 });
+  },
+  deck() {
+    [72, 76, 79, 84, 88, 91, 96].forEach((n, i) => mallet(NOTE(n), i * 0.085, { dur: 0.8, vol: 0.14 }));
+    [84, 88, 91, 96].forEach((n, i) => bell(NOTE(n), 0.62 + i * 0.05, { vol: 0.055, dur: 2.2 }));
+    [48, 55].forEach((n, i) => mallet(NOTE(n + 12), 0.62 + i * 0.02, { dur: 1.4, vol: 0.12, bright: 0.3 }));
+  },
+
+  /* ---------- chip kit (Battle) ---------- */
+  bStart() {
+    [67, 72, 76, 79].forEach((n, i) => chip(NOTE(n), i * 0.07, 0.07, { vol: 0.09 }));
+    chip(NOTE(84), 0.28, 0.32, { vol: 0.09, vib: 7, hold: 0.7 });
+    chip(NOTE(48), 0.28, 0.32, { wave: "tri", vol: 0.16 });
+    crunch(0.28, 0.2, { f1: 6000, f2: 800, vol: 0.06 });
+  },
+  bSwing() {
+    crunch(0, 0.09, { f1: 1500, f2: 7000, vol: 0.06, step: 2 });
+    chip(900, 0.02, 0.07, { to: 320, vol: 0.05, duty: 0.125 });
+  },
+  bHit() {                                            // timed to land when the blade connects
+    crunch(0.16, 0.1, { f1: 5000, f2: 900, vol: 0.13, step: 4 });
+    chip(240, 0.16, 0.11, { wave: "square", to: 55, vol: 0.1, lp: 2200 });
+    chip(NOTE(88), 0.16, 0.05, { vol: 0.05, duty: 0.125 });
+  },
+  bKill() {
+    sfx.bHit();
+    [79, 76, 72, 67, 64].forEach((n, i) => chip(NOTE(n), 0.3 + i * 0.035, 0.05, { vol: 0.08 }));
+    crunch(0.3, 0.42, { f1: 5000, f2: 180, vol: 0.13, step: 8 });
+    chip(110, 0.3, 0.3, { wave: "tri", to: 40, vol: 0.18 });
+    chip(NOTE(83), 0.72, 0.07, { vol: 0.08, duty: 0.5 });      // coin
+    chip(NOTE(88), 0.79, 0.22, { vol: 0.08, duty: 0.5, hold: 0.3 });
+  },
+  bHurt() {
+    crunch(0.19, 0.14, { f1: 3000, f2: 500, vol: 0.14, step: 5 });
+    chip(330, 0.19, 0.18, { wave: "square", to: 70, vol: 0.09, lp: 1800 });
+    chip(120, 0.19, 0.22, { wave: "tri", to: 45, vol: 0.2 });
+  },
+  bLevel() {
+    const seq = [72, 76, 79, 84, 88, 91, 96];
+    seq.forEach((n, i) => chip(NOTE(n), i * 0.045, 0.06, { vol: 0.08 }));
+    seq.forEach((n, i) => chip(NOTE(n), 0.14 + i * 0.045, 0.06, { vol: 0.03 }));   // echo
+    chip(NOTE(96), 0.34, 0.4, { vol: 0.07, vib: 8, hold: 0.6, duty: 0.5 });
+  },
+  bBoss() {
+    chip(NOTE(40), 0, 0.7, { wave: "square", vol: 0.07, lp: 900, vib: 5, hold: 0.8 });
+    chip(NOTE(41), 0, 0.7, { wave: "square", vol: 0.06, lp: 900, hold: 0.8 });
+    crunch(0, 0.7, { f1: 400, f2: 120, vol: 0.12, step: 30 });
+    chip(NOTE(52), 0.62, 0.12, { vol: 0.09 }); chip(NOTE(51), 0.76, 0.3, { vol: 0.09, vib: 6 });
+    crunch(0.6, 0.25, { f1: 2500, f2: 200, vol: 0.12, step: 6 });           // landing thud
+    chip(90, 0.6, 0.3, { wave: "tri", to: 35, vol: 0.22 });
+  },
+  bOver() {
+    [[67, 0.22], [66, 0.22], [65, 0.22], [64, 0.7]].forEach(([n, d], i) =>
+      chip(NOTE(n), i * 0.24, d, { wave: "tri", vol: 0.2, vib: i === 3 ? 6 : 0, hold: 0.8 }));
+    [[55, 0.22], [54, 0.22], [53, 0.22], [52, 0.7]].forEach(([n, d], i) =>
+      chip(NOTE(n), i * 0.24, d, { vol: 0.05, hold: 0.8 }));
+  },
+  bHeal() { [76, 83].forEach((n, i) => chip(NOTE(n), 0.95 + i * 0.06, 0.08, { vol: 0.045, duty: 0.5 })); },
 };
 
-/* ===================== VISUAL EFFECTS ===================== */
+/* ===================== VISUAL EFFECTS =====================
+   One full-screen canvas runs every particle (confetti, pixel bursts,
+   sparks). It lives outside #app so re-renders never cut an effect off. */
+const FX = { cv: null, g: null, parts: [], raf: 0, last: 0, w: 0, h: 0, dpr: 1 };
+const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function fxEnsure() {
+  if (!FX.cv) {
+    FX.cv = document.createElement("canvas");
+    FX.cv.id = "fxcanvas";
+    document.body.appendChild(FX.cv);
+    FX.g = FX.cv.getContext("2d");
+  }
+  const dpr = Math.min(2, window.devicePixelRatio || 1), w = window.innerWidth, h = window.innerHeight;
+  if (w !== FX.w || h !== FX.h || dpr !== FX.dpr) {
+    FX.w = w; FX.h = h; FX.dpr = dpr;
+    FX.cv.width = Math.round(w * dpr); FX.cv.height = Math.round(h * dpr);
+  }
+}
+/* p: {x, y, vx, vy, life, size, color, g(ravity), drag, shape:'px'|'conf'|'spark', rot, spin} */
+function fxAdd(list) {
+  if (REDUCED) return;
+  fxEnsure();
+  list.forEach(p => { p.max = p.life; p.rot = p.rot || 0; FX.parts.push(p); });
+  if (!FX.raf) { FX.last = performance.now(); FX.raf = requestAnimationFrame(fxLoop); }
+}
+function fxLoop(now) {
+  const dt = Math.min(0.033, (now - FX.last) / 1000); FX.last = now;
+  const g = FX.g;
+  g.setTransform(FX.dpr, 0, 0, FX.dpr, 0, 0);
+  g.clearRect(0, 0, FX.w, FX.h);
+  const keep = [];
+  for (const p of FX.parts) {
+    p.life -= dt;
+    if (p.life <= 0) continue;
+    if (p.delay > 0) { p.delay -= dt; p.life += dt; keep.push(p); continue; }
+    p.vy += (p.g || 0) * dt;
+    const drag = Math.pow(p.drag || 1, dt * 60);
+    p.vx *= drag; p.vy *= drag;
+    p.x += p.vx * dt; p.y += p.vy * dt;
+    p.rot += (p.spin || 0) * dt;
+    const k = p.life / p.max;
+    g.globalAlpha = k < 0.35 ? k / 0.35 : 1;
+    g.fillStyle = p.color;
+    if (p.shape === "conf") {
+      g.save(); g.translate(p.x, p.y); g.rotate(p.rot);
+      g.scale(1, Math.cos(p.rot * 2.2 + p.flip));                 // paper flutter
+      g.fillRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
+      g.restore();
+    } else if (p.shape === "spark") {
+      g.save(); g.translate(p.x, p.y); g.rotate(Math.atan2(p.vy, p.vx));
+      const len = Math.min(18, 3 + Math.hypot(p.vx, p.vy) * 0.035);
+      g.fillRect(-len, -p.size / 2, len, p.size);
+      g.restore();
+    } else {
+      const s = p.size * (p.shrink ? (0.35 + 0.65 * k) : 1);
+      g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
+    }
+    keep.push(p);
+  }
+  g.globalAlpha = 1;
+  FX.parts = keep;
+  FX.raf = keep.length ? requestAnimationFrame(fxLoop) : 0;
+  if (!keep.length) g.clearRect(0, 0, FX.w, FX.h);
+}
+/* Burst of square pixels from a point (client coords). */
+function fxPixels(x, y, colors, n, o) {
+  o = o || {};
+  const list = [];
+  for (let i = 0; i < n; i++) {
+    const a = (o.angle != null ? o.angle : -Math.PI / 2) + (Math.random() - 0.5) * (o.spread != null ? o.spread : Math.PI * 2);
+    const sp = (o.speed || 220) * (0.4 + Math.random() * 0.8);
+    list.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: (o.life || 0.7) * (0.6 + Math.random() * 0.6),
+      size: o.size || 4, color: colors[i % colors.length], g: o.g == null ? 600 : o.g, drag: o.drag || 0.94,
+      shape: o.shape || "px", shrink: o.shrink !== false, delay: o.delay || 0 });
+  }
+  fxAdd(list);
+}
+
 function flashGlow(color, ms) {
   const g = document.createElement("div");
   g.className = "glow";
-  g.style.boxShadow = "inset 0 0 70px 18px " + color;
+  g.style.boxShadow = "inset 0 0 46px 6px " + color;
   g.style.animation = "pulse " + ((ms || 1200) / 1000) + "s ease-out forwards";
   document.body.appendChild(g);
   setTimeout(() => g.remove(), ms || 1200);
 }
 function confettiBurst(big) {
-  const colors = ["#22d3a0", "#0EA5E9", "#f59e0b", "#f97316", "#a78bfa", "#f472b6"];
-  const box = document.createElement("div");
-  box.className = "confetti-layer" + (big ? " big" : "");
-  const n = big ? 90 : 28;
-  for (let i = 0; i < n; i++) {
-    const p = document.createElement("i");
-    p.style.background = colors[i % colors.length];
-    p.style.left = (50 + (Math.random() * (big ? 90 : 44) - (big ? 45 : 22))) + "%";
-    p.style.setProperty("--dx", (Math.random() * (big ? 420 : 260) - (big ? 210 : 130)) + "px");
-    p.style.setProperty("--dy", (-((big ? 200 : 130) + Math.random() * (big ? 380 : 200))) + "px");
-    p.style.setProperty("--rot", (Math.random() * 720 - 360) + "deg");
-    p.style.animationDelay = (Math.random() * (big ? 0.5 : 0.06)) + "s";
-    box.appendChild(p);
+  if (REDUCED) return;
+  fxEnsure();
+  const colors = ["#22d3a0", "#0EA5E9", "#f59e0b", "#f97316", "#a78bfa", "#f472b6", "#facc15"];
+  const list = [];
+  const shoot = (x, y, ang, spread, n, speed) => {
+    for (let i = 0; i < n; i++) {
+      const a = ang + (Math.random() - 0.5) * spread, sp = speed * (0.55 + Math.random() * 0.6);
+      list.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: big ? 2.6 : 1.5,
+        size: 7 + Math.random() * 5, color: colors[(Math.random() * colors.length) | 0],
+        g: 820, drag: 0.965, shape: "conf", rot: Math.random() * 6, spin: (Math.random() - 0.5) * 14,
+        flip: Math.random() * 6, delay: big ? Math.random() * 0.25 : 0 });
+    }
+  };
+  const W = FX.w, H = FX.h;
+  if (big) {
+    shoot(0, H * 0.85, -Math.PI / 3.2, 0.7, 55, 900);
+    shoot(W, H * 0.85, -Math.PI + Math.PI / 3.2, 0.7, 55, 900);
+    shoot(W / 2, H * 0.55, -Math.PI / 2, 1.4, 40, 620);
+  } else {
+    shoot(W / 2, H * 0.58, -Math.PI / 2, 1.3, 30, 520);
   }
-  document.body.appendChild(box);
-  setTimeout(() => box.remove(), big ? 2600 : 1200);
+  fxAdd(list);
 }
 function shakeApp() {
   const a = document.getElementById("app");
-  a.style.animation = "shake .4s ease";
-  setTimeout(() => { a.style.animation = ""; }, 430);
+  a.style.animation = "shake .36s ease";
+  setTimeout(() => { a.style.animation = ""; }, 400);
 }
 function celebrate(ok) {
   if (ok) { sfx.correct(); confettiBurst(); flashGlow("var(--ok)", 900); }
   else { sfx.wrong(); shakeApp(); flashGlow("var(--bad)", 600); }
-}
-function floatNum(host, text, color) {
-  if (!host) return;
-  const el = document.createElement("div");
-  el.className = "floatnum";
-  el.textContent = text;
-  el.style.color = color;
-  el.style.left = "50%";
-  el.style.top = "0px";
-  el.style.transform = "translateX(-50%)";
-  host.appendChild(el);
-  setTimeout(() => el.remove(), 950);
 }
 
 /* ===================== MODALS ===================== */
