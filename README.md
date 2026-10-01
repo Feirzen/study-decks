@@ -1,6 +1,6 @@
 # Study Decks
 
-A self-contained quiz app that runs on GitHub Pages. Open one URL on your PC, laptop, or iPhone. Progress (scores, stars, misses, streaks, battle level) is saved per device in the browser and survives closing and reopening.
+A self-contained quiz app that runs on GitHub Pages. Open one URL on your PC, laptop, or iPhone. Progress (scores, stars, misses, streaks, battle saves) is saved per device in the browser and survives closing and reopening.
 
 ## Structure
 
@@ -8,7 +8,8 @@ A self-contained quiz app that runs on GitHub Pages. Open one URL on your PC, la
 index.html      markup shell
 styles.css      themes + all styling (every color is a CSS custom property)
 core.js         state, persistence, themes, audio, effects, keyboard nav
-game.js         Battle Mode + pixel sprites
+game.js         Battle Mode: save slots, classes, floors, effects
+sprites.js      Pixel art for Battle (data only)
 app.js          boot, routing, screens, events
 .nojekyll       tells GitHub Pages to serve files as-is
 sets/
@@ -26,7 +27,10 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
 
 - **Quiz** — by chapter, multiple-choice and select-all, immediate feedback with explanations, star any question, per-question grid.
 - **Shuffle** — endless questions with a live streak and best-streak counter.
-- **Battle** — every answer is an attack. Five enemies then a boss, floor after floor, until your HP runs out. XP and levels persist per deck.
+- **Battle** — every answer is an attack. Three save slots per deck (stored under `fc:adv:<deck id>`, separate from quiz progress), saved after every answer.
+  - Classes: **Knight** (takes 30% less damage; Shield Bash, Holy Strike), **Wizard** (charges twice as fast; Fireball, Meteor), **Ranger** (30% crit chance; Piercing Shot, Arrow Rain with overkill carry). Correct answers fill charge; arm a special before answering, and a wrong answer fizzles it.
+  - Five themed floors (Greenwood, Stone Peaks, Haunted Crypt, Dark Keep, Dragon's Lair), each ending in a boss that pulls about two thirds of its questions from your misses. Beating Ashmaw the Dragon unlocks Endless floors.
+  - Getting knocked out sends you back to the floor entrance with your level and XP intact.
 
 All three write to the same progress record, so anything you answer anywhere shows up in the chapter grids.
 

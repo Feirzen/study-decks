@@ -102,6 +102,8 @@ function render() {
   else if (S.screen === "quiz") html = viewQuiz();
   else if (S.screen === "shuffle") html = viewShuffle();
   else if (S.screen === "battle") html = viewBattle();
+  else if (S.screen === "advMenu") html = viewAdvMenu();
+  else if (S.screen === "advClass") html = viewAdvClass();
   el.innerHTML = topbar() + html + (S.menuOpen ? themeMenu() : "");
   mountSprites();
   if (document.body.classList.contains("kbd")) paintNav();
@@ -237,9 +239,8 @@ function viewClass() {
 /* ===================== SET HOME ===================== */
 /* Shared by app.js and lessons.js so both versions of the screen match. */
 function modeButtons() {
-  const bt = progress.battle || {};
   const shufSub = progress.high ? "Best streak " + progress.high : "Weighted toward misses";
-  const batSub = "Lv " + levelFor(bt.xp || 0) + (bt.bestFloor ? " · best floor " + bt.bestFloor : " · endless floors");
+  const batSub = advSummary(S.set.id);
   return `<div class="moderow">
     <button class="mode" data-act="startShuffle">
       <span class="mic" style="background:var(--accBg);color:var(--accent)">${I.shuffle}</span>
@@ -674,10 +675,17 @@ document.addEventListener("click", ev => {
   if (act === "nextShuffle") return nextShuffle();
 
   // ---- battle
-  if (act === "startBattle") return startBattle();
+  if (act === "startBattle" || act === "battleRestart" || act === "toAdvMenu") return openAdvMenu();
+  if (act === "advNew") return advNew(+t.dataset.i);
+  if (act === "advCont") return openSlot(+t.dataset.i);
+  if (act === "advDel") return advAskDelete(+t.dataset.i);
+  if (act === "advDelYes") return advDelete(+t.dataset.i);
+  if (act === "advPickClass") return advPickClass(t.dataset.cls);
+  if (act === "advRetry") return openSlot(S.battle.slot);
+  if (act === "advEndless") return advContinueEndless();
+  if (act === "armSpecial") return armSpecial(t.dataset.id);
   if (act === "submitBattle") return submitBattle();
   if (act === "battleNext") return battleNextQuestion();
-  if (act === "battleRestart") return startBattle();
 
   // ---- star toggle (any screen)
   if (act === "star") {
