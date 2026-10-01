@@ -10,30 +10,33 @@
    =================================================================== */
 
 /* ===================== PIXEL SPRITES =====================
-   16x16 grids, authored facing right. Each character indexes a palette;
+   16x16 grids (the hero is a larger chibi grid), authored facing right. Each character indexes a palette;
    "." is transparent. A 1px dark outline is added automatically.      */
 const SPRITES = {
   hero: {
-    pal: { r: "#e2574c", h: "#d6deeb", H: "#8b97ad", s: "#f2c49b", S: "#d39a73", e: "#1b1b24",
-           c: "#e3b341", C: "#b7862c", b: "#3b6fd4", B: "#274a96", l: "#7a4a2c",
-           w: "#f1f5ff", W: "#a9b6d0", g: "#e3b341", k: "#3a3542" },
+    pal: { h: "#7a4527", H: "#4f2a17", j: "#a9663a", s: "#f6c9a2", S: "#dba07c", e: "#1b1b24", E: "#ffffff", p: "#ef9a8c", m: "#b85a4c", c: "#3b6fd4", C: "#264a99", t: "#38476b", T: "#252f4a", b: "#6b3e1f", g: "#f2b632", l: "#8a5530", L: "#55301a", w: "#f1f5ff", W: "#a9b6d0", y: "#e3b341", Y: "#a87a1c" },
     rows: [
-      ".....rrr........",
-      "....rhhhh....w..",
-      "...hhhhhhh...wW.",
-      "...hHhhhhhh..wW.",
-      "...hHssssesh.wW.",
-      "...hHsSsssss.wW.",
-      "....HhhhhhH..wW.",
-      "...cbbbbbbbB.wW.",
-      "..ccbbbbbbbbggg.",
-      "..cCbbBbbbbsss..",
-      "..cCbbllllllb...",
-      "..cCbbbbbbbB....",
-      "...cBbbbBbbB....",
-      "....kkk..kkk....",
-      "....kkk..kkk....",
-      "...kkkk..kkkk...",
+      ".......h...h.........",
+      "......hhh.hh..h......",
+      "....hhhhjhhhhhh...w..",
+      "...hhhjjhhhhhhhh..wW.",
+      "..HhhjjhhhhhhhhhH.wW.",
+      "..HhhhhhhhhhhhhhH.wW.",
+      "..HhhhhshhhshhhsH.wW.",
+      "..HhhSsssshsssssh.wW.",
+      "..HhhSssEesssEess.wW.",
+      "..HhhSsseesssees..wW.",
+      "..HHhSsseesssees..wW.",
+      "...HhSsppssmspps..wW.",
+      "....HSSssssssSS...wW.",
+      "....cccccccccccS.YyyY",
+      "...CccttttttttccllY..",
+      "..CCcttttTttttt.lL...",
+      "..CCcbbbbgbbbbb......",
+      ".CCcctttttttttT......",
+      ".CC..ttTTt.tTTt......",
+      ".....lll...lll.......",
+      "....LLLL..LLLL.......",
     ],
   },
   slime: {
