@@ -25,7 +25,7 @@ let progress = null;     // persisted object for the current set
 const orders = {};       // transient shuffled option orders, keyed by question id
 
 /* ===================== SETTINGS (global, not per-deck) ===================== */
-const DEFAULT_SETTINGS = { theme: "midnight", muted: false, chamLock: null };
+const DEFAULT_SETTINGS = { theme: "midnight", muted: false, chamLock: null, chamTone: "auto" };
 let settings = loadSettings();
 
 function loadSettings() {
@@ -181,12 +181,14 @@ const THEMES = {
 const CHAM_VARS = ["bg","surface","surface2","border","border2","text","dim","muted","accent","ok","bad","star","flag","shadow","okBg","badBg","scrim","accBg"];
 let chamMode = "dark";
 let chamCounter = 0;
-const CHAM_EVERY = 3;          // reroll after this many answered questions
+const CHAM_EVERY = 1;          // reroll after this many answered questions (1 = every answer)
 
 function makeChameleon() {
   const h = Math.floor(Math.random() * 360);
   const acc = (h + 120 + Math.floor(Math.random() * 110)) % 360;
-  const light = Math.random() < 0.28;
+  // chamTone: "auto" = mixed (mostly dark), "light" = light only, "dark" = dark only
+  const tone = settings.chamTone;
+  const light = tone === "light" ? true : tone === "dark" ? false : Math.random() < 0.28;
   const H = (x, s, l, a) => `hsl(${x} ${s}% ${l}%${a ? " / " + a + "%" : ""})`;
   if (light) {
     return { mode: "light", vars: {
@@ -234,11 +236,27 @@ function toggleChamLock() {
     saveSettings();
     rollChameleon(true);
   } else {
-    const vars = {};
-    CHAM_VARS.forEach(v => vars[v] = getComputedStyle(document.documentElement).getPropertyValue("--" + v).trim());
-    settings.chamLock = { mode: chamMode, vars };
-    saveSettings();
+    lockChameleon();
   }
+}
+/* Freeze whatever palette is on screen right now. */
+function lockChameleon() {
+  const vars = {};
+  CHAM_VARS.forEach(v => vars[v] = getComputedStyle(document.documentElement).getPropertyValue("--" + v).trim());
+  settings.chamLock = { mode: chamMode, vars };
+  saveSettings();
+}
+/* Lizard tap: any -> light only -> dark only -> any.
+   Switching tone paints a new palette right away. If the lock is on, the
+   lock moves onto the new palette so it stays on, as the person left it. */
+function cycleChamTone() {
+  const order = ["auto", "light", "dark"];
+  const cur = order.indexOf(settings.chamTone);
+  settings.chamTone = order[(cur + 1) % order.length];
+  chamCounter = 0;
+  paintChameleon(makeChameleon());
+  if (settings.chamLock) lockChameleon();
+  else saveSettings();
 }
 function applyTheme() {
   const t = THEMES[settings.theme] ? settings.theme : "midnight";

@@ -27,6 +27,7 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
 
 - **Quiz** — by chapter, multiple-choice and select-all, immediate feedback with explanations, star any question, per-question grid.
 - **Shuffle** — endless questions with a live streak and best-streak counter.
+- **Lesson button** — in Shuffle and Battle, any question from a chapter that has lessons shows a 📖 Lesson button next to the star. It opens the matching lesson in a pop-up over the question (the lesson sitting in front of that question in the chapter), so your streak and battle stay exactly where they are. Chapters with two lessons get Lesson 1 / Lesson 2 tabs in the pop-up.
 - **Battle** — every answer is an attack. Three save slots per deck (stored under `fc:adv:<deck id>`, separate from quiz progress), saved after every answer.
   - Classes: **Knight** (takes 30% less damage; Shield Bash, Holy Strike), **Wizard** (charges twice as fast; Fireball, Meteor), **Ranger** (30% crit chance; Piercing Shot, Arrow Rain with overkill carry). Correct answers fill charge; arm a special before answering, and a wrong answer fizzles it.
   - Five themed floors (Greenwood, Stone Peaks, Haunted Crypt, Dark Keep, Dragon's Lair), each ending in a boss that pulls about two thirds of its questions from your misses. Beating Ashmaw the Dragon unlocks Endless floors.
@@ -48,7 +49,9 @@ Four, picked from the palette button in the top right and remembered across sess
 - **Midnight** — the original dark theme
 - **Paper** — light
 - **Sepia** — warm and low-light
-- **Chameleon** — a fresh generated palette every 3 answers. Hue is random; saturation and lightness are constrained so contrast is always readable. Tap the lizard to lock a palette you like, tap again to release it.
+- **Chameleon** — a fresh generated palette after every answer. Hue is random; saturation and lightness are constrained so contrast is always readable. Two controls sit in the top bar:
+  - **Lizard** sets the tone. Tap to cycle: grey = any palette, white = light palettes only, black = dark palettes only.
+  - **Padlock** on the lizard's corner freezes the current palette. It is remembered across sessions (and across theme switches) until you tap it again. Changing the lizard while locked moves the freeze onto a fresh palette in the new tone.
 
 Category and deck colors from the JSON are automatically re-fitted to whichever theme is active, so authored colors stay legible on light and dark alike.
 

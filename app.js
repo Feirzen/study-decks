@@ -111,11 +111,26 @@ function render() {
 function goto(screen) { S.screen = screen; S.navIdx = 0; render(); window.scrollTo(0, 0); }
 
 /* ===================== TOP BAR ===================== */
+const LIZARD_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="4.2" rx="2.3" ry="2.7" fill="currentColor"/><path d="M12 7c-1 3 1 6 0 9 -.6 2 .8 4.4 3.2 4.6 1.6.1 2.6-1 2.3-2.2"/><path d="M12 8.6L7 7.4M12 8.6L17 7.4M12 13.6L7.4 16M12 13.6L16.6 16"/></svg>';
+const LOCK_SVG = on => on
+  ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" fill="currentColor"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
+  : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
+const CHAM_TONE_LABEL = { auto: "Any palette", light: "Light palettes only", dark: "Dark palettes only" };
+
+/* Lizard = tone (grey = any, white = light only, black = dark only).
+   Little padlock on its corner = freeze the palette. */
+function chamControl() {
+  const tone = CHAM_TONE_LABEL[settings.chamTone] ? settings.chamTone : "auto";
+  const locked = !!settings.chamLock;
+  return `<span class="chamwrap">
+    <button class="iconbtn cham ${tone}" data-act="chamTone" data-nonav title="${CHAM_TONE_LABEL[tone]} (tap to change)" aria-label="${CHAM_TONE_LABEL[tone]}">${LIZARD_SVG}</button>
+    <button class="chamlock ${locked ? "on" : ""}" data-act="chamLock" data-nonav title="${locked ? "Colors frozen (tap to unfreeze)" : "Freeze these colors"}" aria-label="${locked ? "Unfreeze colors" : "Freeze colors"}">${LOCK_SVG(locked)}</button>
+  </span>`;
+}
 function topbar() {
   const cham = settings.theme === "chameleon";
-  const locked = cham && !!settings.chamLock;
   return `<div class="topbar">
-    ${cham ? `<button class="iconbtn ${locked ? "on" : ""}" data-act="chamLock" data-nonav title="${locked ? "Unlock colors" : "Lock this palette"}" style="${locked ? "" : "opacity:.6;filter:grayscale(.7)"}">🦎</button>` : ""}
+    ${cham ? chamControl() : ""}
     <button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>
     <button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>
   </div>`;
@@ -129,7 +144,7 @@ function themeMenu() {
     </button>`;
   }).join("");
   const chamNote = settings.theme === "chameleon"
-    ? `<div style="padding:6px 12px 4px;font-size:11px;line-height:1.5;color:var(--muted)">New palette every ${CHAM_EVERY} answers. Tap 🦎 to keep one.</div>`
+    ? `<div style="padding:6px 12px 4px;font-size:11px;line-height:1.5;color:var(--muted)">New palette every ${CHAM_EVERY === 1 ? "answer" : CHAM_EVERY + " answers"}. Tap the lizard to switch between any, light only (white) and dark only (black). Tap the lock to freeze a palette.</div>`
     : "";
   return `<div class="thememenu">${rows}${chamNote}</div>`;
 }
@@ -471,7 +486,8 @@ function viewShuffle() {
         ${S.high ? `<div style="text-align:center"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Best</div><div style="font-size:20px;font-weight:bold;color:var(--accent)">${S.high}</div></div>` : ""}
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:10px">
+      ${typeof lessonBtn === "function" ? lessonBtn(q) : ""}
       <button class="star" data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>
     </div>
     <div class="card" style="cursor:default;margin-bottom:18px">
@@ -609,7 +625,6 @@ document.addEventListener("click", ev => {
   if (act === "themeMenu") { S.menuOpen = !S.menuOpen; sfx.tick(); return render(); }
   if (act === "setTheme") {
     settings.theme = t.dataset.theme;
-    if (settings.theme !== "chameleon") settings.chamLock = null;
     chamCounter = 0;
     saveSettings(); applyTheme();
     S.menuOpen = false;
@@ -617,6 +632,7 @@ document.addEventListener("click", ev => {
     sfx.select();
     return render();
   }
+  if (act === "chamTone") { cycleChamTone(); _flushColorCache(); sfx.select(); return render(); }
   if (act === "chamLock") { toggleChamLock(); _flushColorCache(); sfx.select(); return render(); }
   if (act === "toggleMute") {
     settings.muted = !settings.muted; saveSettings();

@@ -451,3 +451,79 @@ function nextQuiz() {
   }
   return goItem(k + 1, true);                    // lesson next (skips learned ones) or end of chapter
 }
+
+/* ===================================================================
+   Lesson pop-up for Shuffle and Battle
+   A "📖 Lesson" button sits next to the star on any question whose
+   chapter has lessons. It opens the matching lesson in a panel over
+   the question, so the run (streak, battle, HP) is never interrupted.
+   Matching rule: the lesson that sits in front of the question in the
+   chapter walk, i.e. the one with the highest `at` that is still at or
+   before this question's position. Falls back to the chapter's first.
+   =================================================================== */
+function lessonForQuestion(q) {
+  const c = q && q._cat;
+  const ls = catLessons(c);
+  if (!ls.length) return null;
+  const idx = c.questions.findIndex(x => x.id === q.id);
+  let best = null;
+  ls.forEach(l => {
+    const at = l.at || 0;
+    if (at <= idx && (!best || at >= (best.at || 0))) best = l;
+  });
+  return best || ls[0];
+}
+function lessonBtn(q) {
+  const l = lessonForQuestion(q);
+  if (!l) return "";
+  return `<button class="lessonbtn" data-act="peekLesson" data-id="${esc(l.id)}" title="Read the lesson for this question">📖 Lesson</button>`;
+}
+function lessonPeekHtml(id) {
+  const hit = findLesson(id);
+  if (!hit) return "";
+  const { c, l } = hit;
+  const col = ck(c.color);
+  const all = catLessons(c);
+  const no = all.indexOf(l) + 1;
+  const tabs = all.length > 1
+    ? `<div class="pk-tabs">${all.map((x, i) => `<button class="pk-tab ${x.id === l.id ? "on" : ""}" data-act="peekLesson" data-id="${esc(x.id)}">Lesson ${i + 1}</button>`).join("")}</div>`
+    : "";
+  const vids = (l.videos || []).map(v => `<a class="ls-vid" href="${esc(v.url)}" target="_blank" rel="noopener">
+      <span class="ls-play">▶</span>
+      <span><span class="ls-vt">${esc(v.title)}</span>${v.channel ? `<span class="ls-vc">${esc(v.channel)}</span>` : ""}</span>
+    </a>`).join("");
+  return `<div class="rd-head">
+      <div><div class="eyebrow" style="color:${col}">${esc(c.category)} · Lesson ${no}</div>
+      <div style="font-size:20px;font-weight:bold;line-height:1.3;margin-top:4px">${esc(l.title)}</div></div>
+      <button class="rd-x" data-act="closeModal" aria-label="Close">✕</button>
+    </div>
+    ${tabs}
+    <div class="ls-body">${renderBlocks(l.blocks)}</div>
+    ${vids ? `<div class="eyebrow" style="margin:18px 0 10px">Watch</div><div class="ls-vids">${vids}</div>` : ""}
+    <button class="primary" data-act="closeModal" style="background:${col};margin-top:18px">Back to the question</button>`;
+}
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("[data-act]");
+  if (!t || t.dataset.act !== "peekLesson") return;
+  const html = lessonPeekHtml(t.dataset.id);
+  if (!html) return;
+  sfx.tick();
+  const open = document.querySelector("#overlay .modal");
+  if (open) { open.innerHTML = html; open.scrollTop = 0; return; }   // switching lessons inside the panel
+  showModal(html);                                                    // no render(): the question behind stays untouched
+  const m = document.querySelector("#overlay .modal");
+  if (m) m.classList.add("wide");
+});
+(function () {
+  const st = document.createElement("style");
+  st.id = "lessonpeek-css";
+  st.textContent = `
+.lessonbtn { background: var(--surface); border: 1px solid var(--border2); color: var(--accent); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; letter-spacing: .3px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2; transition: border-color .12s, transform .1s; }
+.lessonbtn:hover { border-color: var(--accent); }
+.lessonbtn:active { transform: scale(.95); }
+.pk-tabs { display: flex; gap: 8px; margin: 0 0 14px; }
+.pk-tab { background: var(--surface2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 6px 14px; font-size: 12.5px; cursor: pointer; }
+.pk-tab.on { color: var(--accent); border-color: var(--accent); font-weight: bold; }
+`;
+  document.head.appendChild(st);
+})();

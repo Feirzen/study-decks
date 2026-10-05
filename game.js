@@ -903,7 +903,10 @@ function viewBattle() {
     <div style="display:flex;justify-content:space-between;align-items:center;margin:22px 0 14px">
       <button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>
       <span class="eyebrow" style="color:${C.color}">Slot ${b.slot + 1} · ${C.name}${filterLabel()}</span>
-      <button class="star" data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>
+      <div style="display:flex;align-items:center;gap:12px">
+        ${typeof lessonBtn === "function" ? lessonBtn(q) : ""}
+        <button class="star" data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>
+      </div>
     </div>
     ${arena}
     ${hud}

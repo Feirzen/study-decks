@@ -118,6 +118,23 @@ h1 { font-size: 32px; font-weight: bold; line-height: 1.15; margin: 6px 0 0; }
 .iconbtn:active { transform: scale(.93); }
 .iconbtn.on { color: var(--star); border-color: var(--star); }
 
+/* chameleon control: lizard (tone) + padlock on its corner (freeze) */
+.chamwrap { position: relative; display: inline-flex; }
+.iconbtn.cham.auto { color: var(--muted); opacity: .75; }
+.iconbtn.cham.light { color: #fff; border-color: var(--border2); }
+.iconbtn.cham.light svg { filter: drop-shadow(0 0 .8px #000) drop-shadow(0 0 .8px #000) drop-shadow(0 0 .8px #000); }
+.iconbtn.cham.dark { color: #000; border-color: var(--border2); }
+.iconbtn.cham.dark svg { filter: drop-shadow(0 0 .8px #fff) drop-shadow(0 0 .8px #fff) drop-shadow(0 0 .8px #fff); }
+.chamlock {
+  position: absolute; right: -5px; bottom: -5px;
+  width: 18px; height: 18px; padding: 0; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border2); color: var(--muted);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  transition: color var(--t-quick), border-color var(--t-quick), transform .1s;
+}
+.chamlock:active { transform: scale(.9); }
+.chamlock.on { color: var(--star); border-color: var(--star); background: var(--surface2); }
+
 .thememenu {
   position: fixed; top: 54px; right: 12px; z-index: 61;
   background: var(--surface); border: 1px solid var(--border);
