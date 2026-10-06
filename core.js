@@ -568,6 +568,7 @@ function fxEnsure() {
   }
 }
 /* p: {x, y, vx, vy, life, size, color, g(ravity), drag, shape:'px'|'conf'|'spark', rot, spin} */
+const PXG = 3;                                   // particle pixel grid (css px)
 function fxAdd(list) {
   if (REDUCED) return;
   fxEnsure();
@@ -590,7 +591,7 @@ function fxLoop(now) {
     p.x += p.vx * dt; p.y += p.vy * dt;
     p.rot += (p.spin || 0) * dt;
     const k = p.life / p.max;
-    g.globalAlpha = k < 0.35 ? k / 0.35 : 1;
+    g.globalAlpha = Math.ceil((k < 0.35 ? k / 0.35 : 1) * 4) / 4;      // stepped fade
     g.fillStyle = p.color;
     if (p.shape === "conf") {
       g.save(); g.translate(p.x, p.y); g.rotate(p.rot);
@@ -598,13 +599,18 @@ function fxLoop(now) {
       g.fillRect(-p.size / 2, -p.size * 0.35, p.size, p.size * 0.7);
       g.restore();
     } else if (p.shape === "spark") {
-      g.save(); g.translate(p.x, p.y); g.rotate(Math.atan2(p.vy, p.vx));
-      const len = Math.min(18, 3 + Math.hypot(p.vx, p.vy) * 0.035);
-      g.fillRect(-len, -p.size / 2, len, p.size);
-      g.restore();
+      // a short streak drawn as chunky pixels on the 3px grid
+      const sp = Math.hypot(p.vx, p.vy) || 1, ux = p.vx / sp, uy = p.vy / sp;
+      const n = Math.max(1, Math.min(5, Math.round(1 + sp * 0.012)));
+      for (let j = 0; j < n; j++) {
+        g.globalAlpha = (k < 0.35 ? k / 0.35 : 1) * (1 - j / (n + 1));
+        g.fillRect(PXG * Math.round((p.x - ux * j * PXG) / PXG), PXG * Math.round((p.y - uy * j * PXG) / PXG), PXG, PXG);
+      }
     } else {
-      const s = p.size * (p.shrink ? (0.35 + 0.65 * k) : 1);
-      g.fillRect(Math.round(p.x - s / 2), Math.round(p.y - s / 2), Math.round(s), Math.round(s));
+      // squares snap to a 3px grid and shrink in whole steps
+      const raw = p.size * (p.shrink ? (0.35 + 0.65 * k) : 1);
+      const s = Math.max(PXG, PXG * Math.round(raw / PXG));
+      g.fillRect(PXG * Math.round((p.x - s / 2) / PXG), PXG * Math.round((p.y - s / 2) / PXG), s, s);
     }
     keep.push(p);
   }

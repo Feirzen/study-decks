@@ -222,7 +222,6 @@ const VARIANTS = {
   "slimeking~macro":{ a: "#fbcfe8", b: "#db2777", W: "#ffffff", e: "#500724", m: "#500724" },
   "golem~ribosome": { A: "#c4b5fd", a: "#8b5cf6", d: "#4c1d95", g: "#f472b6", o: "#22d3ee", O: "#cffafe" },
   "lich~prion":     { V: "#be185d", v: "#500724", g: "#f0abfc", o: "#f0abfc", O: "#fdf4ff" },
-  "hero_wizard~minim": { V: "#0f766e", v: "#14b8a6", c: "#0d9488", C: "#115e59", t: "#5eead4", T: "#0f766e", o: "#f472b6", O: "#fdf2f8" },
   // The Ember Relic
   "skeleton~charred": { w: "#78716c", k: "#f97316" },
   "mushroom~ash":   { r: "#57534e", w: "#f97316", R: "#292524", s: "#a8a29e", S: "#57534e" },
@@ -260,7 +259,6 @@ const VARIANTS = {
   "slimeking~steam":{ a: "#cbd5e1", b: "#64748b", W: "#ffffff", e: "#1e293b", m: "#1e293b" },
   "lich~hour":      { V: "#ca8a04", v: "#713f12", g: "#fde68a", o: "#fde68a", O: "#fffbeb" },
   "commander~brass":{ A: "#a16207", a: "#713f12", r: "#22d3ee", p: "#0891b2", P: "#155e75" },
-  "hero_wizard~clockmaker": { V: "#78350f", v: "#a16207", c: "#92400e", C: "#451a03", t: "#d4a373", T: "#78350f", o: "#22d3ee", O: "#ecfeff" },
   // Frostbound
   "bat~frost":      { a: "#7dd3fc", W: "#bae6fd", w: "#0369a1", e: "#ffffff" },
   "ghost~snow":     { a: "#ffffff", b: "#bae6fd", c: "#0c4a6e", e: "#38bdf8" },
@@ -285,7 +283,6 @@ const VARIANTS = {
   "commander~anubis": { A: "#1c1917", a: "#0c0a09", r: "#facc15", p: "#0ea5e9", P: "#075985", g: "#facc15" },
   "eyeball~ra":     { v: "#a16207", w: "#fef9c3", r: "#f59e0b", i: "#0ea5e9", t: "#a16207" },
   "knight~anubis":  { A: "#facc15", a: "#a16207", d: "#422006", r: "#0ea5e9", p: "#0284c7", P: "#075985" },
-  "hero_wizard~priest": { V: "#fef9c3", v: "#ca8a04", c: "#eab308", C: "#a16207", t: "#0ea5e9", T: "#0369a1", o: "#0ea5e9", O: "#e0f2fe" },
   "lich~pharaoh":   { V: "#0369a1", v: "#0c4a6e", y: "#facc15", w: "#e7c27d", g: "#facc15", o: "#facc15", O: "#fef9c3" },
   // The Midnight Carnival
   "slime~candy":    { a: "#f9a8d4", b: "#c084fc", W: "#ffffff", e: "#581c87" },
@@ -298,8 +295,90 @@ const VARIANTS = {
   "spider~tightrope": { a: "#7e22ce", b: "#3b0764", w: "#f0abfc", d: "#581c87", e: "#facc15", l: "#3b0764" },
   "commander~tamer":{ A: "#dc2626", a: "#7f1d1d", r: "#facc15", p: "#facc15", P: "#a16207" },
   "lich~conductor": { V: "#1e1b4b", v: "#0f0a2e", y: "#dc2626", g: "#facc15", o: "#facc15", O: "#fef9c3" },
-  "hero_wizard~ringmaster": { V: "#dc2626", v: "#991b1b", c: "#b91c1c", C: "#450a0a", t: "#1c1917", T: "#0c0a09", o: "#facc15", O: "#fef9c3" },
 };
+/* ---------- villain sprites (never reuse a hero body for a boss) ---------- */
+Object.assign(SPRITES, {
+  /* Professor Minim: wild hair, huge goggles, lab coat, tiny wand */
+  scientist: {
+    pal: { H: "#f1f5f9", h: "#94a3b8", s: "#f5c9a5", S: "#d39b78", g: "#a16207", G: "#67e8f9", L: "#ecfeff",
+           m: "#7c2d12", c: "#f8fafc", C: "#cbd5e1", t: "#db2777", p: "#334155", b: "#1e293b", w: "#78350f", x: "#f472b6", X: "#fdf2f8" },
+    rows: [
+      "...H..H.H.........",
+      "..HHHHHHHHH.....x.",
+      ".HHHHHHHHHHH...xXx",
+      "HHhsssssssHHH...x.",
+      "HhggggsggggH....w.",
+      "hgGLGgsgGLGg...w..",
+      ".gGGGgsgGGGg..w...",
+      "..gggsssgggs.w....",
+      "...sSmmmmSs.w.....",
+      "....ssssss.ss.....",
+      "...ccctttcccs.....",
+      "..ccCcctccCcc.....",
+      "..ccCcctccCc......",
+      "..cccccccccc......",
+      "..cCCCCCCCCc......",
+      "...pp....pp.......",
+      "..bbb...bbb.......",
+    ],
+  },
+  /* showman: top hat, curly mustache, tailcoat, cane */
+  showman: {
+    pal: { h: "#1c1917", H: "#57534e", r: "#dc2626", s: "#f5c9a5", S: "#d39b78", e: "#1c1917", g: "#facc15",
+           m: "#3f1d0b", c: "#b91c1c", C: "#7f1d1d", w: "#fef9c3", v: "#facc15", p: "#1c1917", b: "#0c0a09", k: "#a16207", K: "#fde047" },
+    rows: [
+      "......hhhhh.......",
+      "......hHhhh.......",
+      "......hHhhh.......",
+      "......hHhhh.......",
+      "......rrrrr.......",
+      "....hhhhhhhhh.....",
+      "......sssss.......",
+      "......esgse.......",
+      "......sssssS......",
+      "....mmm.s.mmm.....",
+      "...m..mmmmm..m....",
+      "......wwvww.......",
+      ".....ccwvwcc...K..",
+      "....cccwvwccc.k...",
+      "....cCcwwwcCc.k...",
+      "....cCcccccCcsk...",
+      "....cC.ppp.Cc.k...",
+      "....C..p.p..C.k...",
+      "......bb.bb...k...",
+    ],
+  },
+  /* hooded priest: tall cowl, gold mask, glowing eyes, eye-topped staff */
+  hooded: {
+    pal: { h: "#1e3a8a", H: "#3b82f6", y: "#facc15", Y: "#a16207", e: "#22d3ee", r: "#f8fafc", R: "#cbd5e1",
+           a: "#facc15", A: "#0ea5e9", s: "#78350f", b: "#1e293b" },
+    rows: [
+      "......hh..........",
+      ".....hhhh.....aaa.",
+      "....hhHhhh...aAAAa",
+      "...hhHyyyhh...aaa.",
+      "...hHyeyeyh....s..",
+      "...hHyyyyyh....s..",
+      "...hHyYyYyh....s..",
+      "..hhHhyyyhhh...s..",
+      "..hHrrrrrrrhh..s..",
+      ".hhHrrRyRrrhhhss..",
+      ".hHrrrRyRrrrh..s..",
+      ".hHrrrRyRrrrh..s..",
+      ".hHrrrrrrrrrh..s..",
+      "hhHrrrRRRrrrhh.s..",
+      "hHrrrRRRRRrrrh.s..",
+      "hHHHHHHHHHHHHh.s..",
+      "..bb......bb...s..",
+    ],
+  },
+});
+Object.assign(IDLE_BASE, { scientist: "breathe", showman: "breathe", hooded: "float" });
+Object.assign(VARIANTS, {
+  "showman~clockmaker": { h: "#78350f", H: "#a16207", r: "#22d3ee", g: "#22d3ee", c: "#a16207", C: "#713f12",
+                          w: "#fde68a", v: "#22d3ee", m: "#e7e5e4", k: "#d4a373", K: "#22d3ee" },
+});
+
 /* trophy cup colors, one per story */
 const TROPHY_PAL = {
   classic:   {},
@@ -356,7 +435,7 @@ const STORIES = {
       F("Cytoplasm Currents", [80, 140, 200], [["slime~enzyme", "Rogue Enzyme"], ["spider~phage", "Bacteriophage"], ["beetle~aphid", "Aphid"], ["spider~phage", "Bacteriophage"]], ["golem~ribosome", "Ribosome Golem", 8]),
       F("Mitochondrial Maze", [210, 110, 70], [["imp~radical", "Free Radical"], ["beetle~mite", "Dust Mite"], ["slime~enzyme", "Rogue Enzyme"], ["imp~radical", "Free Radical"]], ["lich~prion", "The Prion Lich", 10]),
       F("The Nucleus Gate", [150, 90, 200], [["spider~phage", "Bacteriophage"], ["eyeball~germ", "Germ"], ["spider~lab", "Lab Spider"], ["imp~radical", "Free Radical"]], ["spider~lab", "The Gatekeeper Spider", 12, 6]),
-      F("Minim's Lab Bench", [190, 170, 90], [["spider~lab", "Lab Spider"], ["beetle~aphid", "Aphid"], ["imp~radical", "Free Radical"]], ["hero_wizard~minim", "Professor Minim", 16, 5]),
+      F("Minim's Lab Bench", [190, 170, 90], [["spider~lab", "Lab Spider"], ["beetle~aphid", "Aphid"], ["imp~radical", "Free Radical"]], ["scientist", "Professor Minim", 16, 5]),
     ],
   },
   volcano: {
@@ -412,7 +491,7 @@ const STORIES = {
       F("The Steam Works", [130, 120, 120], [["slime~oil", "Oil Slime"], ["knight~automaton", "Automaton"], ["bat~clock", "Clockwork Bat"], ["slime~oil", "Oil Slime"]], ["slimeking~steam", "The Boiler Beast", 8]),
       F("The Pendulum Hall", [150, 110, 70], [["eyeball~lens", "Watcher Lens"], ["spider~gear", "Gear Spider"], ["knight~automaton", "Automaton"], ["bat~clock", "Clockwork Bat"]], ["lich~hour", "The Hourglass Lich", 10]),
       F("The Spring Vault", [120, 100, 140], [["spider~gear", "Gear Spider"], ["knight~automaton", "Automaton"], ["slime~oil", "Oil Slime"], ["eyeball~lens", "Watcher Lens"]], ["commander~brass", "The Iron Regent", 12]),
-      F("The Clock Face", [190, 150, 90], [["knight~automaton", "Automaton"], ["spider~gear", "Gear Spider"], ["eyeball~lens", "Watcher Lens"]], ["hero_wizard~clockmaker", "The Clockmaker", 16, 5]),
+      F("The Clock Face", [190, 150, 90], [["knight~automaton", "Automaton"], ["spider~gear", "Gear Spider"], ["eyeball~lens", "Watcher Lens"]], ["showman~clockmaker", "The Clockmaker", 16, 5]),
     ],
   },
   frost: {
@@ -439,7 +518,7 @@ const STORIES = {
       F("The Dunes", [210, 170, 90], [["beetle~scarab", "Scarab"], ["slime~sand", "Sand Slime"], ["skeleton~sand", "Dune Walker"], ["beetle~scarab", "Scarab"]], ["golem~sand", "The Sand Golem", 6]),
       F("The Oasis Ruins", [120, 170, 130], [["crab~scorpion", "Giant Scorpion"], ["beetle~scarab", "Scarab"], ["bat~tomb", "Tomb Bat"], ["crab~scorpion", "Giant Scorpion"]], ["beetle~gold", "The Golden Scarab", 8, 6]),
       F("The Valley of Kings", [200, 140, 80], [["skeleton~sand", "Dune Walker"], ["ghost~mummy", "Mummy Spirit"], ["crab~scorpion", "Giant Scorpion"], ["bat~tomb", "Tomb Bat"]], ["commander~anubis", "The Jackal Guard", 10]),
-      F("The Pyramid Halls", [170, 130, 70], [["ghost~mummy", "Mummy Spirit"], ["eyeball~ra", "Eye of Ra"], ["knight~anubis", "Tomb Guard"], ["skeleton~sand", "Dune Walker"]], ["hero_wizard~priest", "The High Priest", 12, 5]),
+      F("The Pyramid Halls", [170, 130, 70], [["ghost~mummy", "Mummy Spirit"], ["eyeball~ra", "Eye of Ra"], ["knight~anubis", "Tomb Guard"], ["skeleton~sand", "Dune Walker"]], ["hooded", "The High Priest", 12, 5]),
       F("The Burial Chamber", [190, 150, 60], [["knight~anubis", "Tomb Guard"], ["eyeball~ra", "Eye of Ra"], ["ghost~mummy", "Mummy Spirit"]], ["lich~pharaoh", "Pharaoh Ankh-Ra", 16, 6]),
     ],
   },
@@ -454,7 +533,7 @@ const STORIES = {
       F("Hall of Mirrors", [120, 110, 190], [["ghost~mirror", "Mirror Wraith"], ["eyeball~peep", "Peeping Eye"], ["imp~jester", "Jester Imp"], ["ghost~mirror", "Mirror Wraith"]], ["slimeking~funhouse", "The Funhouse Blob", 8]),
       F("The Big Top", [190, 70, 80], [["imp~jester", "Jester Imp"], ["knight~tin", "Tin Soldier"], ["spider~tightrope", "Tightrope Spider"], ["knight~tin", "Tin Soldier"]], ["commander~tamer", "The Lion Tamer", 10]),
       F("The Ghost Train", [90, 70, 140], [["skeleton", "Skeleton"], ["ghost~mirror", "Mirror Wraith"], ["eyeball~peep", "Peeping Eye"], ["bat", "Bat"]], ["lich~conductor", "The Conductor", 12]),
-      F("The Ringmaster's Wagon", [160, 50, 100], [["knight~tin", "Tin Soldier"], ["imp~jester", "Jester Imp"], ["eyeball~peep", "Peeping Eye"]], ["hero_wizard~ringmaster", "The Ringmaster", 16, 5]),
+      F("The Ringmaster's Wagon", [160, 50, 100], [["knight~tin", "Tin Soldier"], ["imp~jester", "Jester Imp"], ["eyeball~peep", "Peeping Eye"]], ["showman", "The Ringmaster", 16, 5]),
     ],
   },
 };

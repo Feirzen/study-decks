@@ -40,6 +40,8 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
   - Regular foes never repeat a question until you've seen the whole pool (tracked per save slot). Bosses still pull from your misses, and starred questions can come back now and then on purpose.
   - A defeated foe's spot stays empty until you hit Next, then the next one walks in. On wide screens the arena sits beside the question.
   - Getting knocked out sends you back to the floor entrance with your level, picks and boon intact.
+  - Effects are pixel art throughout: sprite projectiles (`--fx-*` in styles.css), particles snapped to a 3px grid, and an ambient low-res canvas over the arena for story weather and live states (armed technique flames + outline, frozen foe in ice with a blue nameplate, guard shield, boss motes, low-HP edge).
+  - The story intro only names Floor 1; later floors and every boss stay hidden until you reach them.
 
 All three write to the same progress record, so anything you answer anywhere shows up in the chapter grids.
 

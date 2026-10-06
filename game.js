@@ -516,14 +516,19 @@ function submitBattle() {
     let healed = s.hp - hp0;
     const special = sp ? sp.id : null;
     const style = special || C.basic;
-    let leveled = gainXp(Math.round(5 * (1 + m.xp)));
-    b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fx === "kazoo" };
+    let xpGot = Math.round(5 * (1 + m.xp));
+    let leveled = gainXp(xpGot);
+    const wasFrozen = s.frozen && !(sp && sp.freeze);
+    b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fx === "kazoo", frozenHit: wasFrozen };
     b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged };
 
     if (b.enemy.hits <= 0) {
       const dead = b.enemy, hpBefore = s.hp - healed, oldFloor = s.floor, oldIdx = s.idx;
       s.kills++; h.kills = (h.kills || 0) + 1;
-      if (gainXp(Math.round((dead.boss ? 25 + 3 * Math.min(s.floor, 10) : 8) * (1 + m.xp)))) leveled = true;
+      const killXp = Math.round((dead.boss ? 25 + 3 * Math.min(s.floor, 10) : 8) * (1 + m.xp));
+      xpGot += killXp;
+      if (gainXp(killXp)) leveled = true;
+      s.frozen = false;
       s.hp = Math.min(mx(), s.hp + (dead.boss ? Math.round(mx() * 0.4) : 5) + Math.round(mx() * m.killHeal));
       const carry = sp && sp.carry ? overkill : 0;
       s.idx++;
@@ -563,6 +568,7 @@ function submitBattle() {
       if (special) sfx["bSp_" + SP_SOUND[special]]();
       else basicSound(style, true, crit);
     }
+    b.fx.xp = xpGot; b.fx.leveled = leveled;
     if (leveled) setTimeout(() => sfx.bLevel(), (IMPACT[style] + 0.3) * 1000);
     if (m.fx === "kazoo") sfx.honk(IMPACT[style]);
   } else {
@@ -825,7 +831,7 @@ function fighterHtml(key, opts) {
   const base = baseOf(key);
   const scale = opts.scale || 4;
   const fly = FLYING_BASE[base] ? " flying" : "";
-  return `<div class="fighter ${opts.side}${fly} ${opts.cls || ""}" ${opts.id ? `id="${opts.id}"` : ""}>
+  return `<div class="fighter ${opts.side}${fly} ${opts.cls || ""}" ${opts.id ? `id="${opts.id}"` : ""} ${opts.style ? `style="${opts.style}"` : ""}>
     <div class="act ${opts.act || ""}" ${opts.actStyle ? `style="${opts.actStyle}"` : ""}>
       ${opts.plate || ""}
       <div class="body ${opts.idle === false ? "" : "idle-" + (IDLE_BASE[base] || "breathe")}">
@@ -933,7 +939,9 @@ function viewAdvIntro() {
   const s = S.adv.slots[S.introSlot];
   if (!s) return `<div class="wrap"><div class="empty">No adventure here.</div></div>`;
   const h = heroById(s.heroId), st = storyOf(s), C = CLASSES[h.cls];
-  const path = st.floors.map((f, i) => `<div class="pathstep"><span class="pathn" style="background:${rgb(f.tint)}">${i + 1}</span><div><b>${esc(f.name)}</b><div class="muted" style="font-size:12px">Boss: ${esc(f.boss.name)}</div></div></div>`).join("");
+  const path = st.floors.map((f, i) => i === 0
+    ? `<div class="pathstep"><span class="pathn" style="background:${rgb(f.tint)}">1</span><div><b>${esc(f.name)}</b><div class="muted" style="font-size:12px">Where it begins. Something guards the way out.</div></div></div>`
+    : `<div class="pathstep locked"><span class="pathn">${i + 1}</span><div><b>???</b><div class="muted" style="font-size:12px">${i === 4 ? "The final confrontation" : "Unknown"}</div></div></div>`).join("");
   return `<div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin:22px 0 18px">
       <button class="backbtn" data-act="toAdvMenu">${I.chevL}</button>
@@ -1062,10 +1070,8 @@ function viewLevelUp() {
     </div></div>`;
 }
 
-const SLASH = `<svg class="slash" viewBox="0 0 64 64" width="70" height="70" aria-hidden="true">
-  <path class="s1" d="M10 54 Q 26 22 56 8" /><path class="s2" d="M10 54 Q 26 22 56 8" /></svg>`;
-const CLAW = `<svg class="claw" viewBox="0 0 64 64" width="60" height="60" aria-hidden="true">
-  <path d="M14 10 L 34 54"/><path d="M26 8 L 46 52"/><path d="M38 10 L 56 46"/></svg>`;
+const SLASH = `<div class="slashpx"></div>`;
+const CLAW = `<div class="clawpx"></div>`;
 const BOLT = '<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6z"/></svg>';
 const SHIELD = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z"/></svg>';
 const TRASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
@@ -1083,7 +1089,7 @@ function projectiles(style, crit) {
   if (style === "volley") return `<div class="proj arrow"></div><div class="proj arrow two"></div><div class="proj arrow three"></div>`;
   if (style === "snipe") return `<div class="proj arrow snipe"></div>`;
   if (style === "frost") return `<div class="proj bolt frost"></div>`;
-  if (style === "chain") return `<div class="proj bolt chain"></div><div class="zap"></div>`;
+  if (style === "chain") return `<div class="zap"></div>`;
   if (style === "whirl") return `<div class="whirlring"></div>` + SLASH;
   if (style === "judgment") return `<div class="holybeam gold"></div><div class="holybeam gold two"></div>`;
   if (style === "holy") return `<div class="holybeam"></div>`;
@@ -1132,12 +1138,16 @@ function viewBattle() {
   if (sp) heroExtra += `<div class="aura" style="--ac:${AURA[sp]}"></div>`;
   if (sp === "holy" || sp === "judgment") heroExtra += `<div class="holyglow"></div>`;
   if (sp === "bash") heroExtra += `<div class="blockfx up">${SHIELD}</div>`;
+  if (attacking && fx.xp) heroExtra += `<div class="xppop">+${fx.xp} XP</div>`;
+  if (attacking && fx.leveled) heroExtra += `<div class="lvlrays"></div>`;
+  if (s.guard && !b.dying) heroExtra += `<div class="guardicon">${SHIELD}</div>`;
+  const armedNow = b.armed && !S.feedback && !b.lvl ? b.armed : null;
   const hero = fighterHtml(C.sprite, { side: "hero", id: "heroSlot", scale: m.fx === "tiny" ? 2 : HERO_SCALE, act: heroAct, idle: !b.dying,
-    extra: heroExtra, cls: m.fx ? "cx-" + m.fx : "" });
+    extra: heroExtra, cls: (m.fx ? "cx-" + m.fx : "") + (armedNow ? " armed" : ""), style: armedNow ? `--ac:${AURA[armedNow]}` : "" });
 
   /* ---- enemy (hidden while the fallen foe's spot waits for Next) ---- */
   const hitTag = attacking
-    ? `<div class="dmg" style="color:${fx.crit ? "#fde047" : sp ? C.color : "#ffffff"}">${fx.crit ? "CRIT " : ""}-${fx.dmg}</div>` : "";
+    ? `<div class="dmg ${fx.crit ? "crit" : ""}" style="color:${fx.crit ? "#fde047" : sp ? C.color : "#ffffff"}">${fx.crit ? "CRIT " : ""}-${fx.dmg}</div>` + (fx.crit ? `<div class="critstar"></div>` : "") : "";
   const strike = attacking && style === "slash" ? SLASH : "";
   const stuck = t === "heroAttack" && style === "arrow" ? `<div class="stuck"></div>` + (fx.crit ? `<div class="stuck two"></div>` : "") : "";
 
@@ -1148,10 +1158,13 @@ function viewBattle() {
     else if (t === "foeEnter") { enemyAct = b.enemy.boss ? "a-bossdrop" : "a-enter"; enemyStyle = "animation-delay:.08s"; }
     else if (t === "heroAttack") enemyAct = "a-hurt";
     else if (t === "enemyAttack") enemyAct = "a-lungeL";
-    const plate = `<div class="nameplate ${b.enemy.boss ? "boss" : ""}">${esc(b.enemy.name)}</div>`;
+    const frozen = s.frozen && t !== "foeEnter";
+    const plate = `<div class="nameplate ${b.enemy.boss ? "boss" : ""} ${frozen ? "frozen" : ""}">${frozen ? "❄ " : ""}${esc(b.enemy.name)}</div>`;
     let ex = t === "heroAttack" ? strike + hitTag + stuck : "";
     if (t === "foeEnter" && fx.carry) ex += `<div class="dmg" style="color:${C.color};--d:.75s">-${fx.carry} carried</div>`;
-    enemy = fighterHtml(b.enemy.key, { side: "enemy", id: "enemySlot", flip: true, act: enemyAct, actStyle: enemyStyle, plate, extra: ex, scale: b.enemy.scale });
+    if (t === "foeEnter" && b.enemy.boss) ex += `<div class="bossbang">!</div>`;
+    if (frozen) ex += `<div class="iceblock"></div>`;
+    enemy = fighterHtml(b.enemy.key, { side: "enemy", id: "enemySlot", flip: true, act: enemyAct, actStyle: enemyStyle, plate, extra: ex, scale: b.enemy.scale, cls: frozen ? "frozen" : "" });
   }
   const corpse = t === "kill"
     ? fighterHtml(fx.dead.key, { side: "enemy", flip: true, ghost: true, idle: false, extra: strike + hitTag, scale: fx.dead.scale })
@@ -1172,7 +1185,8 @@ function viewBattle() {
   const bossBg = pend ? pend.dead.boss : b.enemy.boss;
   const flashCol = t === "enemyAttack" ? "#ef4444" : sp === "meteor" || sp === "fire" ? "#f97316" : sp === "pierce" || sp === "rain" ? "#bbf7d0" : "#fff";
 
-  const arena = `<div class="arena ${m.fx ? "cx-" + m.fx : ""}" id="arena" style="--d:${D}s">
+  const lowHp = !b.dying && s.hp / maxHpOf(s, h) < 0.3;
+  const arena = `<div class="arena ${m.fx ? "cx-" + m.fx : ""} ${lowHp ? "lowhp" : ""}" id="arena" style="--d:${D}s">
     <canvas class="arena-bg" id="arenaBg" data-story="${s.story}" data-floor="${viewFloor}" data-boss="${bossBg ? 1 : 0}"></canvas>
     ${m.fx === "disco" ? '<div class="discolayer"></div>' : ""}
     <div class="arena-hud">
@@ -1180,6 +1194,7 @@ function viewBattle() {
       <span class="ptag" style="color:#fde047">Lv ${levelOf(h.xp)}</span>
     </div>
     <div class="stage">${hero}${corpse}${enemy}${sfxLayer}</div>
+    <canvas class="ambient" id="ambient"></canvas>
     <div class="flashlayer ${attacking ? "go" : ""}" style="background:${flashCol}"></div>
     ${banner}
   </div>`;
@@ -1205,7 +1220,7 @@ function viewBattle() {
   const hud = `<div class="hud tex">
     <div class="hudcol">
       <div class="hudlabel"><span>HP${s.guard ? ` <span class="guardtag">${SHIELD}Guard</span>` : ""}</span><b style="color:${hpColor(hpFrac)}">${hpNow} / ${mxHp}</b></div>
-      <div class="hpbar">
+      <div class="hpbar ${hpFrac < 0.3 && !b.dying ? "low" : ""}">
         <div class="trail" data-from="${trailFrom * 100}" data-to="${hpFrac * 100}" style="width:${trailFrom * 100}%"></div>
         <div class="fillb" data-from="${fillFrom * 100}" data-to="${hpFrac * 100}" style="width:${fillFrom * 100}%;background:${hpColor(hpFrac)}"></div>
       </div>
@@ -1234,7 +1249,7 @@ function viewBattle() {
     </button>`;
   }).join("");
   const armedSp = b.armed ? specialOf(h.cls, b.armed) : null;
-  const specbar = `<div class="specbar tex">
+  const specbar = `<div class="specbar tex ${s.charge >= C.maxCharge && known.length ? "full" : ""}">
     <div class="chargewrap"><span class="chargelbl" style="color:${C.color}">${BOLT}${s.charge}/${C.maxCharge}</span><div class="charge">${seg}</div></div>
     ${known.length ? `<div class="specbtns">${specs}</div>` : `<div class="armnote">No techniques yet. Level up to learn your first one.</div>`}
     ${armedSp ? `<div class="armnote"><b style="color:${C.color}">${esc(armedSp.name)} armed.</b> ${esc(armedSp.text)} Miss and it fizzles.</div>` : ""}
@@ -1332,6 +1347,7 @@ function mountSprites() {
       bars.forEach(el => { el.style.width = el.dataset.to + "%"; })));
   }
 
+  if (S.screen === "battle" && document.getElementById("ambient")) ambientStart();
   const fx = _battleFx; _battleFx = null;
   if (!fx || S.screen !== "battle") return;
   const arena = document.getElementById("arena");
@@ -1392,6 +1408,9 @@ function mountSprites() {
       fxPixels(x, y, cols, big ? 34 : sp || fx.crit ? 22 : 14,
         { speed: big ? 420 : 300, life: big ? 0.7 : 0.45, size: big ? 4 : 3, g: big ? 380 : 200, delay: D, shape: big ? "px" : "spark" });
 
+      if (fx.frozenHit) fxPixels(x, y, ["#e0f2fe", "#ffffff", "#7dd3fc"], 16, { speed: 260, life: 0.6, size: 3, g: 600, delay: D, shape: "px" });
+      if (fx.crit) fxPixels(x, y, ["#fde047", "#ffffff"], 12, { speed: 340, life: 0.4, size: 3, g: 0, delay: D, shape: "spark" });
+      if (fx.type === "kill") fxPixels(x, y, ["#facc15", "#fde68a", "#a16207"], 10, { speed: 220, life: 0.9, size: 6, g: 700, delay: D + 0.15, angle: -Math.PI / 2, spread: Math.PI * 0.8, shrink: false });
       // wind-ups and trails
       if (style === "bolt") trail(hx + 14, hy - 4, x, y, 0.1, D - 0.1, ["#ddd6fe", "#a78bfa", "#ffffff"], 10);
       if (style === "arrow" && fx.crit) trail(hx + 14, hy, x, y, 0.09, D - 0.09, ["#fde047", "#ffffff"], 8, { g: 0 });
@@ -1491,4 +1510,108 @@ function mountSprites() {
     if (!soft) setTimeout(() => flashGlow("var(--bad)", 520), 200);
     if (fx.saved) setTimeout(() => flashGlow("#fde047", 900), 600);
   }
+}
+
+/* ===================== AMBIENT PIXEL LAYER =====================
+   A low-res canvas over the arena (1 pixel = 3 css px) that keeps
+   running between answers: story weather, flames under the hero while
+   a technique is armed, frost around a frozen foe, a shield shimmer,
+   motes around bosses. Quiet by design; it never covers the question. */
+const AP = 3;
+const AMB = { parts: [], raf: 0, cv: null, last: 0, t: 0, acc: {}, hero: null, foe: null, measured: 0 };
+const AMB_COLORS = {
+  bash: ["#ffffff", "#bfdbfe", "#60a5fa"], whirl: ["#ffffff", "#e0f2fe", "#93c5fd"],
+  holy: ["#fffbe6", "#fde047", "#facc15"], judgment: ["#ffffff", "#fef08a", "#facc15"],
+  frost: ["#ffffff", "#bae6fd", "#38bdf8"], fire: ["#fde047", "#f97316", "#ef4444"],
+  chain: ["#ffffff", "#facc15", "#a78bfa"], meteor: ["#fde047", "#f97316", "#dc2626", "#7f1d1d"],
+  volley: ["#ffffff", "#bbf7d0", "#4ade80"], pierce: ["#d9f99d", "#4ade80", "#16a34a"],
+  snipe: ["#ffffff", "#fde047", "#eab308"], rain: ["#ecfccb", "#a3e635", "#4ade80"],
+};
+function ambientStart() {
+  if (AMB.raf || REDUCED) return;
+  AMB.last = performance.now();
+  AMB.raf = requestAnimationFrame(ambientLoop);
+}
+function ambMeasure(cv) {
+  const a = cv.getBoundingClientRect();
+  const mirror = cv.parentElement && cv.parentElement.classList.contains("cx-mirror");
+  const rel = el => {
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    if (!r.width) return null;
+    const x0 = mirror ? a.right - r.right : r.left - a.left;
+    return { x: x0 / AP, y: (r.top - a.top) / AP, w: r.width / AP, h: r.height / AP };
+  };
+  AMB.hero = rel(document.querySelector("#heroSlot .body canvas"));
+  AMB.foe = rel(document.querySelector("#enemySlot .body canvas"));
+}
+function ambEmit(key, rate, dt, fn) {
+  AMB.acc[key] = (AMB.acc[key] || 0) + rate * dt;
+  while (AMB.acc[key] >= 1) { AMB.acc[key] -= 1; AMB.parts.push(fn()); }
+}
+function ambientLoop(now) {
+  const cv = document.getElementById("ambient");
+  const b = S.battle;
+  if (!cv || S.screen !== "battle" || !b || !b.s) { AMB.raf = 0; AMB.parts = []; AMB.cv = null; return; }
+  const dt = Math.min(0.05, (now - AMB.last) / 1000); AMB.last = now; AMB.t += dt;
+  const W = Math.max(10, Math.ceil(cv.clientWidth / AP)), H = Math.max(10, Math.ceil(cv.clientHeight / AP));
+  if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+  if (cv !== AMB.cv || now - AMB.measured > 300) { AMB.cv = cv; AMB.measured = now; ambMeasure(cv); }
+  const g = cv.getContext("2d");
+  g.clearRect(0, 0, W, H);
+  const s = b.s, R = Math.random, hero = AMB.hero, foe = b.pend ? null : AMB.foe;
+  const groundY = H - 10;
+  const rnd = (a, c) => a + R() * (c - a);
+  const pick = arr => arr[Math.floor(R() * arr.length)];
+
+  /* --- story weather --- */
+  const scene = storyOf(s).scene;
+  if (scene === "cells" || scene === "sea") ambEmit("w", scene === "sea" ? 7 : 5, dt, () => ({
+    x: rnd(0, W), y: groundY, vx: 0, vy: -rnd(5, 12), life: rnd(3, 6), c: scene === "sea" ? pick(["#bae6fd", "#e0f2fe", "#7dd3fc"]) : pick(["#d1fae5", "#a7f3d0", "#ffffff"]),
+    wob: rnd(0, 6), sz: R() < 0.25 ? 2 : 1, ring: R() < 0.3 }));
+  else if (scene === "lava") ambEmit("w", 9, dt, () => ({ x: rnd(0, W), y: groundY + rnd(0, 6), vx: rnd(-3, 3), vy: -rnd(12, 26), life: rnd(1.2, 2.4), c: pick(["#fde047", "#fb923c", "#f97316", "#ef4444"]), flick: 1 }));
+  else if (scene === "ice") ambEmit("w", 10, dt, () => ({ x: rnd(0, W), y: -2, vx: rnd(-3, 3), vy: rnd(6, 12), life: rnd(6, 9), c: pick(["#ffffff", "#e0f2fe", "#bae6fd"]), wob: rnd(0, 6), sz: R() < 0.2 ? 2 : 1 }));
+  else if (scene === "desert") ambEmit("w", 12, dt, () => ({ x: -2, y: rnd(groundY - 30, groundY + 4), vx: rnd(25, 45), vy: rnd(-2, 2), life: rnd(2.5, 4), c: pick(["#e7c27d", "#d6b26a", "#f5deb3"]) }));
+  else if (scene === "carnival") ambEmit("w", 5, dt, () => ({ x: rnd(0, W), y: -2, vx: rnd(-4, 4), vy: rnd(7, 13), life: rnd(5, 8), c: pick(["#f472b6", "#facc15", "#60a5fa", "#4ade80", "#c084fc"]), wob: rnd(0, 6), flick: 1 }));
+  else if (scene === "gears") ambEmit("w", 4, dt, () => ({ x: rnd(0, W), y: groundY, vx: rnd(-2, 2), vy: -rnd(6, 12), life: rnd(1.5, 2.5), c: pick(["#d6d3d1", "#a8a29e", "#e7e5e4"]), sz: 2, grow: 1 }));
+  else ambEmit("w", 3, dt, () => ({ x: rnd(0, W), y: rnd(groundY * 0.4, groundY - 4), vx: rnd(-4, 4), vy: rnd(-3, 3), life: rnd(2, 4), c: pick(["#fef08a", "#d9f99d"]), blink: 1, wob: rnd(0, 6) }));
+
+  /* --- technique armed: flames rising from the hero's feet --- */
+  const armed = b.armed && !S.feedback && !b.lvl ? b.armed : null;
+  if (armed && hero) {
+    const cols = AMB_COLORS[armed] || ["#ffffff"];
+    ambEmit("arm", 55, dt, () => ({ x: hero.x + rnd(-2, hero.w + 2), y: hero.y + hero.h - rnd(0, 2), vx: rnd(-3, 3), vy: -rnd(12, 30), life: rnd(0.35, 0.8), c: pick(cols), flick: 1 }));
+    // pulsing pixel ring on the ground
+    const cx = hero.x + hero.w / 2, cy = hero.y + hero.h, rx = hero.w * 0.65 + Math.round(Math.sin(AMB.t * 8)), ry = 2;
+    g.fillStyle = cols[Math.floor(AMB.t * 6) % cols.length];
+    for (let a = 0; a < 40; a++) { const t = a / 40 * Math.PI * 2; g.fillRect(Math.round(cx + Math.cos(t) * rx), Math.round(cy + Math.sin(t) * ry), 1, 1); }
+  }
+  /* --- frozen foe: frost drifting off it --- */
+  if (s.frozen && foe) ambEmit("frz", 12, dt, () => ({ x: foe.x + rnd(0, foe.w), y: foe.y + rnd(0, foe.h * 0.5), vx: rnd(-2, 2), vy: rnd(3, 8), life: rnd(0.8, 1.6), c: pick(["#ffffff", "#e0f2fe", "#7dd3fc"]), blink: 1 }));
+  /* --- guard: shimmer around the hero --- */
+  if (s.guard && hero) ambEmit("grd", 9, dt, () => { const t = R() * Math.PI * 2; return { x: hero.x + hero.w / 2 + Math.cos(t) * hero.w * 0.7, y: hero.y + hero.h / 2 + Math.sin(t) * hero.h * 0.6, vx: 0, vy: -2, life: 0.5, c: pick(["#ffffff", "#93c5fd"]) }; });
+  /* --- full charge: sparks in the class color --- */
+  if (s.charge >= CLASSES[b.h.cls].maxCharge && s.learned.length && hero && !armed) ambEmit("chg", 5, dt, () => ({ x: hero.x + rnd(0, hero.w), y: hero.y + rnd(0, hero.h), vx: 0, vy: -rnd(4, 10), life: 0.6, c: pick([CLASSES[b.h.cls].color, "#ffffff"]), blink: 1 }));
+  /* --- boss: dark motes rising around it --- */
+  if (b.enemy && b.enemy.boss && foe) ambEmit("boss", 10, dt, () => ({ x: foe.x + rnd(-4, foe.w + 4), y: foe.y + foe.h - rnd(0, 4), vx: rnd(-2, 2), vy: -rnd(6, 14), life: rnd(0.8, 1.5), c: pick(["#7f1d1d", "#4c1d95", "#1c1917", "#991b1b"]) }));
+
+  /* --- update + draw --- */
+  const keep = [];
+  for (const p of AMB.parts) {
+    p.life -= dt;
+    if (p.life <= 0 || p.x < -4 || p.x > W + 4 || p.y < -6 || p.y > H + 4) continue;
+    p.x += (p.vx + (p.wob != null ? Math.sin(AMB.t * 2 + p.wob) * 3 : 0)) * dt;
+    p.y += p.vy * dt;
+    if (p.blink && Math.floor((AMB.t + p.x) * 4) % 3 === 0) { keep.push(p); continue; }
+    g.globalAlpha = p.life < 0.3 ? 0.5 : 1;
+    g.fillStyle = p.flick && R() < 0.2 ? "#ffffff" : p.c;
+    const sz = p.grow ? 1 + Math.min(2, Math.floor((2.5 - p.life) * 1.2)) : (p.sz || 1);
+    const x = Math.round(p.x), y = Math.round(p.y);
+    if (p.ring && sz > 1) { g.fillRect(x, y - 1, 1, 1); g.fillRect(x - 1, y, 1, 1); g.fillRect(x + 1, y, 1, 1); g.fillRect(x, y + 1, 1, 1); }
+    else g.fillRect(x, y, sz, sz);
+    keep.push(p);
+  }
+  g.globalAlpha = 1;
+  AMB.parts = keep.length > 400 ? keep.slice(-400) : keep;
+  AMB.raf = requestAnimationFrame(ambientLoop);
 }
