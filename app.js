@@ -346,15 +346,18 @@ function modeButtons() {
   </div>`;
 }
 function filterChips() {
-  const f = progress.filter, starredN = starredCount(), missedN = missedCount();
-  return `<div class="chiprow" style="margin-bottom:20px">
-    <button class="chip chip--star ${f === "starred" ? "active" : ""}" data-act="filter" data-f="starred" ${starredN ? "" : "disabled"}>
-      ${I.star(f === "starred", 18)}<span>Starred${starredN ? " · " + starredN : ""}</span>
-    </button>
-    <button class="chip chip--flag ${f === "missed" ? "active" : ""}" data-act="filter" data-f="missed" ${missedN ? "" : "disabled"}>
-      ${I.flag(f === "missed", 18)}<span>Misses${missedN ? " · " + missedN : ""}</span>
-    </button>
-  </div>`;
+  const f = progress.filters || {}, starredN = starredCount(), missedN = missedCount(), freshN = freshCount();
+  const chip = (k, n, icon, cls) => `<button class="chip ${cls} ${f[k] && n ? "active" : ""}" data-act="filter" data-f="${k}" ${n ? "" : "disabled"}>
+      ${icon(!!(f[k] && n), 18)}<span>${FILTER_META[k].label}${n ? " · " + n : ""}</span></button>`;
+  const on = activeFilters();
+  return `<div class="chiprow three" style="margin-bottom:8px">
+    ${chip("starred", starredN, I.star, "chip--star")}
+    ${chip("missed", missedN, I.flag, "chip--flag")}
+    ${chip("fresh", freshN, I.fresh, "chip--fresh")}
+  </div>
+  <div class="muted" style="font-size:12px;margin:0 2px 20px;line-height:1.5">${on.length
+    ? "Shuffle and Battle only use: " + on.map(k => FILTER_META[k].label).join(" + ") + ". Tap again to turn off."
+    : "Tap any to narrow Shuffle and Battle. Mix them however you like. Three right in a row clears a question off Misses."}</div>`;
 }
 function viewSetHome() {
   const set = S.set;
@@ -547,6 +550,7 @@ function viewShuffle() {
     fb = `<div class="fb fbpop" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:18px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
       <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${ok ? "Correct!  Streak " + S.streak : "Streak ended" + (S.high ? " — best: " + S.high : "")}</div>
+      ${S.lastCleared === q.id ? clearedNote() : ""}
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div>
     </div>`;
   }
@@ -557,8 +561,8 @@ function viewShuffle() {
 
   return `<div class="wrap">
     <div style="display:flex;justify-content:space-between;align-items:center;margin:22px 0 18px">
-      <button class="backbtn" data-act="backToSet">${I.chevL}</button>
-      <span class="eyebrow" style="color:var(--accent)">Shuffle${filterLabel()}</span>
+      <div style="display:flex;align-items:center;gap:8px"><button class="backbtn" data-act="backToSet">${I.chevL}</button>${filterTags()}</div>
+      <span class="eyebrow" style="color:var(--accent)">Shuffle</span>
       <div style="display:flex;gap:16px;align-items:center">
         <div style="text-align:center"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Streak</div><div style="font-size:20px;font-weight:bold;color:${S.streak ? "var(--star)" : "var(--muted)"}">${S.streak}</div></div>
         ${S.high ? `<div style="text-align:center"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Best</div><div style="font-size:20px;font-weight:bold;color:var(--accent)">${S.high}</div></div>` : ""}
@@ -628,11 +632,17 @@ function submitShuffle() {
 }
 function nextShuffle() {
   S.shuffleIdx++;
+  const live = new Set(buildPool().map(q => q.id));
+  while (S.shuffleIdx < S.shuffleQ.length && !live.has(S.shuffleQ[S.shuffleIdx].id)) S.shuffleIdx++;
   if (S.shuffleIdx >= S.shuffleQ.length) { S.shuffleQ = weightedOrder(buildPool()); S.shuffleIdx = 0; }
   resetQ();
   freshOrder(S.shuffleQ[S.shuffleIdx]);
   sfx.tick();
   render();
+}
+
+function clearedNote() {
+  return `<div class="clearednote">${I.flag(false, 13)} 3 in a row. Cleared off your Misses for good.</div>`;
 }
 
 /* ===================== COMPLETION CELEBRATIONS ===================== */
@@ -756,7 +766,8 @@ document.addEventListener("click", ev => {
   // ---- filters
   if (act === "filter") {
     const want = t.dataset.f;
-    progress.filter = progress.filter === want ? "all" : want;   // mutually exclusive by construction
+    progress.filters = progress.filters || {};
+    progress.filters[want] = !progress.filters[want];          // any mix; together they combine
     saveProgress();
     sfx.select();
     return render();
@@ -815,6 +826,8 @@ document.addEventListener("click", ev => {
   if (act === "mapQNext") return mapQNext();
   if (act === "mapQStart") return mapQStart(t.dataset.arg);
   if (act === "mapDlgClose") { sfx.tick(); return closeDlg(); }
+  if (act === "mapHelpOk") return closeMapHelp();
+  if (act === "mapHelp") { S.mapHelpOpen = true; sfx.tick(); return render(); }
   if (act === "mapLevel") { S.battle.lvl = { stage: "choose" }; sfx.bLevel(); return render(); }
   if (act === "advRetry") return openSlot(S.battle.slot);
   if (act === "advEndless") return advContinueEndless();

@@ -42,11 +42,12 @@ function saveSettings() {
 /* ===================== PROGRESS ===================== */
 /* Shape:
    { results: {qid:"correct"|"incorrect"}, starred: {qid:true},
-     missCount: {qid:n},  filter: "all"|"starred"|"missed",
+     missCount: {qid:n},  filters: {starred, missed, fresh} (any mix, union),
+     streaks: {qid:n} correct-in-a-row (3 clears a question from misses),
      high: n, celebrated: {}, battle: {bestFloor, xp, level} }            */
 function blankProgress() {
   return {
-    results: {}, starred: {}, missCount: {}, filter: "all",
+    results: {}, starred: {}, missCount: {}, streaks: {}, filters: { starred: false, missed: false, fresh: false },
     high: 0, celebrated: {}, battle: { bestFloor: 0, xp: 0, level: 1 },
   };
 }
@@ -62,7 +63,14 @@ function loadProgress(setId) {
   p.missCount = p.missCount || {};
   p.celebrated = p.celebrated || {};
   p.battle = Object.assign({ bestFloor: 0, xp: 0, level: 1 }, p.battle || {});
-  if (!p.filter) p.filter = p.starOnly ? "starred" : "all";
+  p.streaks = p.streaks || {};
+  // old single-choice filter -> multi-select
+  if (typeof p.filter === "string" || p.starOnly) {
+    const old = p.filter || "starred";
+    p.filters = { starred: old === "starred", missed: old === "missed", fresh: false };
+  }
+  if (!p.filters || typeof p.filters !== "object") p.filters = { starred: false, missed: false, fresh: false };
+  delete p.filter;
   delete p.starOnly;
   delete p.known;               // flashcards are gone
   return p;
@@ -115,15 +123,38 @@ function starredCount() {
 function missedCount() {
   return S.set ? allQuestions(S.set).filter(q => (progress.missCount[q.id] || 0) > 0).length : 0;
 }
-/* Effective filter — falls back to "all" if the chosen pool is empty. */
-function activeFilter() {
-  if (progress.filter === "starred" && starredCount() > 0) return "starred";
-  if (progress.filter === "missed" && missedCount() > 0) return "missed";
-  return "all";
+function freshCount() {
+  return S.set ? allQuestions(S.set).filter(q => !progress.results[q.id]).length : 0;
 }
-function filterLabel() {
-  const f = activeFilter();
-  return f === "starred" ? " · starred" : f === "missed" ? " · misses" : "";
+const FILTER_TEST = {
+  starred: q => !!progress.starred[q.id],
+  missed:  q => (progress.missCount[q.id] || 0) > 0,
+  fresh:   q => !progress.results[q.id],
+};
+/* The filters that are switched on AND still have questions in them.
+   A filter that runs dry (you finished every new question) quietly
+   drops out instead of leaving you with nothing to play.             */
+function activeFilters() {
+  const f = progress.filters || {}, qs = S.set ? allQuestions(S.set) : [];
+  return Object.keys(FILTER_TEST).filter(k => f[k] && qs.some(FILTER_TEST[k]));
+}
+/* Legacy single answer: the one filter if exactly one is on, else "mixed"/"all". */
+function activeFilter() {
+  const a = activeFilters();
+  return a.length === 1 ? a[0] : a.length ? "mixed" : "all";
+}
+function filterLabel() { return ""; }
+const FILTER_META = {
+  starred: { label: "Starred", color: "var(--star)" },
+  missed:  { label: "Misses",  color: "var(--flag)" },
+  fresh:   { label: "New",     color: "var(--accent)" },
+};
+/* little icons in the corner of Shuffle / Battle / the map */
+function filterTags() {
+  const a = activeFilters();
+  if (!a.length) return "";
+  return `<span class="ftags" title="Only: ${a.map(k => FILTER_META[k].label).join(" + ")}">${a.map(k =>
+    `<span class="ftag" style="color:${FILTER_META[k].color}">${I[k === "starred" ? "star" : k === "missed" ? "flag" : "fresh"](true, 14)}</span>`).join("")}</span>`;
 }
 
 /* Build the question pool for shuffle / battle.
@@ -132,11 +163,9 @@ function filterLabel() {
      ever missed, now ok  -> weight 2 + min(missCount,3)
      never missed         -> weight 1                                    */
 function buildPool() {
-  let qs = allQuestions(S.set);
-  const f = activeFilter();
-  if (f === "starred") qs = qs.filter(q => progress.starred[q.id]);
-  if (f === "missed")  qs = qs.filter(q => (progress.missCount[q.id] || 0) > 0);
-  return qs;
+  const qs = allQuestions(S.set), a = activeFilters();
+  if (!a.length) return qs;
+  return qs.filter(q => a.some(k => FILTER_TEST[k](q)));
 }
 function weightOf(q) {
   const misses = progress.missCount[q.id] || 0;
@@ -160,12 +189,24 @@ function weightedOrder(pool) {
    - correct can downgrade to incorrect, and can recover afterwards
    - lifetime misses are tracked
    - two lifetime misses auto-stars the question                        */
+const CLEAR_STREAK = 3;
 function recordAnswer(q, ok) {
   progress.results[q.id] = ok ? "correct" : "incorrect";
+  S.lastCleared = null;
   if (!ok) {
     const n = (progress.missCount[q.id] || 0) + 1;
     progress.missCount[q.id] = n;
     if (n >= 2) progress.starred[q.id] = true;
+    progress.streaks[q.id] = 0;
+  } else {
+    const st = (progress.streaks[q.id] || 0) + 1;
+    progress.streaks[q.id] = st;
+    // three right in a row and a miss is forgiven: off the misses list, bosses stop haunting you with it
+    if (st >= CLEAR_STREAK && progress.missCount[q.id]) {
+      delete progress.missCount[q.id];
+      delete progress.streaks[q.id];
+      S.lastCleared = q.id;
+    }
   }
   saveProgress();
   bumpChameleon();
@@ -689,6 +730,7 @@ const I = {
   check: c => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
   x: c => `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
   star: (filled, size) => `<svg width="${size || 18}" height="${size || 18}" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+  fresh: (filled, size) => `<svg width="${size || 18}" height="${size || 18}" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 2l2.4 7.1L22 12l-7.6 2.9L12 22l-2.4-7.1L2 12l7.6-2.9z"/></svg>`,
   flag: (filled, size) => `<svg width="${size || 18}" height="${size || 18}" viewBox="0 0 24 24" fill="${filled ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>`,
   shuffle: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>',
   sword: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5"/><line x1="13" y1="19" x2="19" y2="13"/><line x1="16" y1="16" x2="20" y2="20"/><line x1="19" y1="21" x2="21" y2="19"/></svg>',

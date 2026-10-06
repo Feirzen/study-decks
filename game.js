@@ -418,7 +418,7 @@ function pickQuestion() {
     }
   }
   const pool = buildPool();
-  if (activeFilter() !== "starred" && Math.random() < 0.12) {
+  if (activeFilter() !== "starred" && !activeFilters().includes("fresh") && Math.random() < 0.12) {
     const stars = pool.filter(q => progress.starred[q.id] && q.id !== last);
     if (stars.length) { b.cur = stars[Math.floor(Math.random() * stars.length)]; b.curStar = true; return; }
   }
@@ -972,7 +972,7 @@ function viewAdvMenu() {
   return `<div class="wrap">
     <div style="display:flex;align-items:center;gap:12px;margin:22px 0 18px">
       <button class="backbtn" data-act="backToSet">${I.chevL}</button>
-      <div><div class="eyebrow" style="color:${story.color}">Battle${filterLabel()} · ${esc(story.title)}</div>
+      <div><div class="eyebrow" style="color:${story.color}">Battle · ${esc(story.title)} ${filterTags()}</div>
       <div style="font-size:22px;font-weight:bold">Choose a save</div></div>
     </div>
     <div class="storyblurb tex" style="--sc:${story.color}"><b>${esc(story.title)}.</b> ${esc(story.goal)}</div>
@@ -1388,6 +1388,7 @@ function viewBattle() {
     fb = `<div class="fb tex ${fx ? "fbpop" : ""}" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:14px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
       <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${head}</div>
+      ${S.lastCleared === q.id ? clearedNote() : ""}
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div>
     </div>`;
   }
@@ -1413,8 +1414,8 @@ function viewBattle() {
 
   return `<div class="wrap battle">
     <div class="bhead">
-      <button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>
-      <span class="eyebrow" style="color:${C.color}">${esc(h.name)} · ${C.name}${filterLabel()}</span>
+      <div style="display:flex;align-items:center;gap:8px"><button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>${filterTags()}</div>
+      <span class="eyebrow" style="color:${C.color}">${esc(h.name)} · ${C.name}</span>
       <div style="display:flex;align-items:center;gap:12px">
         ${typeof lessonBtn === "function" && !b.lvl ? lessonBtn(q) : ""}
         <button class="star" ${b.lvl ? 'data-hide="1"' : ""} data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>

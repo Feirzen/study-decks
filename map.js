@@ -327,6 +327,7 @@ function enterMap(banner) {
   if (!ms.entered) { ms.entered = true; MS.banner = { text: floorTitle(s, s.floor), sub: storyOf(s).title, t: 0 }; }
   else if (banner) MS.banner = { text: banner, sub: "", t: 0 };
   if (s.picks > 0 && !b.lvl) b.lvl = { stage: "choose" };
+  if (!settings.mapHelpHidden && !S.mapHelpSeen) S.mapHelpOpen = true;
   persistMap();
   S.screen = "map";
   S.navIdx = 0;
@@ -400,7 +401,14 @@ function bfs(rm, sx, sy, goalFn) {
   return null;
 }
 function adjacent(ax, ay, bx, by) { return Math.abs(ax - bx) + Math.abs(ay - by) === 1; }
-function mapBusy() { return !!(S.mapQ || (S.battle && S.battle.lvl) || MS.fadeTo); }
+function mapBusy() { return !!(S.mapQ || (S.battle && S.battle.lvl) || MS.fadeTo || S.mapHelpOpen); }
+/* the how-to box pops up once per visit until you tick "don't show again" */
+function closeMapHelp() {
+  const cb = document.getElementById("mapHelpNo");
+  if (cb && cb.checked) { settings.mapHelpHidden = true; saveSettings(); }
+  S.mapHelpOpen = false; S.mapHelpSeen = true;
+  sfx.tick(); render();
+}
 /* walk toward a tile, or toward whatever is standing on it */
 function mapGoTo(x, y) {
   const rm = curRoom();
@@ -625,33 +633,35 @@ function viewMap() {
     ms.quest === 1 ? `<li>📜 Bring ${ms.need} ${item}: ${ms.items}/${ms.need}</li>` : "",
     ms.keys ? `<li>🗝 Keys: ${ms.keys}</li>` : "",
   ].join("");
-  let panel = "";
+  let panel = "", dlg = "";
   if (S.mapQ) panel = viewMapQ();
   else if (S.mapDlg) {
     const d = S.mapDlg;
-    panel = `<div class="mapdlg tex fbpop">
+    dlg = `<div class="mapdlg overmap tex fbpop">
       ${d.title ? `<div class="eyebrow" style="color:var(--star);margin-bottom:6px">${esc(d.title)}</div>` : ""}
       <div class="dlgtext">${esc(d.text)}</div>
       <div class="dlgbtns">${(d.actions || []).map(a => `<button class="primary" data-act="${a.act}" data-arg="${esc(a.arg || "")}" style="background:var(--accent)">${esc(a.label)}</button>`).join("")}
       <button class="ghost" data-act="mapDlgClose">${d.actions ? "Not now" : "OK"}</button></div></div>`;
   } else if (b.lvl) panel = viewLevelUp();
-  else {
-    panel = `<div class="maphelp tex">
-      <div class="eyebrow" style="margin-bottom:6px">Exploring</div>
-      <div class="dim" style="font-size:13.5px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Chests, shrines and strangers are optional, and secrets hide near the walls.</div>
-    </div>`;
-  }
+  const help = S.mapHelpOpen ? `<div class="maphelpwrap"><div class="maphelp tex fbpop">
+      <div class="eyebrow" style="margin-bottom:6px;color:var(--star)">Exploring</div>
+      <div class="dim" style="font-size:14px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Chests, shrines and strangers are optional, and secrets hide near the walls.</div>
+      <label class="nohelp"><input type="checkbox" id="mapHelpNo"> Don't show this again</label>
+      <button class="primary" data-act="mapHelpOk" style="background:var(--accent);margin-top:10px">Got it</button>
+    </div></div>` : "";
   const bn = MS.banner; MS.banner = null;
   return `<div class="wrap battle mapwrap">
     <div class="bhead">
-      <button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>
+      <div style="display:flex;align-items:center;gap:8px"><button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>${filterTags()}</div>
       <span class="eyebrow" style="color:${C.color}">${esc(h.name)} · ${esc(floorTitle(s, s.floor))}${F.nRooms > 1 ? " · Room " + (ms.room + 1) + "/" + F.nRooms : ""}</span>
-      <span></span>
+      <button class="iconbtn helpq" data-act="mapHelp" data-nonav title="How exploring works">?</button>
     </div>
-    <div class="bgrid">
+    <div class="bgrid ${panel ? "" : "solo"}">
       <div class="bleft">
         <div class="mapbox ${F.dark ? "dark" : ""}" id="mapbox">
           <canvas id="mapcv" class="mapcv" width="${RW * T}" height="${RH * T}"></canvas>
+          ${help}
+          ${dlg}
           ${bn ? `<div class="mapbanner"><div class="mbt">${esc(bn.text)}</div>${bn.sub ? `<div class="mbs">${esc(bn.sub)}</div>` : ""}</div>` : ""}
         </div>
         <div class="hud tex maphud">
@@ -668,7 +678,7 @@ function viewMap() {
           </div>
         </div>
       </div>
-      <div class="bright">${panel}</div>
+      ${panel ? `<div class="bright">${panel}</div>` : ""}
     </div>
   </div>`;
 }
@@ -694,6 +704,7 @@ function viewMapQ() {
     fb = `<div class="fb tex fbpop" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:14px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
       <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${esc(Q.result.text)}</div>
+      ${S.lastCleared === q.id ? clearedNote() : ""}
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div></div>`;
   }
   const btn = !S.feedback
@@ -979,6 +990,10 @@ function mapMount() {
 }
 const KEYDIR = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0], w: [0, -1], s: [0, 1], a: [-1, 0], d: [1, 0], W: [0, -1], S: [0, 1], A: [-1, 0], D: [1, 0] };
 document.addEventListener("keydown", ev => {
+  if (S.screen === "map" && S.mapHelpOpen && (ev.key === "Enter" || ev.key === "Escape" || ev.key === " ")) {
+    const tg = ev.target; if (tg && tg.id === "mapHelpNo" && ev.key === " ") return;
+    ev.preventDefault(); ev.stopImmediatePropagation(); return closeMapHelp();
+  }
   if (S.screen !== "map" || modalOpen() || mapBusy()) return;
   const tg = ev.target; if (tg && (tg.tagName === "INPUT" || tg.tagName === "TEXTAREA")) return;
   const k = ev.key;
