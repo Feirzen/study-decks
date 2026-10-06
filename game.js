@@ -127,46 +127,60 @@ const SP_SOUND = { bash: "bash", whirl: "bash", holy: "holy", judgment: "holy", 
 function specialOf(cls, id) { return CLASSES[cls].specials.find(x => x.id === id); }
 
 /* ===================== BOONS =====================
-   One at a time per hero. Rolled by rarity; the chaos tier is silly on
-   purpose but always comes with a small upside.                        */
+   Two slots per hero (three with the Ringmaster's Top Hat). Rolled by
+   rarity. XP boons never stack: only the best one counts. Chaos boons
+   are pure spectacle with no stats, so they can't stack with anything. */
 const RARITY = {
-  common:    { w: 46, color: "#cbd5e1", label: "Common" },
+  common:    { w: 48, color: "#cbd5e1", label: "Common" },
   uncommon:  { w: 26, color: "#4ade80", label: "Uncommon" },
-  rare:      { w: 12, color: "#60a5fa", label: "Rare" },
-  legendary: { w: 4,  color: "#fbbf24", label: "Legendary" },
+  rare:      { w: 11, color: "#60a5fa", label: "Rare" },
+  legendary: { w: 3,  color: "#fbbf24", label: "Legendary" },
   chaos:     { w: 12, color: "#e879f9", label: "Chaos" },
 };
 const BOONS = [
   { id: "keen",     r: "common",    name: "Keen Edge",        text: "+10% crit chance.", m: { crit: 0.10 } },
-  { id: "nimble",   r: "common",    name: "Nimble",           text: "12% chance enemies miss you.", m: { dodge: 0.12 } },
-  { id: "mend",     r: "common",    name: "Second Wind",      text: "Heal 4 HP on every correct answer.", m: { mend: 4 } },
+  { id: "nimble",   r: "common",    name: "Nimble",           text: "10% chance enemies miss you.", m: { dodge: 0.10 } },
   { id: "quick",    r: "common",    name: "Quick Study",      text: "+1 extra charge on every correct answer.", m: { plusCharge: 1 } },
-  { id: "tough",    r: "common",    name: "Thick Skin",       text: "Take 15% less damage.", m: { armor: 0.15 } },
-  { id: "bookworm", r: "common",    name: "Bookworm",         text: "+15% XP.", m: { xp: 0.15 } },
+  { id: "tough",    r: "common",    name: "Thick Skin",       text: "Take 12% less damage.", m: { armor: 0.12 } },
+  { id: "bookworm", r: "common",    name: "Bookworm",         text: "+15% XP. (XP boons don't stack.)", m: { xp: 0.15 } },
+  { id: "steady",   r: "common",    name: "Steady Hands",     text: "Start every fight with 2 charge.", m: { fightCharge: 2 } },
   { id: "surge",    r: "uncommon",  name: "Mana Surge",       text: "10% chance a correct answer refills your charge completely.", m: { refill: 0.10 } },
-  { id: "vamp",     r: "uncommon",  name: "Vampiric",         text: "Defeating a foe heals 20% of your max HP.", m: { killHeal: 0.2 } },
-  { id: "bulwark",  r: "uncommon",  name: "Bulwark",          text: "Start every floor with your guard up.", m: { floorGuard: 1 } },
-  { id: "lucky",    r: "uncommon",  name: "Lucky Charm",      text: "+8% crit chance and +8% chance enemies miss.", m: { crit: 0.08, dodge: 0.08 } },
-  { id: "sage",     r: "rare",      name: "Sage's Insight",   text: "1.5x XP.", m: { xp: 0.5 } },
-  { id: "giant",    r: "rare",      name: "Giant Slayer",     text: "1.5x attack damage.", m: { dmg: 0.5 } },
+  { id: "vamp",     r: "uncommon",  name: "Vampiric",         text: "Defeating a foe heals 10% of your max HP.", m: { killHeal: 0.10 } },
+  { id: "bulwark",  r: "uncommon",  name: "Bulwark",          text: "Start every fight with your guard up.", m: { fightGuard: 1 } },
+  { id: "lucky",    r: "uncommon",  name: "Lucky Charm",      text: "+6% crit chance and +6% chance enemies miss.", m: { crit: 0.06, dodge: 0.06 } },
+  { id: "scholar",  r: "uncommon",  name: "Scholar",          text: "+25% XP. (XP boons don't stack.)", m: { xp: 0.25 } },
+  { id: "giant",    r: "rare",      name: "Giant Slayer",     text: "+1 damage on every hit.", m: { flat: 1 } },
   { id: "phoenix",  r: "rare",      name: "Phoenix Feather",  text: "Once per floor, survive a knockout with 30% HP.", m: { phoenix: 1 } },
-  { id: "avatar",   r: "legendary", name: "Avatar of War",    text: "Double damage, and enemies miss 15% more often.", m: { dmg: 1, dodge: 0.15 } },
-  { id: "archmage", r: "legendary", name: "Archmage's Gift",  text: "Double XP, and every technique costs 1 less charge.", m: { xp: 1, costCut: 1 } },
-  { id: "rainbow",  r: "chaos",     name: "Rainbow Mode",     text: "You won't stop changing colors. +10% XP.", m: { xp: 0.1 }, fx: "rainbow" },
-  { id: "noodle",   r: "chaos",     name: "Noodle Body",      text: "You stretch and wobble like taffy. +10% dodge.", m: { dodge: 0.1 }, fx: "noodle" },
-  { id: "inverted", r: "chaos",     name: "Upside-Down World", text: "The arena's colors flip inside out. +10% crit chance.", m: { crit: 0.1 }, fx: "inverted" },
-  { id: "kazoo",    r: "chaos",     name: "Kazoo Orchestra",  text: "Every hit honks. Heal 2 HP on correct answers.", m: { mend: 2 }, fx: "kazoo" },
-  { id: "tiny",     r: "chaos",     name: "Pocket-Sized",     text: "You're tiny now. Enemies miss 20% more.", m: { dodge: 0.2 }, fx: "tiny" },
-  { id: "disco",    r: "chaos",     name: "Disco Fever",      text: "The arena won't stop partying. +5% crit and dodge.", m: { crit: 0.05, dodge: 0.05 }, fx: "disco" },
-  { id: "mirror",   r: "chaos",     name: "Mirror Mirror",    text: "The whole fight is flipped backwards. +15% XP.", m: { xp: 0.15 }, fx: "mirror" },
+  { id: "thorns",   r: "rare",      name: "Thornmail",        text: "When a foe hits you, it takes 1 damage back.", m: { thorns: 1 } },
+  { id: "sage",     r: "legendary", name: "Sage's Insight",   text: "1.5x XP. (XP boons don't stack.)", m: { xp: 0.5 } },
+  { id: "avatar",   r: "legendary", name: "Avatar of War",    text: "1.5x damage on everything.", m: { dmg: 0.5 } },
+  { id: "archmage", r: "legendary", name: "Archmage's Gift",  text: "Every technique costs 1 less charge.", m: { costCut: 1 } },
+  { id: "rainbow",  r: "chaos",     name: "Rainbow Mode",     text: "You won't stop changing colors. Pure chaos, no stats.", m: {}, fx: "rainbow" },
+  { id: "noodle",   r: "chaos",     name: "Noodle Body",      text: "You stretch and wobble like taffy. Pure chaos, no stats.", m: {}, fx: "noodle" },
+  { id: "inverted", r: "chaos",     name: "Upside-Down World", text: "The arena's colors flip inside out. Pure chaos, no stats.", m: {}, fx: "inverted" },
+  { id: "kazoo",    r: "chaos",     name: "Kazoo Orchestra",  text: "Every hit honks. Pure chaos, no stats.", m: {}, fx: "kazoo" },
+  { id: "tiny",     r: "chaos",     name: "Pocket-Sized",     text: "You're tiny now. Pure chaos, no stats.", m: {}, fx: "tiny" },
+  { id: "disco",    r: "chaos",     name: "Disco Fever",      text: "The arena won't stop partying. Pure chaos, no stats.", m: {}, fx: "disco" },
+  { id: "mirror",   r: "chaos",     name: "Mirror Mirror",    text: "The whole fight is flipped backwards. Pure chaos, no stats.", m: {}, fx: "mirror" },
 ];
 function boonById(id) { return BOONS.find(b => b.id === id) || null; }
-function rollBoon(currentId) {
+function boonSlots(hero) { return 2 + (perksOf(hero).slot ? 1 : 0); }
+/* the hero's boons as a fixed-length array (null = empty slot) */
+function heroBoons(hero) {
+  if (!hero) return [null, null];
+  if (!Array.isArray(hero.boons)) hero.boons = hero.boon ? [hero.boon] : [];
+  delete hero.boon;
+  const n = boonSlots(hero), out = hero.boons.slice(0, n);
+  while (out.length < n) out.push(null);
+  return out;
+}
+function rollBoon(exclude) {
   let total = 0;
   for (const k in RARITY) total += RARITY[k].w;
   let x = Math.random() * total, tier = "common";
   for (const k in RARITY) { x -= RARITY[k].w; if (x <= 0) { tier = k; break; } }
-  const pool = BOONS.filter(b => b.r === tier && b.id !== currentId);
+  let pool = BOONS.filter(b => b.r === tier && !(exclude || []).includes(b.id));
+  if (!pool.length) pool = BOONS.filter(b => !(exclude || []).includes(b.id));
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -178,16 +192,22 @@ function perksOf(hero) {
 }
 /* Everything that tweaks a fight, folded into one object. */
 function mods(run, hero) {
-  const C = CLASSES[hero.cls], p = perksOf(hero), b = boonById(hero.boon);
-  const m = { crit: C.crit, dodge: 0, dmg: 0, xp: 0, mend: 0, plusCharge: 0, refill: 0, killHeal: 0, armor: 0,
-              floorGuard: 0, phoenix: 0, costCut: 0, fx: b && b.fx || null };
-  if (b) for (const k in b.m) m[k] += b.m[k];
+  const C = CLASSES[hero.cls], p = perksOf(hero), bs = heroBoons(hero).map(boonById).filter(Boolean);
+  const m = { crit: C.crit, dodge: 0, dmg: 0, flat: 0, xp: 0, plusCharge: 0, refill: 0, killHeal: 0, armor: 0,
+              fightGuard: 0, fightCharge: 0, phoenix: 0, costCut: 0, thorns: 0, fx: null, fxs: [] };
+  let bestXp = 0;
+  bs.forEach(b => {
+    for (const k in b.m) { if (k === "xp") bestXp = Math.max(bestXp, b.m.xp); else m[k] += b.m[k]; }
+    if (b.fx) m.fxs.push(b.fx);
+  });
+  m.fx = m.fxs[0] || null;
+  m.xp = bestXp + (p.xp ? 0.10 : 0);
   if (p.dodge) m.dodge += 0.05;
   if (p.crit) m.crit += 0.05;
-  if (p.xp) m.xp += 0.10;
-  if (p.mend) m.mend += 3;
   if (p.armor) m.armor += 0.05;
-  m.crit = Math.min(0.9, m.crit); m.dodge = Math.min(0.6, m.dodge); m.armor = Math.min(0.6, m.armor);
+  if (p.dmg) m.dmg += 0.10;
+  m.crit = Math.min(0.75, m.crit); m.dodge = Math.min(0.35, m.dodge); m.armor = Math.min(0.4, m.armor);
+  m.costCut = Math.min(1, m.costCut);
   m.perks = p;
   return m;
 }
@@ -202,6 +222,15 @@ function maxHpOf(run, hero) {
   return 100 + CLASSES[hero.cls].hp + 20 * (run.hpPicks || 0) + (perksOf(hero).maxhp ? 10 : 0);
 }
 function costOf(sp, m) { return Math.max(1, sp.cost - (m.costCut || 0)); }
+/* HP picks and Hone stop at a cap. The cap only rises in Endless, where
+   foes keep getting stronger than anything the story throws at you.   */
+function statCap(run) { return 3 + Math.max(0, (run.floor || 1) - STORY_LEN - 1); }
+const DIFF = {
+  easy:   { label: "Easy",   dmg: 0.6, hp: 0.8,  text: "Foes hit softly. Good for brand-new material." },
+  normal: { label: "Normal", dmg: 1,   hp: 1,    text: "Fair fights. A few bad answers in a row will hurt." },
+  hard:   { label: "Hard",   dmg: 1.5, hp: 1.35, text: "Foes hit hard and take longer to drop. For material you know." },
+};
+function diffOf(run) { return DIFF[run && run.diff] || DIFF.normal; }
 
 /* ===================== FLOORS ===================== */
 const STORY_LEN = 5;
@@ -220,16 +249,21 @@ function floorTitle(run, floor) {
   const f = floorInfo(run, floor);
   return f.endless ? f.name + " · " + f.sub : "Floor " + floor + " · " + f.name;
 }
-function foeHits(floor) { return Math.min(6, 2 + Math.floor((floor - 1) / 2)); }
-function damageFrom(floor, boss) { return boss ? Math.min(40, 16 + 3 * floor) : Math.min(30, 10 + 2 * floor); }
+function foeHits(floor) { return Math.min(7, 2 + Math.floor((floor - 1) / 2)); }
+/* No healing between fights (only at the end of a floor), so these add up. */
+function damageFrom(run, boss) {
+  const base = Math.min(50, 12 + 3 * run.floor);
+  return Math.round(base * (boss ? 1.45 : 1) * diffOf(run).dmg);
+}
 
 function makeEnemy(run) {
   const f = floorInfo(run, run.floor);
   if (run.idx >= f.foes.length) {
+    const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp));
     return { key: f.boss.key, name: f.boss.name, boss: true, final: run.floor === STORY_LEN,
-             hits: f.boss.hits, maxHits: f.boss.hits, scale: f.boss.scale || 5 };
+             hits: bh, maxHits: bh, scale: f.boss.scale || 5 };
   }
-  const foe = f.foes[run.idx], h = foeHits(run.floor);
+  const foe = f.foes[run.idx], h = Math.max(1, Math.round(foeHits(run.floor) * diffOf(run).hp));
   return { key: foe.key, name: foe.name, boss: false, hits: h, maxHits: h, scale: 4 };
 }
 
@@ -249,9 +283,9 @@ function saveAdv() {
   try { localStorage.setItem("fc:adv:" + S.set.id, JSON.stringify(S.adv)); } catch (e) {}
 }
 function newRun(hero, story) {
-  const run = { v: 2, heroId: hero.id, story, floor: 1, idx: 0, enemyHits: null, hp: 0, hpPicks: 0,
+  const run = { v: 2, heroId: hero.id, story, diff: "normal", floor: 1, idx: 0, enemyHits: null, hp: 0, hpPicks: 0,
     learned: [], hone: 0, charge: 0, guard: false, frozen: false, cleared: false, deaths: 0, kills: 0, best: 0,
-    seen: [], picks: perksOf(hero).pick ? 1 : 0, phoenixFloor: 0, ankhUsed: false, xpRun: 0,
+    seen: [], picks: 0, phoenixFloor: 0, ankhUsed: false, xpRun: 0, map: null,
     created: Date.now(), updated: Date.now() };
   run.hp = maxHpOf(run, hero);
   floorStart(run, hero);
@@ -260,8 +294,13 @@ function newRun(hero, story) {
 /* perks and boons that kick in at the start of every floor */
 function floorStart(run, hero) {
   const m = mods(run, hero);
-  if (m.floorGuard) run.guard = true;
   if (m.perks.charge) run.charge = Math.max(run.charge, 2);
+}
+/* boons that kick in at the start of every fight */
+function fightStart(run, hero) {
+  const m = mods(run, hero);
+  if (m.fightGuard) run.guard = true;
+  if (m.fightCharge) run.charge = Math.max(run.charge, Math.min(CLASSES[hero.cls].maxCharge, m.fightCharge));
 }
 /* write the live run (and its hero) back to storage */
 function persist() {
@@ -344,6 +383,12 @@ function openSlot(i) {
   resetQ();
   freshOrder(b.cur);
   if (s.picks > 0) b.lvl = { stage: "choose" };
+  if (typeof mapOn === "function" && mapOn()) { b.lvl = null; sfx.bStart(); return enterMap(); }
+  // quick mode: pick up where the map left off on this floor
+  if (s.map && s.map.floor === s.floor && s.idx !== s.map.cleared.length) {
+    s.idx = s.map.cleared.length; b.enemy = makeEnemy(s);
+    pickQuestion(); resetQ(); freshOrder(b.cur);
+  }
   S.screen = "battle";
   S.navIdx = 0;
   sfx.bStart();
@@ -398,7 +443,8 @@ function battleNextQuestion() {
   const b = S.battle;
   if (b.dying) { b.dying = false; b.fx = null; sfx.tick(); render(); window.scrollTo(0, 0); return; }
   if (b.victory) { b.victory = false; b.showVictory = true; b.fx = null; render(); window.scrollTo(0, 0); sfx.bVictory(); confettiBurst(true); return; }
-  if (b.s.picks > 0) { b.lvl = { stage: "choose" }; b.fx = null; sfx.bLevel(); render(); return; }
+  if (b.mapMode && b.pend) return returnToMap();
+  if (b.s.picks > 0 && !b.mapMode) { b.lvl = { stage: "choose" }; b.fx = null; sfx.bLevel(); render(); return; }
   proceedNext();
 }
 function proceedNext() {
@@ -410,6 +456,7 @@ function proceedNext() {
   if (b.pend) {
     // the next foe only walks in once you're ready for it
     const p = b.pend; b.pend = null;
+    fightStart(b.s, b.h);
     b.fx = { type: "foeEnter", carry: p.carry, newFloor: p.floor !== b.s.floor };
     if (b.fx.newFloor) sfx.bStart();
     else if (b.enemy.boss) setTimeout(() => sfx.bBoss(), 380);
@@ -419,6 +466,7 @@ function proceedNext() {
 }
 function advContinueEndless() {
   const b = S.battle;
+  if (b.mapMode) { b.showVictory = false; b.pend = null; return returnToMap(); }
   b.showVictory = false; b.pend = null;
   pickQuestion(); resetQ(); freshOrder(b.cur);
   b.fx = { type: "enter" };
@@ -437,11 +485,14 @@ function armSpecial(id) {
 
 /* ===================== LEVEL-UP PICKS ===================== */
 function lvlPick(kind, id) {
-  const b = S.battle, s = b.s, h = b.h, C = CLASSES[h.cls];
-  if (!b.lvl || s.picks <= 0) return;
-  if (kind === "learnMenu") { b.lvl = { stage: "learn" }; sfx.tick(); return render(); }
-  if (kind === "back") { b.lvl = { stage: "choose" }; sfx.tick(); return render(); }
+  const b = S.battle, s = b.s, h = b.h;
+  if (!b.lvl) return;
+  const free = b.lvl.free;
+  if (s.picks <= 0 && !free) return;
+  if (kind === "learnMenu") { b.lvl = { stage: "learn" }; sfx.tick(); return rerender(); }
+  if (kind === "back") { b.lvl = { stage: free ? "free" : "choose", free }; sfx.tick(); return rerender(); }
   if (kind === "hp") {
+    if ((s.hpPicks || 0) >= statCap(s)) return;
     s.hpPicks = (s.hpPicks || 0) + 1; s.hp = maxHpOf(s, h);
     s.picks--; sfx.bHeal();
     b.lvl = { stage: "done", text: "Max HP is now " + s.hp + ", and you're fully healed." };
@@ -451,23 +502,39 @@ function lvlPick(kind, id) {
     s.learned.push(id); s.picks--; sfx.bArm();
     b.lvl = { stage: "done", text: "Learned " + sp.name + ". " + sp.text };
   } else if (kind === "hone") {
+    if ((s.hone || 0) >= statCap(s)) return;
     s.hone = (s.hone || 0) + 1; s.picks--; sfx.bArm();
     b.lvl = { stage: "done", text: "Every technique now hits +" + s.hone + "." };
   } else if (kind === "boon") {
-    const old = h.boon, nb = rollBoon(old);
-    h.boon = nb.id; s.picks--;
-    b.lvl = { stage: "reveal", boon: nb.id, old };
-    sfx.bReel(nb.r);
+    const slots = heroBoons(h), empty = slots.indexOf(null);
+    if (empty >= 0) return lvlRoll(empty);
+    b.lvl = { stage: "which", free }; sfx.tick();
+  } else if (kind === "rollSlot") {
+    return lvlRoll(+id);
   }
   saveAdv(); saveHeroes();
-  render();
+  rerender();
+}
+/* roll a boon into slot i (replacing whatever is there) */
+function lvlRoll(i) {
+  const b = S.battle, s = b.s, h = b.h, slots = heroBoons(h);
+  const old = slots[i], nb = rollBoon(slots.filter(Boolean));
+  slots[i] = nb.id;
+  h.boons = slots;
+  if (!b.lvl.free) s.picks--;
+  b.lvl = { stage: "reveal", boon: nb.id, old, slot: i, before: slots.map((x, k) => k === i ? old : x) };
+  sfx.bReel(nb.r);
+  saveAdv(); saveHeroes();
+  rerender();
 }
 function lvlDone() {
   const b = S.battle;
-  if (b.s.picks > 0) { b.lvl = { stage: "choose" }; sfx.tick(); return render(); }
+  if (b.s.picks > 0) { b.lvl = { stage: "choose" }; sfx.tick(); return rerender(); }
   b.lvl = null;
+  if (S.screen === "map") { sfx.tick(); return rerender(); }
   proceedNext();
 }
+function rerender() { render(); }
 
 /* ===================== ANSWERING ===================== */
 function gainXp(amount) {
@@ -504,12 +571,12 @@ function submitBattle() {
       s.charge = Math.min(C.maxCharge, s.charge + C.gain + m.plusCharge);
       if (m.refill && Math.random() < m.refill) { s.charge = C.maxCharge; b.surged = true; } else b.surged = false;
     }
+    dmg += m.flat;
     if (m.dmg) dmg = Math.max(1, Math.round(dmg * (1 + m.dmg)));
     const before = b.enemy.hits;
     b.enemy.hits = Math.max(0, before - dmg);
     const overkill = Math.max(0, dmg - before);
     const hp0 = s.hp;
-    if (m.mend) s.hp = Math.min(mx(), s.hp + m.mend);
     if (sp && sp.guard) s.guard = true;
     if (sp && sp.freeze) s.frozen = true;
     if (sp && sp.heal) s.hp = Math.min(mx(), s.hp + Math.round(mx() * sp.heal));
@@ -519,7 +586,7 @@ function submitBattle() {
     let xpGot = Math.round(5 * (1 + m.xp));
     let leveled = gainXp(xpGot);
     const wasFrozen = s.frozen && !(sp && sp.freeze);
-    b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fx === "kazoo", frozenHit: wasFrozen };
+    b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fxs.includes("kazoo"), frozenHit: wasFrozen };
     b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged };
 
     if (b.enemy.hits <= 0) {
@@ -529,7 +596,8 @@ function submitBattle() {
       xpGot += killXp;
       if (gainXp(killXp)) leveled = true;
       s.frozen = false;
-      s.hp = Math.min(mx(), s.hp + (dead.boss ? Math.round(mx() * 0.4) : 5) + Math.round(mx() * m.killHeal));
+      // the only healing between fights: Vampiric, and a full heal when the floor is cleared
+      s.hp = dead.boss ? mx() : Math.min(mx(), s.hp + Math.round(mx() * m.killHeal));
       const carry = sp && sp.carry ? overkill : 0;
       s.idx++;
       let newFloor = false;
@@ -551,8 +619,11 @@ function submitBattle() {
       b.pend = { dead: { key: dead.key, name: dead.name, boss: dead.boss, maxHits: dead.maxHits, scale: dead.scale },
                  floor: oldFloor, done: oldIdx + 1, carry: carried };
 
+      if (b.mapMode && !dead.boss) mapFoeDown(b.mapFight);
+      else if (!dead.boss && s.map && s.map.floor === oldFloor && !s.map.cleared.includes("f" + oldIdx)) s.map.cleared.push("f" + oldIdx);
       if (leveled) b.note = { kind: "lvl", text: "Level " + levelOf(h.xp) + "!" };
       else if (b.victory) b.note = { kind: "lvl", text: dead.name + " falls!" };
+      else if (b.mapMode && !dead.boss) b.note = foesLeft(s) === 0 ? { kind: "floor", text: "The gate is open!" } : { kind: "kill", text: dead.name + " defeated" };
       else if (newFloor) b.note = { kind: "floor", text: "Floor cleared!" };
       else if (b.enemy.boss) b.note = { kind: "boss", text: "Boss ahead: " + b.enemy.name };
       else b.note = { kind: "kill", text: dead.name + " defeated" };
@@ -570,9 +641,9 @@ function submitBattle() {
     }
     b.fx.xp = xpGot; b.fx.leveled = leveled;
     if (leveled) setTimeout(() => sfx.bLevel(), (IMPACT[style] + 0.3) * 1000);
-    if (m.fx === "kazoo") sfx.honk(IMPACT[style]);
+    if (m.fxs.includes("kazoo")) sfx.honk(IMPACT[style]);
   } else {
-    let dmg = damageFrom(s.floor, b.enemy.boss);
+    let dmg = damageFrom(s, b.enemy.boss);
     if (h.cls === "knight") dmg = Math.round(dmg * 0.7);
     dmg = Math.round(dmg * (1 - m.armor));
     let blocked = false, missed = false, frozen = false, saved = null;
@@ -580,22 +651,28 @@ function submitBattle() {
     else if (s.guard) { blocked = true; dmg = 0; s.guard = false; }
     else if (Math.random() < m.dodge) { missed = true; dmg = 0; }
     s.hp = Math.max(0, s.hp - dmg);
+    let thorned = false;
+    if (dmg > 0 && m.thorns && b.enemy.hits > 1) { b.enemy.hits -= m.thorns; thorned = true; }
     if (s.hp <= 0) {
       if (m.phoenix && s.phoenixFloor !== s.floor) { s.phoenixFloor = s.floor; s.hp = Math.round(mx() * 0.3); saved = "Phoenix Feather"; }
       else if (m.perks.ankh && !s.ankhUsed) { s.ankhUsed = true; s.hp = Math.round(mx() * 0.25); saved = "Ankh of Ra"; }
     }
-    b.fx = { type: "enemyAttack", dmg, blocked, missed, frozen, saved, fizzle: sp ? sp.name : null, kazoo: m.fx === "kazoo" };
+    b.fx = { type: "enemyAttack", dmg, blocked, missed, frozen, saved, thorned, fizzle: sp ? sp.name : null, kazoo: m.fxs.includes("kazoo") };
     b.lastHit = { dmg, blocked, missed, frozen, saved, fizzle: sp ? sp.name : null };
     if (sp) sfx.bFizzle();
     if (blocked || frozen) sfx.bBlock(); else if (missed) sfx.bWhiff(); else sfx.bHurt();
     if (saved) setTimeout(() => sfx.bHeal(), 500);
-    if (m.fx === "kazoo") sfx.honk(0.2);
+    if (m.fxs.includes("kazoo")) sfx.honk(0.2);
     if (s.hp <= 0) {
       b.over = true; b.dying = true; b.fx.ko = true;
       b.koFloor = s.floor; b.koEnemy = b.enemy.name; b.koBoss = b.enemy.boss;
       // respawn at the floor entrance; the run screen still shows the KO
       s.deaths++; h.deaths = (h.deaths || 0) + 1;
       s.hp = mx(); s.idx = 0; s.enemyHits = null; s.charge = 0; s.guard = false; s.frozen = false;
+      if (s.map && s.map.floor === s.floor) {
+        const F0 = floorData(s).rooms[0];
+        Object.assign(s.map, { cleared: [], room: 0, x: F0.start.x, y: F0.start.y, entered: false, quest: s.map.quest === 1 ? 0 : s.map.quest, items: 0 });
+      }
       floorStart(s, h);
       s.updated = Date.now();
       saveAdv(); saveHeroes();
@@ -843,11 +920,13 @@ function fighterHtml(key, opts) {
   </div>`;
 }
 function heroSprite(h) { return CLASSES[h.cls].sprite; }
-function boonChip(h, small) {
-  const bn = boonById(h && h.boon);
-  if (!bn) return `<span class="boonchip none">${small ? "No boon" : "No boon yet"}</span>`;
-  const R = RARITY[bn.r];
-  return `<span class="boonchip" style="--rc:${R.color}" title="${esc(bn.text)}">${esc(bn.name)}</span>`;
+function boonChip(h, small, slotsOverride) {
+  const slots = slotsOverride || heroBoons(h);
+  return slots.map(id => {
+    const bn = boonById(id);
+    if (!bn) return `<span class="boonchip none">${small ? "Empty" : "Empty slot"}</span>`;
+    return `<span class="boonchip" style="--rc:${RARITY[bn.r].color}" title="${esc(bn.text)}">${esc(bn.name)}</span>`;
+  }).join("");
 }
 function campaignPct(s) {
   if (s.cleared || s.floor > STORY_LEN) return 100;
@@ -882,7 +961,7 @@ function viewAdvMenu() {
         <div class="eyebrow" style="color:${C.color}">Slot ${i + 1} · ${esc(h.name)} · Lv ${levelOf(h.xp)}</div>
         <div style="font-size:16px;font-weight:bold;margin-top:3px">${esc(floorTitle(s, s.floor))}</div>
         <div class="segbar" style="margin-top:8px"><span style="width:${pct}%;background:${s.cleared ? "var(--star)" : st.color}"></span></div>
-        <div class="muted" style="font-size:12px;margin-top:5px">${s.cleared ? "Story complete · Endless" : pct + "% through " + esc(st.title)} · ${s.kills} foes · ${s.deaths} ${s.deaths === 1 ? "fall" : "falls"}</div>
+        <div class="muted" style="font-size:12px;margin-top:5px">${diffOf(s).label} · ${s.cleared ? "Story complete · Endless" : pct + "% through " + esc(st.title)} · ${s.kills} foes · ${s.deaths} ${s.deaths === 1 ? "fall" : "falls"}</div>
         <div style="display:flex;gap:8px;margin-top:12px">
           <button class="primary" data-act="advCont" data-i="${i}" style="background:var(--accent);padding:11px;font-size:15px;flex:1">Continue</button>
           <button class="ghost" data-act="advDel" data-i="${i}" title="Delete slot" aria-label="Delete slot ${i + 1}" style="flex:0 0 48px;padding:11px">${TRASH}</button>
@@ -955,6 +1034,9 @@ function viewAdvIntro() {
       <div class="path">${path}</div>
       <div class="muted" style="font-size:12.5px;margin-top:14px">Reward: <b style="color:var(--star)">${esc(st.trophy.name)}</b>, a trophy for ${esc(h.name)} that grants ${esc(st.trophy.text.toLowerCase())}.</div>
     </div>
+    <div class="eyebrow" style="margin:18px 0 8px">Difficulty</div>
+    <div class="diffrow">${Object.keys(DIFF).map(k => `<button class="card diffbtn ${(s.diff || "normal") === k ? "sel" : ""}" data-act="advDiff" data-d="${k}">
+      <div class="diffname">${DIFF[k].label}</div><div class="muted" style="font-size:12px;line-height:1.4">${DIFF[k].text}</div></button>`).join("")}</div>
     <button class="primary" data-act="advBegin" style="background:${st.color};color:#111;margin-top:16px">Begin as ${esc(h.name)} →</button>
   </div>`;
 }
@@ -1020,19 +1102,19 @@ function viewVictory() {
 function viewLevelUp() {
   const b = S.battle, s = b.s, h = b.h, C = CLASSES[h.cls], L = b.lvl;
   const head = `<div class="lvlhead"><div class="eyebrow" style="color:var(--star)">Level ${levelOf(h.xp)} · ${esc(h.name)}</div>
-    <div class="lvltitle">Level up!</div>
-    <div class="muted" style="font-size:13px">${s.picks > 1 ? s.picks + " picks waiting" : "Choose one"}</div></div>`;
-  const cur = boonById(h.boon);
+    <div class="lvltitle">${L.free ? "Free boon roll!" : "Level up!"}</div>
+    <div class="muted" style="font-size:13px">${L.free ? (L.src === "npc" ? "A thank-you gift" : "A gift from the shrine") : s.picks > 1 ? s.picks + " picks waiting" : "Choose one"}</div></div>`;
+  const slots = heroBoons(h);
   if (L.stage === "reveal") {
     const bn = boonById(L.boon), R = RARITY[bn.r];
     const reel = [];
     for (let i = 0; i < 14; i++) reel.push(BOONS[Math.floor(Math.random() * BOONS.length)]);
     reel.push(bn);
     return `<div class="lvlpanel tex">
-      <div class="lvlhead"><div class="eyebrow" style="color:var(--star)">Boon roll</div><div class="lvltitle"><span class="rolling">Rolling…</span><span class="rolled" style="color:${R.color}">${R.label}!</span></div></div>
+      <div class="lvlhead"><div class="eyebrow" style="color:var(--star)">Boon roll · slot ${L.slot + 1}</div><div class="lvltitle"><span class="rolling">Rolling…</span><span class="rolled" style="color:${R.color}">${R.label}!</span></div></div>
       <div class="reel"><div class="reelstrip">${reel.map(x => `<div class="reelitem" style="color:${RARITY[x.r].color}">${esc(x.name)}</div>`).join("")}</div></div>
       <div class="boonresult" style="--rc:${R.color}">
-        <div class="eyebrow" style="color:${R.color}">${R.label}${bn.fx ? " · chaos" : ""}</div>
+        <div class="eyebrow" style="color:${R.color}">${R.label}</div>
         <div class="boonname">${esc(bn.name)}</div>
         <div class="dim" style="font-size:14px;line-height:1.5">${esc(bn.text)}</div>
         ${L.old && L.old !== bn.id ? `<div class="muted" style="font-size:12px;margin-top:6px">Replaced ${esc(boonById(L.old).name)}.</div>` : ""}
@@ -1045,6 +1127,16 @@ function viewLevelUp() {
       <div class="dim" style="font-size:15px;line-height:1.6;margin:6px 0 16px">${esc(L.text)}</div>
       <button class="primary" data-act="lvlDone" style="background:var(--accent)">${s.picks > 0 ? "Next pick →" : "Continue →"}</button></div>`;
   }
+  if (L.stage === "which") {
+    const opts = slots.map((id, i) => { const bn = boonById(id), R = RARITY[bn.r];
+      return `<button class="card lvlopt" data-act="lvlPick" data-k="rollSlot" data-id="${i}" style="border-color:${R.color}">
+        <div class="lvloptname" style="color:${R.color}">Reroll ${esc(bn.name)}</div>
+        <div class="muted" style="font-size:13px;line-height:1.45">${R.label} · ${esc(bn.text)}</div></button>`; }).join("");
+    return `<div class="lvlpanel tex">${head}
+      <div class="dim" style="font-size:14px;margin:-4px 0 10px">Both slots are full. Which one do you gamble?</div>
+      <div class="lvlopts">${opts}</div>
+      ${L.free ? "" : `<button class="ghost" data-act="lvlBack" style="margin-top:10px">← Back</button>`}</div>`;
+  }
   if (L.stage === "learn") {
     const opts = C.specials.filter(x => !s.learned.includes(x.id)).map(x => `<button class="card lvlopt" data-act="lvlLearn" data-id="${x.id}" style="--cc:${C.color}">
         <div class="lvloptname">${esc(x.name)} <span class="cost">${BOLT}${x.cost}</span></div>
@@ -1053,21 +1145,31 @@ function viewLevelUp() {
       <div class="lvlopts">${opts}</div>
       <button class="ghost" data-act="lvlBack" style="margin-top:10px">← Back</button></div>`;
   }
+  if (L.stage === "free") {
+    return `<div class="lvlpanel tex">${head}
+      <div class="lvlopts"><button class="card lvlopt" data-act="lvlPick" data-k="boon"><div class="lvloptname">🎲 Roll it</div>
+      <div class="muted" style="font-size:13px">${slots.includes(null) ? "Goes into your empty slot." : "You'll pick which slot to gamble."}</div></button></div></div>`;
+  }
+  const cap = statCap(s);
   const allKnown = C.specials.every(x => s.learned.includes(x.id));
   const nLeft = C.specials.filter(x => !s.learned.includes(x.id)).length;
+  const honeMax = (s.hone || 0) >= cap, hpMax = (s.hpPicks || 0) >= cap;
+  const capNote = `Maxed for now (${cap}/${cap}). The cap rises in Endless.`;
   const learnCard = allKnown
-    ? `<button class="card lvlopt" data-act="lvlPick" data-k="hone"><div class="lvloptname">⚔ Hone your techniques</div>
-        <div class="muted" style="font-size:13px">Every technique hits +1 harder${s.hone ? " (now +" + s.hone + ")" : ""}.</div></button>`
+    ? `<button class="card lvlopt" data-act="lvlPick" data-k="hone" ${honeMax ? "disabled" : ""}><div class="lvloptname">⚔ Hone your techniques</div>
+        <div class="muted" style="font-size:13px">${honeMax ? capNote : `Every technique hits +1 harder (${s.hone || 0}/${cap}).`}</div></button>`
     : `<button class="card lvlopt" data-act="lvlPick" data-k="learnMenu"><div class="lvloptname">✦ Learn a technique</div>
         <div class="muted" style="font-size:13px">${nLeft} left to learn: ${C.specials.filter(x => !s.learned.includes(x.id)).map(x => esc(x.name)).join(", ")}.</div></button>`;
+  const full = !slots.includes(null);
   return `<div class="lvlpanel tex">${head}
     <div class="lvlopts">
-      <button class="card lvlopt" data-act="lvlPick" data-k="hp"><div class="lvloptname">♥ Toughen up</div>
-        <div class="muted" style="font-size:13px">+20 max HP (now ${maxHpOf(s, h)}) and a full heal.</div></button>
+      <button class="card lvlopt" data-act="lvlPick" data-k="hp" ${hpMax ? "disabled" : ""}><div class="lvloptname">♥ Toughen up</div>
+        <div class="muted" style="font-size:13px">${hpMax ? capNote : `+20 max HP (now ${maxHpOf(s, h)}) and a full heal. ${s.hpPicks || 0}/${cap}.`}</div></button>
       ${learnCard}
-      <button class="card lvlopt" data-act="lvlPick" data-k="boon"><div class="lvloptname">🎲 ${cur ? "Reroll your boon" : "Roll a boon"}</div>
-        <div class="muted" style="font-size:13px">${cur ? `Gamble <b style="color:${RARITY[cur.r].color}">${esc(cur.name)}</b> for a random new one. Rarer boons are stronger, chaos ones are weird.` : "A random perk that stays with " + esc(h.name) + ". Rarer is stronger, and chaos boons get weird."}</div></button>
-    </div></div>`;
+      <button class="card lvlopt" data-act="lvlPick" data-k="boon"><div class="lvloptname">🎲 ${full ? "Reroll a boon" : "Roll a boon"}</div>
+        <div class="muted" style="font-size:13px">${full ? "Pick one of your " + slots.length + " boons to gamble for a new one." : "Fills an empty boon slot. Rarer is stronger; chaos is pure spectacle."}</div></button>
+    </div>
+    ${S.screen === "map" ? `<button class="ghost" data-act="lvlLater" style="margin-top:10px">Later (keep exploring)</button>` : ""}</div>`;
 }
 
 const SLASH = `<div class="slashpx"></div>`;
@@ -1142,8 +1244,9 @@ function viewBattle() {
   if (attacking && fx.leveled) heroExtra += `<div class="lvlrays"></div>`;
   if (s.guard && !b.dying) heroExtra += `<div class="guardicon">${SHIELD}</div>`;
   const armedNow = b.armed && !S.feedback && !b.lvl ? b.armed : null;
-  const hero = fighterHtml(C.sprite, { side: "hero", id: "heroSlot", scale: m.fx === "tiny" ? 2 : HERO_SCALE, act: heroAct, idle: !b.dying,
-    extra: heroExtra, cls: (m.fx ? "cx-" + m.fx : "") + (armedNow ? " armed" : ""), style: armedNow ? `--ac:${AURA[armedNow]}` : "" });
+  const cx = m.fxs.map(f => "cx-" + f).join(" ");
+  const hero = fighterHtml(C.sprite, { side: "hero", id: "heroSlot", scale: m.fxs.includes("tiny") ? 2 : HERO_SCALE, act: heroAct, idle: !b.dying,
+    extra: heroExtra, cls: cx + (armedNow ? " armed" : ""), style: armedNow ? `--ac:${AURA[armedNow]}` : "" });
 
   /* ---- enemy (hidden while the fallen foe's spot waits for Next) ---- */
   const hitTag = attacking
@@ -1164,6 +1267,7 @@ function viewBattle() {
     if (t === "foeEnter" && fx.carry) ex += `<div class="dmg" style="color:${C.color};--d:.75s">-${fx.carry} carried</div>`;
     if (t === "foeEnter" && b.enemy.boss) ex += `<div class="bossbang">!</div>`;
     if (frozen) ex += `<div class="iceblock"></div>`;
+    if (t === "enemyAttack" && fx.thorned) ex += `<div class="dmg" style="color:#fca5a5;--d:.5s">-1 thorns</div>`;
     enemy = fighterHtml(b.enemy.key, { side: "enemy", id: "enemySlot", flip: true, act: enemyAct, actStyle: enemyStyle, plate, extra: ex, scale: b.enemy.scale, cls: frozen ? "frozen" : "" });
   }
   const corpse = t === "kill"
@@ -1172,7 +1276,8 @@ function viewBattle() {
   const sfxLayer = attacking ? projectiles(style, fx.crit && !sp) : "";
 
   /* ---- floor progress dots ---- */
-  const nFoes = fl.foes.length, doneIdx = pend ? pend.done : s.idx;
+  const nFoes = fl.foes.length;
+  const doneIdx = b.mapMode && s.map ? (b.enemy && b.enemy.boss && !pend ? nFoes : s.map.cleared.length) : pend ? pend.done : s.idx;
   let dots = "";
   for (let i = 0; i <= nFoes; i++) {
     const cls = (i === nFoes ? "boss " : "") + (i < doneIdx ? "done" : i === doneIdx ? "now" : "");
@@ -1186,9 +1291,9 @@ function viewBattle() {
   const flashCol = t === "enemyAttack" ? "#ef4444" : sp === "meteor" || sp === "fire" ? "#f97316" : sp === "pierce" || sp === "rain" ? "#bbf7d0" : "#fff";
 
   const lowHp = !b.dying && s.hp / maxHpOf(s, h) < 0.3;
-  const arena = `<div class="arena ${m.fx ? "cx-" + m.fx : ""} ${lowHp ? "lowhp" : ""}" id="arena" style="--d:${D}s">
+  const arena = `<div class="arena ${cx} ${lowHp ? "lowhp" : ""}" id="arena" style="--d:${D}s">
     <canvas class="arena-bg" id="arenaBg" data-story="${s.story}" data-floor="${viewFloor}" data-boss="${bossBg ? 1 : 0}"></canvas>
-    ${m.fx === "disco" ? '<div class="discolayer"></div>' : ""}
+    ${m.fxs.includes("disco") ? '<div class="discolayer"></div>' : ""}
     <div class="arena-hud">
       <span class="ptag">${esc(floorLabel)} <span class="floordots">${dots}</span></span>
       <span class="ptag" style="color:#fde047">Lv ${levelOf(h.xp)}</span>
@@ -1225,7 +1330,7 @@ function viewBattle() {
         <div class="fillb" data-from="${fillFrom * 100}" data-to="${hpFrac * 100}" style="width:${fillFrom * 100}%;background:${hpColor(hpFrac)}"></div>
       </div>
       <div class="xpbar" title="XP ${xpInto(h.xp)} / ${XPL}"><div data-from="${xpFrom}" data-to="${xpPct(h.xp)}" style="width:${xpFrom}%"></div></div>
-      <div class="hudboon">${boonChip(b.lvl && b.lvl.stage === "reveal" ? Object.assign({}, h, { boon: b.lvl.old }) : h, true)}${s.frozen ? '<span class="boonchip" style="--rc:#7dd3fc">Foe frozen</span>' : ""}</div>
+      <div class="hudboon">${boonChip(h, true, b.lvl && b.lvl.stage === "reveal" ? b.lvl.before : null)}${s.frozen ? '<span class="boonchip" style="--rc:#7dd3fc">Foe frozen</span>' : ""}</div>
     </div>
     <div class="hudcol">
       <div class="hudlabel"><span class="foename">${esc(foe.name)}</span><b style="color:var(--bad)">${foe.hits} / ${foe.max}</b></div>
@@ -1296,7 +1401,9 @@ function viewBattle() {
       ? `<button class="primary" data-act="battleNext" style="background:var(--bad)">See results →</button>`
       : b.victory
         ? `<button class="primary" data-act="battleNext" style="background:var(--star)">Claim victory →</button>`
-        : s.picks > 0
+        : b.mapMode && pend
+          ? `<button class="primary" data-act="battleNext" style="background:var(--accent)">${s.picks > 0 ? "★ Level up waiting · back to the map →" : "Back to the map →"}</button>`
+        : s.picks > 0 && !b.mapMode
           ? `<button class="primary" data-act="battleNext" style="background:var(--star);color:#111">★ Level up! Choose your pick →</button>`
           : `<button class="primary" data-act="battleNext" style="background:${pend && b.enemy.boss ? "var(--bad)" : "var(--accent)"}">${nextLabel}</button>`;
 
@@ -1348,6 +1455,7 @@ function mountSprites() {
   }
 
   if (S.screen === "battle" && document.getElementById("ambient")) ambientStart();
+  if (S.screen === "map" && typeof mapMount === "function") mapMount();
   const fx = _battleFx; _battleFx = null;
   if (!fx || S.screen !== "battle") return;
   const arena = document.getElementById("arena");
@@ -1580,7 +1688,7 @@ function ambientLoop(now) {
   const armed = b.armed && !S.feedback && !b.lvl ? b.armed : null;
   if (armed && hero) {
     const cols = AMB_COLORS[armed] || ["#ffffff"];
-    ambEmit("arm", 55, dt, () => ({ x: hero.x + rnd(-2, hero.w + 2), y: hero.y + hero.h - rnd(0, 2), vx: rnd(-3, 3), vy: -rnd(12, 30), life: rnd(0.35, 0.8), c: pick(cols), flick: 1 }));
+    ambEmit("arm", 22, dt, () => ({ x: hero.x + rnd(-2, hero.w + 2), y: hero.y + hero.h - rnd(0, 2), vx: rnd(-3, 3), vy: -rnd(12, 30), life: rnd(0.35, 0.8), c: pick(cols), flick: 1 }));
     // pulsing pixel ring on the ground
     const cx = hero.x + hero.w / 2, cy = hero.y + hero.h, rx = hero.w * 0.65 + Math.round(Math.sin(AMB.t * 8)), ry = 2;
     g.fillStyle = cols[Math.floor(AMB.t * 6) % cols.length];

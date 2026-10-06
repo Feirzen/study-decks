@@ -111,6 +111,7 @@ function render() {
   else if (S.screen === "advName") html = viewAdvName();
   else if (S.screen === "advIntro") html = viewAdvIntro();
   else if (S.screen === "hall") html = viewHall();
+  else if (S.screen === "map") html = viewMap();
   el.innerHTML = topbar() + html + (S.menuOpen ? themeMenu() : "");
   mountSprites();
   if (document.body.classList.contains("kbd")) paintNav();
@@ -172,6 +173,7 @@ function topbar() {
   if (settings.theme === "chameleon") items.push(chamControl());
   items.push(`<button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>`);
   items.push(`<button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>`);
+  items.push(`<button class="iconbtn ${mapOn() ? "" : "off"}" data-act="toggleMap" data-nonav title="${mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"}">${MAP_ICON}</button>`);
   if (fsSupported()) items.push(`<button class="iconbtn" data-act="fullscreen" data-nonav title="${isFs() ? "Exit fullscreen" : "Fullscreen"}">${FS_SVG(isFs())}</button>`);
   const n = items.length;
   return `<div class="topbar ${S.gearOpen ? "open" : ""}">
@@ -584,6 +586,7 @@ function pick(pos) {
   let q;
   if (S.screen === "shuffle") q = S.shuffleQ[S.shuffleIdx];
   else if (S.screen === "battle") q = battleQuestion();
+  else if (S.screen === "map") q = mapQuestion();
   else q = currentCat().questions[S.qi];
   if (!q) return;
   if (q.type === "mc") S.selected = [pos];
@@ -701,6 +704,14 @@ document.addEventListener("click", ev => {
   // ---- top bar / modals
   if (act === "gear") return toggleGear();
   if (act === "fullscreen") { sfx.tick(); return toggleFullscreen(); }
+  if (act === "toggleMap") {
+    settings.mapMode = !mapOn(); saveSettings(); sfx.select();
+    // switch the running adventure over right away when it's safe to
+    if (S.screen === "map" && S.battle && !mapOn()) { S.battle.mapMode = false; return openSlot(S.battle.slot); }
+    const bt = document.querySelector('.topbar [data-act="toggleMap"]');
+    if (bt) { bt.classList.toggle("off", !mapOn()); bt.title = mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"; }
+    return;
+  }
   if (act === "themeMenu") { S.menuOpen = !S.menuOpen; sfx.tick(); return render(); }
   if (act === "setTheme") {
     settings.theme = t.dataset.theme;
@@ -790,6 +801,7 @@ document.addEventListener("click", ev => {
     const name = (el && el.value.trim()) || randomHeroName();
     return startAdventure(createHero(name, S.newCls || "knight"));
   }
+  if (act === "advDiff") { const r = S.adv.slots[S.introSlot]; if (r) { r.diff = t.dataset.d; saveAdv(); } sfx.select(); return render(); }
   if (act === "advBegin") return openSlot(S.introSlot);
   if (act === "heroRetire") return askRetire(t.dataset.id);
   if (act === "heroRetireYes") { retireHero(t.dataset.id); closeModal(); sfx.select(); return render(); }
@@ -798,6 +810,12 @@ document.addEventListener("click", ev => {
   if (act === "lvlLearn") return lvlPick("learn", t.dataset.id);
   if (act === "lvlBack") return lvlPick("back");
   if (act === "lvlDone") return lvlDone();
+  if (act === "lvlLater") { S.battle.lvl = null; sfx.tick(); return render(); }
+  if (act === "mapSubmit") return mapSubmit();
+  if (act === "mapQNext") return mapQNext();
+  if (act === "mapQStart") return mapQStart(t.dataset.arg);
+  if (act === "mapDlgClose") { sfx.tick(); return closeDlg(); }
+  if (act === "mapLevel") { S.battle.lvl = { stage: "choose" }; sfx.bLevel(); return render(); }
   if (act === "advRetry") return openSlot(S.battle.slot);
   if (act === "advEndless") return advContinueEndless();
   if (act === "armSpecial") return armSpecial(t.dataset.id);

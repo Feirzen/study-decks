@@ -457,7 +457,7 @@ const STORIES = {
     premise: "Warlock Varn stole Princess Elowen the night before her coronation and locked her at the top of Thornspire Castle. The royal guard fell at the gate. You're who's left.",
     goal: "Storm Thornspire and free Princess Elowen.",
     victory: "Varn's staff splinters and his spells unravel. The tower door swings open, and Princess Elowen strides out into the light, already giving orders about the coronation.",
-    trophy: { name: "The Princess's Favor", perk: "mend", text: "Heal 3 HP on every correct answer" },
+    trophy: { name: "The Princess's Favor", perk: "dmg", text: "+10% damage" },
     floors: [
       F("The King's Road", [100, 160, 90], [["goblin", "Goblin"], ["bat", "Bat"], ["goblin", "Goblin"], ["slime", "Slime"]], ["goblin~chief", "Goblin Chieftain", 6]),
       F("The Moat", [70, 130, 120], [["crab~moat", "Moat Crab"], ["ghost~drowned", "Drowned Guard"], ["slime", "Slime"], ["crab~moat", "Moat Crab"]], ["slimeking~moat", "The Moat Horror", 8]),
@@ -527,7 +527,7 @@ const STORIES = {
     premise: "A carnival rolled into town overnight. Nobody saw it arrive, and everyone who's walked through its gates has come back out with a painted-on smile and nothing behind their eyes.",
     goal: "Find the Ringmaster and break his spell on the town.",
     victory: "The Ringmaster's hat tumbles into the sawdust and the music grinds to a stop. The tents sag, the lights wink out, and the townsfolk blink like they're waking up from a long nap.",
-    trophy: { name: "Ringmaster's Top Hat", perk: "pick", text: "Start every adventure with a free level-up pick" },
+    trophy: { name: "Ringmaster's Top Hat", perk: "slot", text: "A third boon slot" },
     floors: [
       F("The Midway", [170, 90, 160], [["slime~candy", "Cotton Candy Slime"], ["imp~jester", "Jester Imp"], ["bat", "Bat"], ["slime~candy", "Cotton Candy Slime"]], ["golem~strong", "The Strongman", 6]),
       F("Hall of Mirrors", [120, 110, 190], [["ghost~mirror", "Mirror Wraith"], ["eyeball~peep", "Peeping Eye"], ["imp~jester", "Jester Imp"], ["ghost~mirror", "Mirror Wraith"]], ["slimeking~funhouse", "The Funhouse Blob", 8]),

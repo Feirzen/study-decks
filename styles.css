@@ -1128,3 +1128,45 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .holybeam:not(.gold) { width: 52px; margin-left: -26px; }
 .holybeam.gold { width: 60px; margin-left: -30px; }
 .holybeam.gold.two { width: 110px; margin-left: -55px; opacity: .45; }
+
+/* ---- toned-down armed outline + level-up rays ---- */
+.fighter.armed canvas {
+  filter: drop-shadow(1px 0 0 color-mix(in srgb, var(--ac) 60%, transparent)) drop-shadow(-1px 0 0 color-mix(in srgb, var(--ac) 60%, transparent))
+          drop-shadow(0 1px 0 color-mix(in srgb, var(--ac) 60%, transparent));
+  animation: none;
+}
+.lvlrays { width: 96px; height: 96px; margin-left: -48px; bottom: 18%;
+  background: repeating-conic-gradient(rgba(253,224,71,.32) 0 10deg, transparent 10deg 36deg);
+  animation: rays 1.1s steps(8) calc(var(--d, .2s) + .25s) both; }
+/* ---- difficulty picker ---- */
+.diffrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.diffbtn { padding: 10px 12px; text-align: left; }
+.diffbtn.sel { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+.diffname { font-weight: bold; font-size: 15px; margin-bottom: 3px; }
+@media (max-width: 520px) { .diffrow { grid-template-columns: 1fr; } }
+.lvlopt:disabled { opacity: .5; cursor: default; }
+
+/* =================================================================
+   EXPLORATION MAP
+   ================================================================= */
+.mapbox { position: relative; border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; background: #000; line-height: 0; }
+.mapcv { width: 100%; height: auto; display: block; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; cursor: pointer; }
+.mapbanner {
+  position: absolute; left: 50%; top: 38%; transform: translate(-50%, -50%); z-index: 3; pointer-events: none; text-align: center; line-height: 1.2;
+  background: rgba(10,10,16,.78); border: 2px solid #fde047; color: #fde047; padding: 10px 18px; border-radius: 6px; white-space: nowrap;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; animation: bannerin 2.6s var(--ease-out) .3s both;
+}
+.mapbanner .mbt { font-size: 17px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; }
+.mapbanner .mbs { font-size: 11px; color: #e5e7eb; letter-spacing: 1.5px; margin-top: 4px; text-transform: uppercase; }
+.maphud { margin-top: 10px; }
+.goals { list-style: none; margin: 2px 0 0; padding: 0; font-size: 12.5px; line-height: 1.6; color: var(--dim); }
+.goals li.done { color: var(--ok); }
+.lvlnow { margin-top: 8px; padding: 9px; font-size: 14px; background: var(--star) !important; color: #111 !important; animation: lvlnow 1s steps(2) infinite; }
+@keyframes lvlnow { 50% { filter: brightness(1.15); } }
+.mapdlg, .maphelp { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+.mapdlg { border-color: color-mix(in srgb, var(--star) 50%, var(--border)); }
+.dlgtext { font-size: 16px; line-height: 1.6; }
+.dlgbtns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.iconbtn.off { opacity: .5; }
+.iconbtn.off svg { stroke-dasharray: 3 2; }
+@media (max-width: 939px) { .mapwrap .bright { margin-top: 12px; } }
