@@ -87,7 +87,7 @@ function spriteBurst(canvas, name, scale, flip, delay) {
    charge. A special armed on a wrong answer fizzles and the charge is lost. */
 const CLASSES = {
   knight: {
-    name: "Knight", sprite: "hero_knight", color: "#60a5fa", hp: 20, maxCharge: 6, gain: 1,
+    name: "Knight", sprite: "hero_knight", color: "#60a5fa", hp: 20, maxCharge: 6, gain: 1, basic: "slash",
     blurb: "Tough and steady. Built to survive bad streaks.",
     passive: { name: "Iron Guard", text: "Takes 30% less damage and has +20 max HP." },
     specials: [
@@ -96,7 +96,7 @@ const CLASSES = {
     ],
   },
   wizard: {
-    name: "Wizard", sprite: "hero_wizard", color: "#a78bfa", hp: -10, maxCharge: 8, gain: 2,
+    name: "Wizard", sprite: "hero_wizard", color: "#a78bfa", hp: -10, maxCharge: 8, gain: 2, basic: "bolt",
     blurb: "Fragile, but hits the hardest when you're on a roll.",
     passive: { name: "Arcane Flow", text: "Correct answers charge specials twice as fast. 10 less max HP." },
     specials: [
@@ -105,7 +105,7 @@ const CLASSES = {
     ],
   },
   ranger: {
-    name: "Ranger", sprite: "hero_ranger", color: "#4ade80", hp: 0, maxCharge: 6, gain: 1,
+    name: "Ranger", sprite: "hero_ranger", color: "#4ade80", hp: 0, maxCharge: 6, gain: 1, basic: "arrow",
     blurb: "Lucky crits, and overkill damage carries forward.",
     passive: { name: "Keen Eye", text: "Any correct answer has a 30% chance to crit for 2 hits." },
     specials: [
@@ -114,8 +114,13 @@ const CLASSES = {
     ],
   },
 };
-/* when the special's hit lands, in seconds (drives CSS, particles, sound) */
-const IMPACT = { none: 0.17, bash: 0.17, holy: 0.32, fire: 0.42, meteor: 0.55, pierce: 0.28, rain: 0.5 };
+/* when the hit lands, in seconds (drives CSS, particles, sound).
+   Basic attacks are keyed by their style: knights swing, rangers shoot,
+   wizards throw a bolt. */
+const IMPACT = { none: 0.17, slash: 0.17, arrow: 0.27, bolt: 0.3, bash: 0.17, holy: 0.32, fire: 0.46, meteor: 0.6, pierce: 0.34, rain: 0.62 };
+const RANGED = { arrow: 1, bolt: 1, fire: 1, meteor: 1, pierce: 1, rain: 1 };
+/* glow color behind the hero while a special winds up */
+const AURA = { bash: "#93c5fd", holy: "#fde047", fire: "#f97316", meteor: "#ef4444", pierce: "#4ade80", rain: "#a3e635" };
 
 /* ===================== FLOORS ===================== */
 const FOE_NAMES = {
@@ -245,8 +250,8 @@ function openSlot(i) {
   s.hp = Math.min(s.hp, maxHpOf(s.cls, s.level));
   if (s.hp <= 0) s.hp = maxHpOf(s.cls, s.level);
   S.battle = {
-    slot: i, s, enemy, armed: null,
-    queue: null, qIdx: 0, bq: null, bqi: 0, cur: null, curMiss: false,
+    slot: i, s, enemy, armed: null, pend: null,
+    bq: null, bqi: 0, cur: null, curMiss: false, curStar: false,
     fx: { type: "enter" }, note: null,
     shown: { hp: s.hp, xp: s.xp },
     over: false, dying: false, victory: false, showVictory: false,
@@ -267,8 +272,13 @@ function missedPool() {
   const m = buildPool().filter(has);
   return m.length ? m : allQuestions(S.set).filter(has);
 }
+/* Regular foes never repeat a question until you've seen the whole pool
+   (tracked per save in s.seen, so it survives closing the app). Bosses
+   still throw your old misses at you about two times in three, and a
+   starred question can sneak back in now and then on purpose. */
 function pickQuestion() {
-  const b = S.battle, last = b.cur ? b.cur.id : null;
+  const b = S.battle, s = b.s, last = b.cur ? b.cur.id : null;
+  b.curMiss = false; b.curStar = false;
   if (b.enemy.boss) {
     const miss = missedPool();
     if (miss.length && Math.random() < 0.67) {
@@ -277,13 +287,25 @@ function pickQuestion() {
       if (q.id !== last || miss.length === 1 && buildPool().length === 1) { b.cur = q; b.curMiss = true; return; }
     }
   }
-  if (!b.queue || b.qIdx >= b.queue.length) { b.queue = weightedOrder(buildPool()); b.qIdx = 0; }
-  let q = b.queue[b.qIdx++];
-  if (q.id === last && b.queue.length > 1) {
-    if (b.qIdx >= b.queue.length) { b.queue = weightedOrder(buildPool()); b.qIdx = 0; }
-    q = b.queue[b.qIdx++];
+  const pool = buildPool();
+  if (activeFilter() !== "starred" && Math.random() < 0.12) {
+    const stars = pool.filter(q => progress.starred[q.id] && q.id !== last);
+    if (stars.length) { b.cur = stars[Math.floor(Math.random() * stars.length)]; b.curStar = true; return; }
   }
-  b.cur = q; b.curMiss = false;
+  if (!Array.isArray(s.seen)) s.seen = [];
+  const seen = new Set(s.seen);
+  let fresh = pool.filter(q => !seen.has(q.id) && q.id !== last);
+  if (!fresh.length) {                       // whole pool seen: start a new cycle
+    s.seen = [];
+    fresh = pool.filter(q => q.id !== last);
+    if (!fresh.length) fresh = pool;
+  }
+  b.cur = weightedOrder(fresh)[0];
+}
+function freshLeft() {
+  const s = S.battle && S.battle.s; if (!s) return 0;
+  const seen = new Set(s.seen || []);
+  return buildPool().filter(q => !seen.has(q.id)).length;
 }
 function battleQuestion() { return S.battle ? S.battle.cur : null; }
 
@@ -294,13 +316,20 @@ function battleNextQuestion() {
   pickQuestion();
   resetQ();
   freshOrder(b.cur);
-  b.fx = null; b.note = null;
-  sfx.tick();
+  b.note = null;
+  if (b.pend) {
+    // the next foe only walks in once you're ready for it
+    const p = b.pend; b.pend = null;
+    b.fx = { type: "foeEnter", carry: p.carry, newFloor: p.floor !== b.s.floor };
+    if (b.fx.newFloor) sfx.bStart();
+    else if (b.enemy.boss) setTimeout(() => sfx.bBoss(), 380);
+    else sfx.tick();
+  } else { b.fx = null; sfx.tick(); }
   render();
 }
 function advContinueEndless() {
   const b = S.battle;
-  b.showVictory = false;
+  b.showVictory = false; b.pend = null;
   pickQuestion(); resetQ(); freshOrder(b.cur);
   b.fx = { type: "enter" };
   sfx.bStart();
@@ -319,6 +348,10 @@ function submitBattle() {
   const b = S.battle, s = b.s, C = CLASSES[s.cls], q = b.cur;
   const ok = grade(q, S.selected);
   recordAnswer(q, ok);
+  if (!b.curMiss) {
+    if (!Array.isArray(s.seen)) s.seen = [];
+    if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  }
   S.feedback = ok ? "correct" : "incorrect";
   if (!ok) S.showAnswer = true;
 
@@ -341,11 +374,12 @@ function submitBattle() {
     if (sp && sp.id === "bash") s.guard = true;
     if (sp && sp.id === "holy") { const h0 = s.hp; s.hp = Math.min(mx(), s.hp + Math.round(mx() * 0.35)); healed = s.hp - h0; }
     const special = sp ? sp.id : null;
-    b.fx = { type: "heroAttack", special, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before };
+    const style = special || C.basic;
+    b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits };
     b.lastHit = { special, crit, dmg, name: sp ? sp.name : null };
 
     if (b.enemy.hits <= 0) {
-      const dead = b.enemy, hpBefore = s.hp - healed;
+      const dead = b.enemy, hpBefore = s.hp - healed, oldFloor = s.floor, oldIdx = s.idx;
       s.kills++;
       s.xp += dead.boss ? 40 + 5 * Math.min(s.floor, 10) : 10;
       const newLevel = levelFor(s.xp), leveled = newLevel > s.level;
@@ -361,7 +395,11 @@ function submitBattle() {
         s.best = Math.max(s.best, s.floor - 1);
       }
       b.enemy = makeEnemy(s.floor, s.idx);
-      if (carry) b.enemy.hits = Math.max(1, b.enemy.maxHits - carry);
+      const carried = carry ? Math.min(carry, b.enemy.maxHits - 1) : 0;
+      if (carried) b.enemy.hits = b.enemy.maxHits - carried;
+      // the fallen foe stays "on stage" until Next, then the new one enters
+      b.pend = { dead: { key: dead.key, name: dead.name, boss: dead.boss, maxHits: dead.maxHits },
+                 floor: oldFloor, done: oldIdx + 1, carry: carried };
 
       if (leveled) b.note = { kind: "lvl", text: "Level " + s.level + "!  Max HP " + mx() };
       else if (b.victory) b.note = { kind: "lvl", text: dead.name + " falls!" };
@@ -369,17 +407,17 @@ function submitBattle() {
       else if (b.enemy.boss) b.note = { kind: "boss", text: "Boss: " + b.enemy.name };
       else b.note = { kind: "kill", text: dead.name + " defeated" };
 
-      b.fx = { type: "kill", special, crit, dmg, dead, leveled, heal: s.hp - hpBefore,
-               bossNext: b.enemy.boss && !newFloor, newFloor, carry, popFrom: 0, popTo: 0 };
-      sfx.bKill(IMPACT[special || "none"] - 0.17, !special);
+      b.fx = { type: "kill", special, style, crit, dmg, dead, leveled, heal: s.hp - hpBefore,
+               newFloor, carry: carried, popFrom: 0, popTo: before, max: dead.maxHits };
+      const off = IMPACT[style] - 0.17;
+      sfx.bKill(off, style === "slash");
       if (special) sfx["bSp_" + special]();
-      else { sfx.bSwing(); if (crit) sfx.bCrit(); }
+      else basicSound(style, false, crit);
       if (s.hp > hpBefore) sfx.bHeal();
-      if (leveled) setTimeout(() => sfx.bLevel(), 420);
-      if (b.enemy.boss && !newFloor) setTimeout(() => sfx.bBoss(), leveled ? 1000 : 640);
+      if (leveled) setTimeout(() => sfx.bLevel(), (off + 0.42) * 1000);
     } else {
       if (special) sfx["bSp_" + special]();
-      else { sfx.bSwing(); sfx.bHit(); if (crit) sfx.bCrit(); }
+      else basicSound(style, true, crit);
     }
   } else {
     let dmg = damageFrom(s.floor, b.enemy.boss);
@@ -408,6 +446,13 @@ function submitBattle() {
 }
 
 /* ===================== BATTLE SOUNDS (chip kit from core.js) ===================== */
+function basicSound(style, withHit, crit) {
+  const t = IMPACT[style] - 0.17;
+  if (style === "arrow") sfx.bShot(withHit);
+  else if (style === "bolt") sfx.bZap(withHit);
+  else { sfx.bSwing(); if (withHit) sfx.bHit(); }
+  if (crit) setTimeout(() => sfx.bCrit(), Math.max(0, t) * 1000);
+}
 Object.assign(sfx, {
   bKill(off, withHit) {
     off = off || 0;
@@ -417,6 +462,16 @@ Object.assign(sfx, {
     chip(110, off + 0.3, 0.3, { wave: "tri", to: 40, vol: 0.18 });
     chip(NOTE(83), off + 0.72, 0.07, { vol: 0.08, duty: 0.5 });
     chip(NOTE(88), off + 0.79, 0.22, { vol: 0.08, duty: 0.5, hold: 0.3 });
+  },
+  bShot(withHit) {
+    chip(NOTE(67), 0, 0.05, { vol: 0.07, duty: 0.5, to: NOTE(55) });           // twang
+    crunch(0.04, 0.2, { f1: 6000, f2: 2500, vol: 0.035, step: 1 });          // whizz
+    if (withHit) { crunch(0.27, 0.06, { f1: 2800, f2: 600, vol: 0.13, step: 5 }); chip(190, 0.27, 0.09, { wave: "square", to: 70, vol: 0.08, lp: 1500 }); }
+  },
+  bZap(withHit) {
+    chip(NOTE(84), 0, 0.22, { vol: 0.045, duty: 0.25, to: NOTE(96), vib: 14 });
+    chip(NOTE(79), 0.04, 0.2, { vol: 0.03, duty: 0.5, to: NOTE(91) });
+    if (withHit) { crunch(0.3, 0.12, { f1: 7000, f2: 1200, vol: 0.1, step: 3 }); chip(NOTE(72), 0.3, 0.14, { vol: 0.06, duty: 0.125, to: NOTE(60) }); }
   },
   bArm() { chip(NOTE(72), 0, 0.05, { vol: 0.07 }); chip(NOTE(79), 0.05, 0.05, { vol: 0.07 }); chip(NOTE(84), 0.1, 0.12, { vol: 0.07, vib: 9 }); },
   bCrit() { chip(NOTE(96), 0.17, 0.05, { vol: 0.07, duty: 0.125 }); chip(NOTE(100), 0.22, 0.12, { vol: 0.06, duty: 0.125 }); },
@@ -438,28 +493,28 @@ Object.assign(sfx, {
     chip(90, 0.32, 0.25, { wave: "tri", to: 40, vol: 0.18 });
   },
   bSp_fire() {
-    crunch(0, 0.42, { f1: 600, f2: 3000, vol: 0.07, step: 3 });
-    chip(300, 0, 0.42, { to: 900, vol: 0.04, duty: 0.25 });
-    crunch(0.42, 0.35, { f1: 4000, f2: 150, vol: 0.18, step: 7 });
-    chip(120, 0.42, 0.3, { wave: "tri", to: 38, vol: 0.22 });
+    crunch(0, 0.46, { f1: 600, f2: 3000, vol: 0.07, step: 3 });
+    chip(300, 0.1, 0.36, { to: 900, vol: 0.04, duty: 0.25 });
+    crunch(0.46, 0.35, { f1: 4000, f2: 150, vol: 0.18, step: 7 });
+    chip(120, 0.46, 0.3, { wave: "tri", to: 38, vol: 0.22 });
   },
   bSp_meteor() {
-    chip(1600, 0, 0.55, { to: 220, vol: 0.06, wave: "square", lp: 3000 });
-    crunch(0, 0.55, { f1: 800, f2: 4000, vol: 0.05, step: 4 });
-    crunch(0.55, 0.7, { f1: 3000, f2: 80, vol: 0.22, step: 12 });
-    chip(80, 0.55, 0.6, { wave: "tri", to: 30, vol: 0.28 });
-    chip(55, 0.6, 0.5, { wave: "square", to: 30, vol: 0.08, lp: 400 });
+    chip(1600, 0.05, 0.55, { to: 220, vol: 0.06, wave: "square", lp: 3000 });
+    crunch(0, 0.6, { f1: 800, f2: 4000, vol: 0.05, step: 4 });
+    crunch(0.6, 0.7, { f1: 3000, f2: 80, vol: 0.22, step: 12 });
+    chip(80, 0.6, 0.6, { wave: "tri", to: 30, vol: 0.28 });
+    chip(55, 0.65, 0.5, { wave: "square", to: 30, vol: 0.08, lp: 400 });
   },
   bSp_pierce() {
     chip(NOTE(64), 0, 0.06, { vol: 0.08, duty: 0.5, to: NOTE(52) });          // bow twang
-    crunch(0.02, 0.24, { f1: 7000, f2: 2000, vol: 0.05, step: 1 });           // whizz
-    crunch(0.28, 0.07, { f1: 3000, f2: 600, vol: 0.14, step: 5 });            // thunk
-    chip(200, 0.28, 0.1, { wave: "square", to: 70, vol: 0.09, lp: 1500 });
+    crunch(0.02, 0.4, { f1: 7000, f2: 2000, vol: 0.05, step: 1 });            // whizz
+    crunch(0.34, 0.07, { f1: 3000, f2: 600, vol: 0.14, step: 5 });            // thunk
+    chip(200, 0.34, 0.1, { wave: "square", to: 70, vol: 0.09, lp: 1500 });
   },
   bSp_rain() {
-    [0, 0.06, 0.12].forEach(t => chip(NOTE(64), t, 0.06, { vol: 0.06, duty: 0.5, to: NOTE(52) }));
-    for (let i = 0; i < 7; i++) crunch(0.5 + i * 0.04, 0.05, { f1: 3500, f2: 700, vol: 0.09, step: 4 });
-    chip(150, 0.5, 0.25, { wave: "tri", to: 45, vol: 0.18 });
+    [0.05, 0.11, 0.17].forEach(t => chip(NOTE(64), t, 0.06, { vol: 0.06, duty: 0.5, to: NOTE(52) }));
+    for (let i = 0; i < 7; i++) crunch(0.62 + i * 0.04, 0.05, { f1: 3500, f2: 700, vol: 0.09, step: 4 });
+    chip(150, 0.62, 0.25, { wave: "tri", to: 45, vol: 0.18 });
   },
   bVictory() {
     const mel = [[72, .12], [72, .12], [72, .12], [76, .36], [74, .12], [77, .12], [76, .12], [79, .6]];
@@ -724,6 +779,19 @@ function viewVictory() {
 }
 
 /* ===================== BATTLE ===================== */
+function projectiles(style, crit) {
+  if (style === "arrow") return `<div class="proj arrow"></div>` + (crit ? `<div class="proj arrow two"></div>` : "");
+  if (style === "bolt") return `<div class="proj bolt"></div>` + (crit ? `<div class="proj bolt two"></div>` : "");
+  if (style === "fire") return `<div class="proj fireball"></div>`;
+  if (style === "meteor") return `<div class="proj meteor"></div><div class="meteordark"></div>`;
+  if (style === "pierce") return `<div class="proj arrow pierce"></div>`;
+  if (style === "rain") return [0, 1, 2].map(i => `<div class="proj uparrow" style="--x:${(i - 1) * 9}px;animation-delay:${(0.05 + i * 0.06).toFixed(2)}s"></div>`).join("")
+    + [0, 1, 2, 3, 4, 5, 6].map(i => `<div class="proj rainarrow" style="--x:${(i - 3) * 12}px;animation-delay:${(0.4 + i * 0.035).toFixed(3)}s"></div>`).join("");
+  if (style === "holy") return `<div class="holybeam"></div>`;
+  if (style === "bash") return `<div class="bashring"></div>`;
+  return "";
+}
+
 function viewBattle() {
   const b = S.battle;
   if (!b) return `<div class="wrap"><div class="empty">No battle running.</div></div>`;
@@ -732,22 +800,26 @@ function viewBattle() {
 
   const q = b.cur;
   if (!q) return `<div class="wrap"><div class="empty">Nothing in this pool to fight with.</div></div>`;
-  const s = b.s, C = CLASSES[s.cls], fl = floorInfo(b.over ? b.koFloor : s.floor);
+  const s = b.s, C = CLASSES[s.cls], pend = b.pend;
+  const viewFloor = b.over ? b.koFloor : pend ? pend.floor : s.floor;
+  const fl = floorInfo(viewFloor);
 
   // consume the one-shot effect so star taps / theme changes don't replay it
   const fx = b.fx; b.fx = null; _battleFx = fx;
   const t = fx ? fx.type : null;
+  const attacking = t === "heroAttack" || t === "kill";
   const sp = fx && fx.special;
-  const D = IMPACT[sp || "none"];
-  const ranged = sp === "fire" || sp === "meteor" || sp === "pierce" || sp === "rain";
+  const style = attacking ? fx.style : null;
+  const D = IMPACT[style || "none"];
+  const ranged = !!RANGED[style];
 
   const starred = !!progress.starred[q.id];
   const cc = q._cat ? ck(q._cat.color) : "var(--accent)";
 
-  /* ---- fighters ---- */
+  /* ---- hero ---- */
   let heroAct = "";
   if (t === "enter") heroAct = "a-enterL";
-  else if (t === "heroAttack" || t === "kill") heroAct = ranged ? "a-cast" : "a-lunge";
+  else if (attacking) heroAct = ranged ? (style === "arrow" || style === "pierce" || style === "rain" ? "a-draw" : "a-cast") : "a-lunge";
   else if (t === "enemyAttack") heroAct = fx.ko ? "a-dieHero" : fx.blocked ? "a-guard" : "a-hurtHero";
   else if (b.dying) heroAct = "a-dead";
   let heroExtra = "";
@@ -756,60 +828,60 @@ function viewBattle() {
     : CLAW + `<div class="dmg" style="color:#ff6b6b">-${fx.dmg}</div>`;
   if ((t === "kill" && fx.heal > 0) || (t === "heroAttack" && fx.healed > 0))
     heroExtra += `<div class="dmg heal" style="color:#4ade80">+${t === "kill" ? fx.heal : fx.healed}</div>`;
+  if (sp) heroExtra += `<div class="aura" style="--ac:${AURA[sp]}"></div>`;
   if (sp === "holy") heroExtra += `<div class="holyglow"></div>`;
   if (sp === "bash") heroExtra += `<div class="blockfx up">${SHIELD}</div>`;
   const hero = fighterHtml(C.sprite, { side: "hero", id: "heroSlot", scale: HERO_SCALE, act: heroAct, idle: !b.dying, extra: heroExtra });
 
-  const hitTag = fx && (t === "heroAttack" || t === "kill")
+  /* ---- enemy (hidden while the fallen foe's spot waits for Next) ---- */
+  const hitTag = attacking
     ? `<div class="dmg" style="color:${fx.crit ? "#fde047" : sp ? C.color : "#ffffff"}">${fx.crit ? "CRIT " : ""}-${fx.dmg}</div>` : "";
-  const strike = fx && (t === "heroAttack" || t === "kill") && !ranged ? SLASH : "";
+  const strike = attacking && style === "slash" ? SLASH : "";
+  const stuck = t === "heroAttack" && style === "arrow" ? `<div class="stuck"></div>` + (fx.crit ? `<div class="stuck two"></div>` : "") : "";
 
-  let enemyAct = "", enemyStyle = "";
-  if (t === "enter") enemyAct = "a-enter";
-  else if (t === "heroAttack") enemyAct = "a-hurt";
-  else if (t === "enemyAttack") enemyAct = "a-lungeL";
-  else if (t === "kill") { enemyAct = fx.bossNext ? "a-bossdrop" : "a-enter"; enemyStyle = `animation-delay:${(D + 0.6).toFixed(2)}s`; }
-  const plate = `<div class="nameplate ${b.enemy.boss ? "boss" : ""}">${esc(b.enemy.name)}</div>`;
-  const enemy = fighterHtml(b.enemy.key, {
-    side: "enemy", id: "enemySlot", flip: true, act: enemyAct, actStyle: enemyStyle, plate,
-    extra: t === "heroAttack" ? strike + hitTag : "",
-  });
+  let enemy = "";
+  if (!pend) {
+    let enemyAct = "", enemyStyle = "";
+    if (t === "enter") enemyAct = "a-enter";
+    else if (t === "foeEnter") { enemyAct = b.enemy.boss ? "a-bossdrop" : "a-enter"; enemyStyle = "animation-delay:.08s"; }
+    else if (t === "heroAttack") enemyAct = "a-hurt";
+    else if (t === "enemyAttack") enemyAct = "a-lungeL";
+    const plate = `<div class="nameplate ${b.enemy.boss ? "boss" : ""}">${esc(b.enemy.name)}</div>`;
+    let ex = t === "heroAttack" ? strike + hitTag + stuck : "";
+    if (t === "foeEnter" && fx.carry) ex += `<div class="dmg" style="color:${C.color};--d:.75s">-${fx.carry} carried</div>`;
+    enemy = fighterHtml(b.enemy.key, { side: "enemy", id: "enemySlot", flip: true, act: enemyAct, actStyle: enemyStyle, plate, extra: ex });
+  }
   const corpse = t === "kill"
     ? fighterHtml(fx.dead.key, { side: "enemy", flip: true, ghost: true, idle: false, extra: strike + hitTag })
     : "";
-
-  /* special effect layers */
-  let sfxLayer = "";
-  if (sp === "fire") sfxLayer = `<div class="proj fireball"></div>`;
-  else if (sp === "meteor") sfxLayer = `<div class="proj meteor"></div>`;
-  else if (sp === "pierce") sfxLayer = `<div class="proj arrow"></div>`;
-  else if (sp === "rain") sfxLayer = [0, 1, 2, 3, 4, 5].map(i => `<div class="proj rainarrow" style="--x:${(i - 2.5) * 13}px;animation-delay:${(0.22 + i * 0.045).toFixed(3)}s"></div>`).join("");
-  else if (sp === "holy") sfxLayer = `<div class="holybeam"></div>`;
-  else if (sp === "bash") sfxLayer = `<div class="bashring"></div>`;
+  const sfxLayer = attacking ? projectiles(style, fx.crit && !sp) : "";
 
   /* ---- floor progress dots ---- */
-  const nFoes = fl.foes.length;
+  const nFoes = fl.foes.length, doneIdx = pend ? pend.done : s.idx;
   let dots = "";
   for (let i = 0; i <= nFoes; i++) {
-    const cls = (i === nFoes ? "boss " : "") + (i < s.idx ? "done" : i === s.idx ? "now" : "");
+    const cls = (i === nFoes ? "boss " : "") + (i < doneIdx ? "done" : i === doneIdx ? "now" : "");
     dots += `<i class="${cls}"></i>`;
   }
   const banner = fx && b.note && t === "kill" ? `<div class="banner ${b.note.kind}" style="animation-delay:${(D + 0.3).toFixed(2)}s">${esc(b.note.text)}</div>`
-    : fx && fx.ko ? `<div class="banner boss" style="animation-delay:.7s">Knocked out</div>` : "";
-  const floorLabel = fl.endless ? fl.name : "Floor " + (b.over ? b.koFloor : s.floor);
+    : fx && fx.ko ? `<div class="banner boss" style="animation-delay:.7s">Knocked out</div>`
+    : t === "foeEnter" && (b.enemy.boss || fx.newFloor) ? `<div class="banner ${b.enemy.boss ? "boss" : "floor"}" style="animation-delay:.25s">${esc(b.enemy.boss ? b.enemy.name : floorTitle(s.floor))}</div>` : "";
+  const floorLabel = fl.endless ? fl.name : "Floor " + viewFloor;
+  const bossBg = pend ? pend.dead.boss : b.enemy.boss;
+  const flashCol = t === "enemyAttack" ? "#ef4444" : sp === "meteor" || sp === "fire" ? "#f97316" : sp === "pierce" || sp === "rain" ? "#bbf7d0" : "#fff";
 
   const arena = `<div class="arena" id="arena" style="--d:${D}s">
-    <canvas class="arena-bg" id="arenaBg" data-floor="${b.over ? b.koFloor : s.floor}" data-boss="${b.enemy.boss ? 1 : 0}"></canvas>
+    <canvas class="arena-bg" id="arenaBg" data-floor="${viewFloor}" data-boss="${bossBg ? 1 : 0}"></canvas>
     <div class="arena-hud">
       <span class="ptag">${esc(floorLabel)} <span class="floordots">${dots}</span></span>
       <span class="ptag" style="color:#fde047">Lv ${s.level}</span>
     </div>
     <div class="stage">${hero}${corpse}${enemy}${sfxLayer}</div>
-    <div class="flashlayer ${t === "heroAttack" || t === "kill" ? "go" : ""}" style="background:${t === "enemyAttack" ? "#ef4444" : sp === "meteor" || sp === "fire" ? "#f97316" : "#fff"}"></div>
+    <div class="flashlayer ${attacking ? "go" : ""}" style="background:${flashCol}"></div>
     ${banner}
   </div>`;
 
-  /* ---- HUD: hero HP (with damage trail) + XP, enemy hit pips ---- */
+  /* ---- HUD: hero HP (with damage trail) + XP, enemy HP bar ---- */
   const mxHp = maxHpOf(s.cls, s.level);
   const hpNow = b.dying ? 0 : s.hp;
   const sh = b.shown || { hp: hpNow, xp: s.xp };
@@ -820,15 +892,13 @@ function viewBattle() {
   const xpFrom = fx ? (levelFor(sh.xp) < s.level ? 0 : xpIntoLevel(sh.xp)) : xpIntoLevel(s.xp);
   b.shown = { hp: hpNow, xp: s.xp };
 
-  let pips = "";
-  const popFrom = fx ? fx.popFrom : -1, popTo = fx ? fx.popTo : -1;
-  for (let i = 0; i < b.enemy.maxHits; i++) {
-    const gone = i >= b.enemy.hits;
-    const popping = t === "heroAttack" && i >= popFrom && i < popTo;
-    pips += `<span class="pip ${gone ? "gone" : ""} ${popping ? "popping" : ""}" ${popping ? `style="animation-delay:${(D + (i - popFrom) * 0.05).toFixed(2)}s"` : ""}></span>`;
-  }
-
-  const hud = `<div class="hud">
+  const foe = pend ? { name: pend.dead.name, boss: pend.dead.boss, hits: 0, max: pend.dead.maxHits }
+                   : { name: b.enemy.name, boss: b.enemy.boss, hits: b.enemy.hits, max: b.enemy.maxHits };
+  const eNow = foe.hits / foe.max * 100;
+  let eFill = eNow, eTrail = eNow, eDelay = "";
+  if (attacking) { eTrail = fx.popTo / fx.max * 100; eFill = eTrail; eDelay = `transition-delay:${D.toFixed(2)}s`; }
+  if (t === "foeEnter") { eFill = 0; eTrail = 0; eDelay = "transition-delay:.45s"; }
+  const hud = `<div class="hud tex">
     <div class="hudcol">
       <div class="hudlabel"><span>HP${s.guard ? ` <span class="guardtag">${SHIELD}Guard</span>` : ""}</span><b style="color:${hpColor(hpFrac)}">${hpNow} / ${mxHp}</b></div>
       <div class="hpbar">
@@ -838,8 +908,12 @@ function viewBattle() {
       <div class="xpbar" title="XP ${xpIntoLevel(s.xp)} / 100"><div data-from="${xpFrom}" data-to="${xpIntoLevel(s.xp)}" style="width:${xpFrom}%"></div></div>
     </div>
     <div class="hudcol">
-      <div class="hudlabel"><span>${b.enemy.boss ? "Boss" : "Enemy"}</span><b style="color:var(--bad)">${b.enemy.hits} / ${b.enemy.maxHits}</b></div>
-      <div class="pips ${b.enemy.maxHits > 8 ? "sm" : ""}">${pips}</div>
+      <div class="hudlabel"><span class="foename">${esc(foe.name)}</span><b style="color:var(--bad)">${foe.hits} / ${foe.max}</b></div>
+      <div class="hpbar foe ${foe.boss ? "boss" : ""}">
+        <div class="trail" data-from="${eTrail}" data-to="${eNow}" style="width:${eTrail}%"></div>
+        <div class="fillb" data-from="${eFill}" data-to="${eNow}" style="width:${eFill}%;${eDelay}"></div>
+      </div>
+      <div class="foesub">${foe.boss ? "Boss" : "Foe"}${b.enemy.boss && !pend ? " · remembers your misses" : ""}</div>
     </div>
   </div>`;
 
@@ -854,7 +928,7 @@ function viewBattle() {
     </button>`;
   }).join("");
   const armedSp = b.armed ? C.specials.find(x => x.id === b.armed) : null;
-  const specbar = `<div class="specbar">
+  const specbar = `<div class="specbar tex">
     <div class="chargewrap"><span class="chargelbl" style="color:${C.color}">${BOLT}${s.charge}/${C.maxCharge}</span><div class="charge">${seg}</div></div>
     <div class="specbtns">${specs}</div>
     ${armedSp ? `<div class="armnote"><b style="color:${C.color}">${esc(armedSp.name)} armed.</b> ${esc(armedSp.text)} Miss and it fizzles.</div>` : ""}
@@ -869,8 +943,8 @@ function viewBattle() {
     if (S.feedback && isCorrect) { border = "var(--ok)"; bg = "var(--okBg)"; }
     if (isSel && !S.feedback) { border = "var(--accent)"; bg = "var(--accBg)"; }
     if (S.feedback === "incorrect" && isSel && !isCorrect) { border = "var(--bad)"; bg = "var(--badBg)"; }
-    return `<button class="opt" data-act="pick" data-pos="${pos}" style="border-color:${border};background:${bg}">
-      <span class="box ${q.type}" style="border-color:${isSel ? "var(--accent)" : "var(--border2)"};background:${isSel ? "var(--accent)" : "transparent"}">${isSel ? '<span class="dot"></span>' : ""}</span>
+    return `<button class="opt tex" data-act="pick" data-pos="${pos}" style="border-color:${border};background:${bg}">
+      <span class="box ${q.type}" style="border-color:${isSel ? "var(--accent)" : "color-mix(in srgb, var(--text) 32%, transparent)"};background:${isSel ? "var(--accent)" : "transparent"}">${isSel ? '<span class="dot"></span>' : ""}</span>
       <span>${esc(q.options[origIdx])}</span>
     </button>`;
   }).join("");
@@ -883,7 +957,7 @@ function viewBattle() {
     else if (b.dying) head = "Knocked out" + (lh.fizzle ? ". " + lh.fizzle + " fizzled" : "");
     else if (lh.blocked) head = (lh.fizzle ? lh.fizzle + " fizzled, but your" : "Your") + " shield blocked the hit";
     else head = (lh.fizzle ? lh.fizzle + " fizzled. " : "") + "You took " + lh.dmg + " damage";
-    fb = `<div class="fb ${fx ? "fbpop" : ""}" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:18px">
+    fb = `<div class="fb tex ${fx ? "fbpop" : ""}" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:14px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
       <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${head}</div>
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div>
@@ -891,16 +965,22 @@ function viewBattle() {
   }
 
   const atkLabel = armedSp ? `${BOLT} Cast ${esc(armedSp.name)}` : `${I.sword} Attack`;
+  const nextLabel = pend && b.enemy.boss && pend.floor === s.floor ? "Face " + esc(b.enemy.name) + " →"
+    : pend && pend.floor !== s.floor ? "Onward to " + esc(floorInfo(s.floor).name) + " →" : "Next →";
   const btn = !S.feedback
     ? `<button class="primary" data-act="submitBattle" style="background:${S.selected.length ? (armedSp ? `color-mix(in srgb, ${C.color} 62%, #000)` : "var(--accent)") : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>${atkLabel}</button>`
     : b.dying
       ? `<button class="primary" data-act="battleNext" style="background:var(--bad)">See results →</button>`
       : b.victory
         ? `<button class="primary" data-act="battleNext" style="background:var(--star)">Claim victory →</button>`
-        : `<button class="primary" data-act="battleNext" style="background:var(--accent)">Next →</button>`;
+        : `<button class="primary" data-act="battleNext" style="background:${pend && b.enemy.boss ? "var(--bad)" : "var(--accent)"}">${nextLabel}</button>`;
 
-  return `<div class="wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:22px 0 14px">
+  const tag = b.curMiss ? `<div class="qtag">${esc(b.enemy.name)} remembers your misses</div>`
+    : b.curStar ? `<div class="qtag star">Starred · back for another round</div>` : "";
+  const left = freshLeft();
+
+  return `<div class="wrap battle">
+    <div class="bhead">
       <button class="backbtn" data-act="toAdvMenu" title="Save & exit">${I.chevL}</button>
       <span class="eyebrow" style="color:${C.color}">Slot ${b.slot + 1} · ${C.name}${filterLabel()}</span>
       <div style="display:flex;align-items:center;gap:12px">
@@ -908,17 +988,20 @@ function viewBattle() {
         <button class="star" data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>
       </div>
     </div>
-    ${arena}
-    ${hud}
-    ${specbar}
-    <div class="card" style="cursor:default;margin-bottom:16px">
-      <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
-      ${b.curMiss ? `<div class="qtag">${b.enemy.boss ? esc(b.enemy.name) + " remembers" : "From"} your misses</div>` : ""}
-      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>
+    <div class="bgrid">
+      <div class="bleft">${arena}${hud}${specbar}</div>
+      <div class="bright">
+        <div class="card qcard tex" style="cursor:default">
+          <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
+          ${tag}
+          <div class="qtext">${esc(q.question)}</div>
+          <div class="qleft">${left} new question${left === 1 ? "" : "s"} left before repeats</div>
+        </div>
+        <div class="bopts">${opts}</div>
+        ${fb}
+        <div>${btn}</div>
+      </div>
     </div>
-    <div style="display:grid;gap:10px;margin-bottom:18px">${opts}</div>
-    ${fb}
-    <div>${btn}</div>
   </div>`;
 }
 
@@ -941,31 +1024,87 @@ function mountSprites() {
   const fx = _battleFx; _battleFx = null;
   if (!fx || S.screen !== "battle") return;
   const arena = document.getElementById("arena");
-  const D = IMPACT[fx.special || "none"];
+  const style = fx.style || "none";
+  const D = IMPACT[style] || IMPACT.none;
   const shake = (cls, sec) => setTimeout(() => {
     if (!arena.isConnected) return;
     arena.classList.remove("shake", "shake-lg"); void arena.offsetWidth; arena.classList.add(cls);
   }, sec * 1000);
   const centerOf = el => { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; };
+  const rand = (a, b) => a + Math.random() * (b - a);
+  /* a stream of particles laid along a path over time (projectile trails) */
+  const trail = (x0, y0, x1, y1, t0, dur, cols, n, o) => {
+    o = o || {};
+    const list = [];
+    for (let i = 0; i < n; i++) {
+      const k = i / Math.max(1, n - 1);
+      list.push({ x: x0 + (x1 - x0) * k + rand(-3, 3), y: y0 + (y1 - y0) * k + rand(-3, 3),
+        vx: rand(-25, 25) + (o.vx || 0), vy: rand(-25, 25) + (o.vy || 0), life: o.life || rand(0.25, 0.45), size: o.size || 3,
+        color: cols[i % cols.length], g: o.g == null ? -40 : o.g, drag: 0.94, shape: "px", shrink: true, delay: t0 + dur * k });
+    }
+    fxAdd(list);
+  };
+  /* flames / sparkles swirling up around the hero while a special winds up */
+  const windup = (cols, n, dur, o) => {
+    const hb = document.querySelector("#heroSlot .body");
+    if (!hb) return;
+    o = o || {};
+    const r = hb.getBoundingClientRect(), list = [];
+    for (let i = 0; i < n; i++) {
+      const side = Math.random() < 0.5 ? -1 : 1;
+      list.push({ x: r.left + r.width / 2 + side * rand(r.width * 0.2, r.width * 0.65), y: r.bottom - rand(0, r.height * 0.5),
+        vx: -side * rand(5, 25) + (o.vx || 0), vy: -rand(40, 110) * (o.rise || 1), life: rand(0.35, 0.7), size: o.size || rand(2.5, 4.5),
+        color: cols[i % cols.length], g: o.g == null ? -60 : o.g, drag: 0.96, shape: o.shape || "px", shrink: true, delay: rand(0, dur) });
+    }
+    fxAdd(list);
+  };
   const SP_COLORS = {
     bash: ["#ffffff", "#93c5fd", "#fde68a"], holy: ["#fef9c3", "#fde047", "#ffffff"],
     fire: ["#fde047", "#f97316", "#ef4444", "#7c2d12"], meteor: ["#fde047", "#f97316", "#ef4444", "#57534e", "#292524"],
     pierce: ["#ffffff", "#d9f99d", "#4ade80"], rain: ["#ffffff", "#bbf7d0", "#a3e635"],
+    arrow: ["#ffffff", "#e5e7eb", "#d9f99d"], bolt: ["#ffffff", "#ddd6fe", "#a78bfa"], slash: ["#ffffff", "#fde68a", "#fbbf24"],
   };
 
   if (fx.type === "heroAttack" || fx.type === "kill") {
     const target = fx.type === "kill"
       ? document.querySelector("#arena canvas[data-ghost]")
       : document.querySelector("#enemySlot canvas");
-    if (target) {
-      const [x, y] = centerOf(target);
-      const big = fx.special === "meteor" || fx.special === "holy" || fx.special === "fire";
-      const cols = fx.special ? SP_COLORS[fx.special] : fx.crit ? ["#fde047", "#ffffff", "#facc15"] : ["#ffffff", "#fde68a", "#fbbf24"];
-      fxPixels(x, y, cols, big ? 34 : fx.special || fx.crit ? 22 : 14,
+    const heroC = document.querySelector("#heroSlot canvas");
+    const sp = fx.special;
+    if (target && heroC) {
+      const [x, y] = centerOf(target), [hx, hy] = centerOf(heroC);
+      const big = sp === "meteor" || sp === "holy" || sp === "fire";
+      const cols = sp ? SP_COLORS[sp] : fx.crit ? ["#fde047", "#ffffff", "#facc15"] : SP_COLORS[style] || SP_COLORS.slash;
+      fxPixels(x, y, cols, big ? 34 : sp || fx.crit ? 22 : 14,
         { speed: big ? 420 : 300, life: big ? 0.7 : 0.45, size: big ? 4 : 3, g: big ? 380 : 200, delay: D, shape: big ? "px" : "spark" });
-      if (fx.special === "meteor") fxPixels(x, y + 20, ["#57534e", "#78716c", "#292524"], 20, { speed: 260, life: 0.9, size: 5, g: 700, delay: D + 0.05, angle: -Math.PI / 2, spread: Math.PI });
+
+      // wind-ups and trails
+      if (style === "bolt") trail(hx + 14, hy - 4, x, y, 0.1, D - 0.1, ["#ddd6fe", "#a78bfa", "#ffffff"], 10);
+      if (style === "arrow" && fx.crit) trail(hx + 14, hy, x, y, 0.09, D - 0.09, ["#fde047", "#ffffff"], 8, { g: 0 });
+      if (sp === "fire") {
+        windup(["#fde047", "#f97316", "#ef4444", "#fb923c"], 34, 0.3);
+        trail(hx + 16, hy - 6, x, y, 0.16, D - 0.16, ["#fde047", "#f97316", "#ef4444"], 18, { g: -80 });
+      }
+      if (sp === "meteor") {
+        windup(["#fde047", "#f97316", "#ef4444", "#7c2d12"], 46, 0.45, { rise: 1.4, size: 4 });
+        const ar = arena.getBoundingClientRect();
+        trail(ar.right - 8, ar.top - 20, x, y, 0.15, D - 0.15, ["#fde047", "#f97316", "#ef4444", "#57534e"], 26, { g: -60, size: 4, life: 0.5 });
+        fxPixels(x, y + 20, ["#57534e", "#78716c", "#292524"], 20, { speed: 260, life: 0.9, size: 5, g: 700, delay: D + 0.05, angle: -Math.PI / 2, spread: Math.PI });
+      }
+      if (sp === "pierce") {
+        windup(["#4ade80", "#bbf7d0", "#ffffff"], 26, 0.2, { shape: "spark", vx: 40 });
+        const ar = arena.getBoundingClientRect();
+        trail(hx + 16, hy, ar.right + 10, y, 0.12, 0.34, ["#4ade80", "#d9f99d", "#ffffff"], 24, { g: 0, size: 3 });
+      }
+      if (sp === "rain") {
+        windup(["#a3e635", "#bbf7d0", "#ffffff"], 24, 0.2, { shape: "spark" });
+        trail(hx + 6, hy - 10, hx + 30, hy - 160, 0.05, 0.28, ["#ffffff", "#bbf7d0"], 10, { g: 0 });
+      }
+      if (sp === "holy") windup(["#fef9c3", "#fde047", "#ffffff"], 30, 0.3, { rise: 0.7 });
+      if (sp === "bash") windup(["#ffffff", "#93c5fd"], 14, 0.12, { shape: "spark" });
     }
     shake(fx.special === "meteor" ? "shake-lg" : "shake", D);
+    if (fx.special === "meteor") setTimeout(() => flashGlow("#f97316", 700), D * 1000);
     if (fx.special === "holy" || (fx.type === "kill" && fx.heal > 0) || (fx.type === "heroAttack" && fx.healed > 0)) {
       const hero = document.querySelector("#heroSlot .body");
       if (hero) {
@@ -989,16 +1128,21 @@ function mountSprites() {
       if (fx.leveled) {
         const hero = document.querySelector("#heroSlot .body");
         if (hero) {
-          hero.parentElement.classList.add("a-hop");
+          setTimeout(() => { if (hero.isConnected) hero.parentElement.classList.add("a-hop"); }, D * 1000);
           const r = hero.getBoundingClientRect();
           const list = [];
           for (let i = 0; i < 26; i++) list.push({ x: r.left + Math.random() * r.width, y: r.bottom - Math.random() * 10,
             vx: (Math.random() - 0.5) * 30, vy: -80 - Math.random() * 140, life: 0.9 + Math.random() * 0.5, size: 3 + (i % 2),
-            color: i % 3 ? "#fde047" : "#ffffff", g: -40, drag: 0.98, shape: "px", shrink: true, delay: 0.45 + Math.random() * 0.4 });
+            color: i % 3 ? "#fde047" : "#ffffff", g: -40, drag: 0.98, shape: "px", shrink: true, delay: D + 0.3 + Math.random() * 0.4 });
           fxAdd(list);
         }
       }
-      if (fx.bossNext) shake("shake-lg", D + (fx.leveled ? 1.13 : 1.06));
+    }
+  } else if (fx.type === "foeEnter") {
+    if (S.battle && S.battle.enemy.boss) {
+      shake("shake-lg", 0.52);
+      const e = document.querySelector("#enemySlot canvas");
+      if (e) { const [x, y] = centerOf(e); fxPixels(x, y + 30, ["#78716c", "#a8a29e", "#57534e"], 18, { speed: 220, life: 0.6, size: 4, g: 600, delay: 0.5, angle: -Math.PI / 2, spread: Math.PI * 0.9 }); }
     }
   } else if (fx.type === "enemyAttack") {
     const hero = document.querySelector("#heroSlot canvas");

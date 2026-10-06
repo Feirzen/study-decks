@@ -103,10 +103,25 @@ a { color: var(--accent); }
 h1 { font-size: 32px; font-weight: bold; line-height: 1.15; margin: 6px 0 0; }
 .empty { text-align: center; color: var(--muted); padding: 60px 20px; }
 
-/* ---------- TOP BAR (theme + mute, fixed) ---------- */
+/* ---------- TOP BAR (settings gear + roll-out tray, fixed) ---------- */
 .topbar {
   position: fixed; top: 0; right: 0; z-index: 60;
-  display: flex; gap: 6px; padding: 10px 12px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 7px; padding: 10px 12px;
+  pointer-events: none;
+}
+.topbar > * { pointer-events: auto; }
+.topbar .gear svg { transition: transform .55s var(--ease-pop); }
+.topbar.open .gear { color: var(--accent); border-color: var(--accent); }
+.topbar.open .gear svg { transform: rotate(180deg); }
+.tray { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; pointer-events: none; }
+.tritem {
+  opacity: 0; visibility: hidden;
+  transform: translateY(calc(-43px * (var(--i) + 1))) rotate(-1turn) scale(.45);
+  transition: transform .34s var(--ease-out) calc(var(--r) * 35ms), opacity .2s ease calc(var(--r) * 35ms), visibility 0s linear calc(.34s + var(--r) * 35ms);
+}
+.topbar.open .tritem {
+  opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+  transition: transform .42s var(--ease-pop) calc(var(--i) * 55ms), opacity .18s ease calc(var(--i) * 55ms), visibility 0s;
 }
 .iconbtn {
   width: 36px; height: 36px; border-radius: 10px;
@@ -136,9 +151,9 @@ h1 { font-size: 32px; font-weight: bold; line-height: 1.15; margin: 6px 0 0; }
 .chamlock.on { color: var(--star); border-color: var(--star); background: var(--surface2); }
 
 .thememenu {
-  position: fixed; top: 54px; right: 12px; z-index: 61;
+  position: fixed; top: 10px; right: 58px; z-index: 61;
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 6px; min-width: 172px;
+  border-radius: 12px; padding: 6px; min-width: 172px; max-width: 230px;
   box-shadow: 0 12px 34px var(--shadow);
   transform-origin: top right;
   animation: menuin .18s var(--ease-out);
@@ -696,28 +711,69 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .fireball {
   left: 20%; bottom: 44px; width: 18px; height: 18px; border-radius: 5px; background: #fde047;
   box-shadow: 0 0 0 3px #f97316, 0 0 0 6px rgba(220,38,38,.75), -10px 0 0 2px rgba(249,115,22,.5), -18px 0 0 1px rgba(220,38,38,.35);
-  animation: fly .3s cubic-bezier(.45,0,.9,.6) .12s both;
+  animation: fly .36s cubic-bezier(.45,0,.9,.6) .14s both;
 }
-@keyframes fly { 0% { opacity: 1; left: 20%; transform: scale(.6); } 100% { opacity: 1; left: 73%; transform: scale(1.15); } }
+@keyframes fly { 0% { opacity: 1; left: 20%; transform: scale(.6); } 88% { opacity: 1; left: 72%; transform: scale(1.15); } 100% { opacity: 0; left: 73%; transform: scale(1.8); } }
 .meteor {
   left: 95%; top: -40px; width: 26px; height: 26px; border-radius: 7px; background: #fbbf24;
   box-shadow: 0 0 0 4px #ea580c, 0 0 0 8px #7c2d12, 14px -14px 0 3px rgba(249,115,22,.55), 26px -26px 0 2px rgba(220,38,38,.35);
-  animation: meteorfall .42s cubic-bezier(.5,0,1,1) .13s both;
+  animation: meteorfall .46s cubic-bezier(.5,0,1,1) .16s both;
 }
-@keyframes meteorfall { 0% { opacity: 1; left: 98%; top: -60px; } 100% { opacity: 1; left: 74%; top: 70px; } }
+@keyframes meteorfall { 0% { opacity: 1; left: 98%; top: -60px; } 90% { opacity: 1; left: 74.5%; top: 66px; } 100% { opacity: 0; left: 74%; top: 72px; transform: scale(1.8); } }
 .arrow {
-  left: 22%; bottom: 52px; width: 34px; height: 3px; background: #e5e7eb; border-radius: 2px;
-  animation: arrowfly .18s linear .1s both;
+  left: 22%; bottom: 46px; width: 30px; height: 3px; background: #e5e7eb; border-radius: 2px;
+  animation: arrowfly .17s linear .1s both;
 }
+.arrow.two { bottom: 54px; animation-delay: .16s; }
 .arrow::before { content: ""; position: absolute; right: -5px; top: -3px; border: 4.5px solid transparent; border-left: 7px solid #f1f5f9; }
 .arrow::after { content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 9px; background: #4ade80; clip-path: polygon(0 0, 100% 50%, 0 100%, 40% 50%); }
-@keyframes arrowfly { 0% { opacity: 1; left: 22%; } 100% { opacity: 1; left: 72%; } }
+@keyframes arrowfly { 0% { opacity: 1; left: 22%; } 99% { opacity: 1; left: 71%; } 100% { opacity: 0; left: 71%; } }
+/* piercing shot goes straight through and out the far side */
+.arrow.pierce { width: 40px; bottom: 48px; box-shadow: 0 0 6px 2px rgba(74,222,128,.75); animation: pierceflyby .4s linear .12s both; }
+@keyframes pierceflyby { 0% { opacity: 1; left: 20%; } 85% { opacity: 1; left: 98%; } 100% { opacity: 0; left: 108%; } }
+/* the arrow that hit sticks in the foe (on purpose) until the next question */
+.stuck {
+  position: absolute; z-index: 4; left: 26%; bottom: 44%; width: 18px; height: 3px; background: #e5e7eb; border-radius: 2px;
+  transform: rotate(-8deg); transform-origin: 100% 50%; opacity: 0; pointer-events: none;
+  animation: stuckin .01s linear var(--d, .27s) forwards;
+}
+.stuck::after { content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 9px; background: #4ade80; clip-path: polygon(0 0, 100% 50%, 0 100%, 40% 50%); }
+.stuck.two { bottom: 58%; left: 30%; transform: rotate(6deg); animation-delay: calc(var(--d, .27s) + .06s); }
+@keyframes stuckin { to { opacity: 1; } }
+.bolt {
+  left: 21%; bottom: 52px; width: 12px; height: 12px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 0 3px #c4b5fd, 0 0 10px 5px rgba(167,139,250,.8);
+  animation: boltfly .2s cubic-bezier(.4,0,.8,.6) .1s both;
+}
+.bolt.two { bottom: 40px; animation-delay: .15s; }
+@keyframes boltfly { 0% { opacity: 1; left: 21%; transform: scale(.4); } 90% { opacity: 1; left: 72%; transform: scale(1.1); } 100% { opacity: 0; left: 73%; transform: scale(2); } }
+.uparrow {
+  left: calc(16% + var(--x)); bottom: 70px; width: 3px; height: 20px; background: #e5e7eb; border-radius: 2px;
+  animation: upshot .3s cubic-bezier(.3,0,1,1) both;
+}
+.uparrow::before { content: ""; position: absolute; top: -6px; left: -3px; border: 4.5px solid transparent; border-bottom: 7px solid #f1f5f9; }
+@keyframes upshot { 0% { opacity: 1; bottom: 60px; } 80% { opacity: 1; } 100% { opacity: 0; bottom: 230px; } }
 .rainarrow {
   left: calc(76% + var(--x)); top: -46px; width: 3px; height: 22px; background: #e5e7eb; border-radius: 2px;
-  animation: rainfall .26s cubic-bezier(.5,0,1,1) both;
+  animation: rainfall .24s cubic-bezier(.5,0,1,1) both;
 }
 .rainarrow::before { content: ""; position: absolute; bottom: -6px; left: -3px; border: 4.5px solid transparent; border-top: 7px solid #f1f5f9; }
-@keyframes rainfall { 0% { opacity: 1; top: -46px; } 100% { opacity: 1; top: 64px; } }
+@keyframes rainfall { 0% { opacity: 1; top: -60px; } 92% { opacity: 1; top: 62px; } 100% { opacity: 0; top: 66px; } }
+.meteordark { position: absolute; inset: -400px; z-index: 0; pointer-events: none; background: rgba(40,8,0,.45); opacity: 0; animation: mdark .9s ease-out both; }
+@keyframes mdark { 0% { opacity: 0; } 30% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
+/* glow that builds behind the hero while a special winds up */
+.aura {
+  position: absolute; z-index: -1; left: 50%; bottom: -4px; width: 150%; height: 120%; transform: translateX(-50%) scale(.4);
+  border-radius: 50% 50% 40% 40%; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse at 50% 70%, color-mix(in srgb, var(--ac) 75%, transparent), transparent 68%);
+  animation: aura calc(var(--d, .4s) + .25s) ease-out both;
+}
+@keyframes aura { 0% { opacity: 0; transform: translateX(-50%) scale(.4); } 55% { opacity: 1; transform: translateX(-50%) scale(1.05); } 100% { opacity: 0; transform: translateX(-50%) scale(1.3); } }
+.a-draw { animation: draw .42s var(--ease-out); }
+@keyframes draw {
+  0% { transform: none; } 30% { transform: translateX(-7px) scale(.97, 1.03); }
+  45% { transform: translateX(-7px); } 55% { transform: translateX(3px); } 100% { transform: none; }
+}
 .holybeam {
   position: absolute; z-index: 1; left: 76%; top: -90px; bottom: -6px; width: 40px; margin-left: -20px; pointer-events: none;
   background: linear-gradient(90deg, rgba(254,240,138,0), rgba(254,249,195,.95) 35%, #fff 50%, rgba(254,249,195,.95) 65%, rgba(254,240,138,0));
@@ -740,3 +796,63 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .blockfx svg { width: 26px; height: 26px; filter: drop-shadow(0 2px 0 #000); }
 .blockfx.up { left: 60%; bottom: 90%; animation-delay: .5s; }
 @keyframes blockpop { 0% { transform: scale(0); opacity: 1; } 30% { transform: scale(1.2); } 45% { transform: scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
+
+/* =================================================================
+   BATTLE LAYOUT — wide screens put the fight beside the question so
+   the arena never scrolls off the top. Phones stack, tighter.
+   ================================================================= */
+.wrap.battle { max-width: 1240px; padding-top: 14px; }
+.bhead { display: flex; justify-content: space-between; align-items: center; margin: 4px 56px 12px 0; gap: 10px; }
+.bhead .eyebrow { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.battle .hud { margin: 10px 0 10px; }
+.battle .specbar { margin-bottom: 14px; }
+.qcard { margin-bottom: 12px; padding: 16px 18px; }
+.qtext { font-size: 18px; line-height: 1.5; }
+.qleft { margin-top: 10px; font-size: 11px; letter-spacing: .5px; color: var(--muted); font-style: italic; }
+.bopts { display: grid; gap: 9px; margin-bottom: 14px; }
+.battle .opt { padding-top: 12px; padding-bottom: 12px; }
+.qtag.star { color: var(--star); border-color: var(--star); background: color-mix(in srgb, var(--star) 12%, transparent); }
+.foename { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.foesub { font-size: 10.5px; color: var(--muted); letter-spacing: .4px; font-style: italic; }
+.hpbar.foe > .fillb { background: var(--bad); transition: width .35s var(--ease-out); }
+.hpbar.foe.boss { height: 14px; border-color: color-mix(in srgb, var(--bad) 55%, var(--border2)); }
+.hpbar.foe > .trail { background: #fde68a; opacity: .8; }
+
+@media (max-width: 640px) {
+  .wrap.battle { padding: 10px 14px 40px; }
+  .bhead { margin-bottom: 8px; }
+  .arena { height: 178px; }
+  .qtext { font-size: 16.5px; }
+  .qcard { padding: 14px 15px; }
+}
+@media (min-width: 641px) and (max-width: 939px) {
+  .bopts { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 940px) {
+  .bgrid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+  .bleft { position: sticky; top: 12px; }
+  .battle .arena { height: clamp(230px, 38vh, 330px); }
+  .battle .stage { left: 7%; right: 7%; transform: scale(1.25); transform-origin: 50% 100%; bottom: 34px; }
+  .battle .bright { padding-top: 0; }
+}
+
+/* ---- old-timey text boxes: an inked inner frame, paper grain, and a
+   soft vignette. Overlays only, so every theme keeps its own colors. ---- */
+.battle .tex { position: relative; isolation: isolate; }
+.battle .tex::before {
+  content: ""; position: absolute; inset: 3px; z-index: 2; pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--text) 17%, transparent);
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--bg) 25%, transparent);
+}
+.battle .tex::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
+  background-image:
+    radial-gradient(ellipse at center, transparent 55%, rgba(60,35,10,.22) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .3 0 0 0 .9 -.42'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='60'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .32 0 0 0 .7 -.38'/%3E%3C/filter%3E%3Crect width='300' height='60' filter='url(%23f)'/%3E%3C/svg%3E");
+  opacity: .32;
+}
+.battle .tex > * { position: relative; z-index: 3; }
+.battle .opt.tex::before { border-radius: 8px; }
+.battle .qcard .eyebrow { font-variant: small-caps; letter-spacing: 2.5px; }

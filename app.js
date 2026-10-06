@@ -111,7 +111,7 @@ function render() {
 function goto(screen) { S.screen = screen; S.navIdx = 0; render(); window.scrollTo(0, 0); }
 
 /* ===================== TOP BAR ===================== */
-const LIZARD_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="4.2" rx="2.3" ry="2.7" fill="currentColor"/><path d="M12 7c-1 3 1 6 0 9 -.6 2 .8 4.4 3.2 4.6 1.6.1 2.6-1 2.3-2.2"/><path d="M12 8.6L7 7.4M12 8.6L17 7.4M12 13.6L7.4 16M12 13.6L16.6 16"/></svg>';
+const LIZARD_SVG = '<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><g transform="rotate(-38 12 12) translate(0 -.4)"><path stroke="none" d="M12 .6c1.4.3 2.4 2 2.4 3.6 0 1-.4 1.8-.9 2.4.7 1.1 1.1 2.6 1.1 4.3 0 1.9-.4 3.4-1 4.5h-3.2c-.6-1.1-1-2.6-1-4.5 0-1.7.4-3.2 1.1-4.3-.5-.6-.9-1.4-.9-2.4 0-1.6 1-3.3 2.4-3.6z"/><path fill="none" stroke-width="2.6" d="M12 14.8c0 1.6 0 2.8.3 3.9"/><path fill="none" stroke-width="1.9" d="M12.3 18.7c.4 1.3 1.2 2.3 2.4 2.6"/><path fill="none" stroke-width="1.3" d="M14.7 21.3c1.4.3 2.6-.6 2.5-1.8-.1-.9-.9-1.4-1.6-1.1"/><path fill="none" stroke-width="1.7" d="M10.8 8.8L8.2 8.2 7.4 6.2M13.2 8.8l2.6-.6.8-2M10.7 13.4l-2.4 1.1-.5 2.1M13.3 13.4l2.4 1.1.5 2.1"/><g stroke="none"><circle cx="7.3" cy="5.8" r="1.15"/><circle cx="16.7" cy="5.8" r="1.15"/><circle cx="7.7" cy="17" r="1.15"/><circle cx="16.3" cy="17" r="1.15"/></g></g></svg>';
 const LOCK_SVG = on => on
   ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" fill="currentColor"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>'
   : '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>';
@@ -127,13 +127,62 @@ function chamControl() {
     <button class="chamlock ${locked ? "on" : ""}" data-act="chamLock" data-nonav title="${locked ? "Colors frozen (tap to unfreeze)" : "Freeze these colors"}" aria-label="${locked ? "Unfreeze colors" : "Freeze colors"}">${LOCK_SVG(locked)}</button>
   </span>`;
 }
+const GEAR_SVG = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>';
+const FS_SVG = on => on
+  ? '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6"/></svg>'
+  : '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>';
+
+/* Fullscreen: hidden where the browser can't do it (iPhone Safari) or
+   when the app is already running full-screen from the home screen. */
+function fsSupported() {
+  const d = document.documentElement;
+  const standalone = navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  return !standalone && !!(d.requestFullscreen || d.webkitRequestFullscreen) &&
+    !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+}
+function isFs() { return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+function toggleFullscreen() {
+  try {
+    if (isFs()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else {
+      const d = document.documentElement;
+      const r = (d.requestFullscreen || d.webkitRequestFullscreen).call(d);
+      if (r && r.catch) r.catch(() => {});
+    }
+  } catch (e) {}
+}
+function syncFsBtn() {
+  const b = document.querySelector('.topbar [data-act="fullscreen"]');
+  if (b) { b.innerHTML = FS_SVG(isFs()); b.title = isFs() ? "Exit fullscreen" : "Fullscreen"; }
+}
+["fullscreenchange", "webkitfullscreenchange"].forEach(e => document.addEventListener(e, syncFsBtn));
+
+/* Settings gear: tap it and it spins while the buttons roll out below it.
+   Tap again and they roll back up. Toggled straight on the live element
+   (no re-render) so the CSS transitions get to play. */
 function topbar() {
-  const cham = settings.theme === "chameleon";
-  return `<div class="topbar">
-    ${cham ? chamControl() : ""}
-    <button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>
-    <button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>
+  const items = [];
+  if (settings.theme === "chameleon") items.push(chamControl());
+  items.push(`<button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>`);
+  items.push(`<button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>`);
+  if (fsSupported()) items.push(`<button class="iconbtn" data-act="fullscreen" data-nonav title="${isFs() ? "Exit fullscreen" : "Fullscreen"}">${FS_SVG(isFs())}</button>`);
+  const n = items.length;
+  return `<div class="topbar ${S.gearOpen ? "open" : ""}">
+    <button class="iconbtn gear" data-act="gear" data-nonav title="Settings" aria-label="Settings" aria-expanded="${!!S.gearOpen}">${GEAR_SVG}</button>
+    <div class="tray">${items.map((h, i) => `<div class="tritem" style="--i:${i};--r:${n - 1 - i}">${h}</div>`).join("")}</div>
   </div>`;
+}
+function toggleGear() {
+  S.gearOpen = !S.gearOpen;
+  const bar = document.querySelector(".topbar");
+  if (bar) {
+    bar.classList.toggle("open", S.gearOpen);
+    bar.querySelector(".gear").setAttribute("aria-expanded", S.gearOpen);
+  }
+  if (!S.gearOpen && S.menuOpen) S.menuOpen = false;
+  if (!S.menuOpen) { const m = document.querySelector(".thememenu"); if (m) m.remove();
+    const p = document.querySelector('.topbar [data-act="themeMenu"]'); if (p) p.classList.remove("on"); }
+  sfx.tick();
 }
 function themeMenu() {
   const rows = Object.keys(THEMES).map(k => {
@@ -622,6 +671,8 @@ document.addEventListener("click", ev => {
   const act = t.dataset.act;
 
   // ---- top bar / modals
+  if (act === "gear") return toggleGear();
+  if (act === "fullscreen") { sfx.tick(); return toggleFullscreen(); }
   if (act === "themeMenu") { S.menuOpen = !S.menuOpen; sfx.tick(); return render(); }
   if (act === "setTheme") {
     settings.theme = t.dataset.theme;

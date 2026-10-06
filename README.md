@@ -32,6 +32,9 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
   - Classes: **Knight** (takes 30% less damage; Shield Bash, Holy Strike), **Wizard** (charges twice as fast; Fireball, Meteor), **Ranger** (30% crit chance; Piercing Shot, Arrow Rain with overkill carry). Correct answers fill charge; arm a special before answering, and a wrong answer fizzles it.
   - Five themed floors (Greenwood, Stone Peaks, Haunted Crypt, Dark Keep, Dragon's Lair), each ending in a boss that pulls about two thirds of its questions from your misses. Beating Ashmaw the Dragon unlocks Endless floors.
   - Getting knocked out sends you back to the floor entrance with your level and XP intact.
+  - Regular foes never repeat a question until you've seen the whole pool (tracked per save slot, so it survives closing the app). Bosses still pull from your misses, and starred questions can come back now and then on purpose.
+  - Basic attacks match the class: Knight swings, Ranger shoots, Wizard throws a bolt. A defeated foe's spot stays empty until you hit Next, then the next one walks in.
+  - On wide screens the arena sits beside the question so the fight never scrolls away.
 
 All three write to the same progress record, so anything you answer anywhere shows up in the chapter grids.
 
@@ -44,7 +47,7 @@ All three write to the same progress record, so anything you answer anywhere sho
 
 ## Themes
 
-Four, picked from the palette button in the top right and remembered across sessions:
+Four, picked from the palette button and remembered across sessions. The top-right **gear** rolls out the controls (lizard, mute, theme, fullscreen) and tucks them away again. Fullscreen is hidden where the browser can't do it (iPhone Safari, or when launched from the home screen).
 
 - **Midnight** — the original dark theme
 - **Paper** — light
