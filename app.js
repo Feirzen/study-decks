@@ -63,6 +63,7 @@ async function boot() {
     const res = await fetch(MANIFEST_URL, { cache: "no-cache" });
     if (!res.ok) throw new Error("manifest " + res.status);
     S.manifest = await res.json();
+    migrateV2();
   } catch (e) {
     document.getElementById("app").innerHTML =
       '<div class="wrap"><div class="empty">Couldn\'t load <code>sets/manifest.json</code>.<br><br>' +
@@ -79,6 +80,8 @@ async function openSet(cls, setMeta) {
   const set = await res.json();
   set.id = set.id || setMeta.id;
   set._color = setMeta.color || cls.color;
+  set._storyId = storyForDeck(setMeta);
+  set._deckTitle = cls.name + " · " + setMeta.title;
   S.set = set;
   storeMeta(set);
   progress = loadProgress(set.id);
@@ -104,6 +107,10 @@ function render() {
   else if (S.screen === "battle") html = viewBattle();
   else if (S.screen === "advMenu") html = viewAdvMenu();
   else if (S.screen === "advClass") html = viewAdvClass();
+  else if (S.screen === "advHero") html = viewAdvHero();
+  else if (S.screen === "advName") html = viewAdvName();
+  else if (S.screen === "advIntro") html = viewAdvIntro();
+  else if (S.screen === "hall") html = viewHall();
   el.innerHTML = topbar() + html + (S.menuOpen ? themeMenu() : "");
   mountSprites();
   if (document.body.classList.contains("kbd")) paintNav();
@@ -199,6 +206,19 @@ function themeMenu() {
 }
 
 /* ===================== HOME ===================== */
+function firstTrophyStory() {
+  let best = null;
+  loadHeroes().heroes.forEach(h => (h.trophies || []).forEach(t => { if (!best || t.date > best.date) best = t; }));
+  return best ? best.story : "classic";
+}
+function hallLine() {
+  const hs = loadHeroes().heroes, n = hs.reduce((a, h) => a + (h.trophies || []).length, 0);
+  if (!hs.length) return "Your heroes and the bosses they've beaten";
+  return n + " " + (n === 1 ? "trophy" : "trophies") + " · " + hs.length + " " + (hs.length === 1 ? "hero" : "heroes");
+}
+function focusName() {
+  setTimeout(() => { const el = document.getElementById("heroName"); if (el && !("ontouchstart" in window)) el.focus(); }, 30);
+}
 function viewHome() {
   const classes = S.manifest.classes || [];
 
@@ -254,6 +274,13 @@ function viewHome() {
       <div class="wordmark">Study<span class="l2">Decks</span></div>
       <div class="rule"></div>
     </div>
+    <button class="card hallbtn" data-act="openHall">
+      <span class="hallcup">${trophyCanvas(firstTrophyStory(), 2)}</span>
+      <div style="flex:1"><div class="eyebrow" style="color:var(--star)">Trophies</div>
+      <div style="font-size:17px;font-weight:bold;margin-top:2px">Hall of Fame</div>
+      <div class="muted" style="font-size:12px;margin-top:2px">${hallLine()}</div></div>
+      <div style="font-size:22px;color:var(--star)">›</div>
+    </button>
     ${resume}
     ${cards || '<div class="empty">No classes yet. Add one in <code>sets/manifest.json</code>.</div>'}
   </div>`;
@@ -558,6 +585,7 @@ function pick(pos) {
   if (S.screen === "shuffle") q = S.shuffleQ[S.shuffleIdx];
   else if (S.screen === "battle") q = battleQuestion();
   else q = currentCat().questions[S.qi];
+  if (!q) return;
   if (q.type === "mc") S.selected = [pos];
   else S.selected = S.selected.includes(pos) ? S.selected.filter(i => i !== pos) : S.selected.concat(pos);
   sfx.select();
@@ -747,7 +775,29 @@ document.addEventListener("click", ev => {
   if (act === "advCont") return openSlot(+t.dataset.i);
   if (act === "advDel") return advAskDelete(+t.dataset.i);
   if (act === "advDelYes") return advDelete(+t.dataset.i);
-  if (act === "advPickClass") return advPickClass(t.dataset.cls);
+  if (act === "advPickClass") { S.newCls = t.dataset.cls; S.nameDraft = ""; sfx.select(); goto("advName"); return focusName(); }
+  if (act === "advNewHero") { sfx.select(); return goto("advClass"); }
+  if (act === "toAdvHero") { sfx.tick(); return goto("advHero"); }
+  if (act === "toAdvClass") { sfx.tick(); return goto("advClass"); }
+  if (act === "advPickHero") { const h = heroById(t.dataset.id); if (h) startAdventure(h); return; }
+  if (act === "advNameDice") {
+    const el = document.getElementById("heroName");
+    if (el) { el.value = randomHeroName(); S.nameDraft = el.value; }
+    sfx.select(); return;
+  }
+  if (act === "advCreateHero") {
+    const el = document.getElementById("heroName");
+    const name = (el && el.value.trim()) || randomHeroName();
+    return startAdventure(createHero(name, S.newCls || "knight"));
+  }
+  if (act === "advBegin") return openSlot(S.introSlot);
+  if (act === "heroRetire") return askRetire(t.dataset.id);
+  if (act === "heroRetireYes") { retireHero(t.dataset.id); closeModal(); sfx.select(); return render(); }
+  if (act === "openHall") { sfx.tick(); return goto("hall"); }
+  if (act === "lvlPick") return lvlPick(t.dataset.k);
+  if (act === "lvlLearn") return lvlPick("learn", t.dataset.id);
+  if (act === "lvlBack") return lvlPick("back");
+  if (act === "lvlDone") return lvlDone();
   if (act === "advRetry") return openSlot(S.battle.slot);
   if (act === "advEndless") return advContinueEndless();
   if (act === "armSpecial") return armSpecial(t.dataset.id);

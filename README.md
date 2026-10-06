@@ -8,7 +8,9 @@ A self-contained quiz app that runs on GitHub Pages. Open one URL on your PC, la
 index.html      markup shell
 styles.css      themes + all styling (every color is a CSS custom property)
 core.js         state, persistence, themes, audio, effects, keyboard nav
-game.js         Battle Mode: save slots, classes, floors, effects
+game.js         Battle Mode: engine, level-ups, boons, battle screen, effects
+stories.js      Story library, extra sprites + recolors, scenery
+hall.js         Heroes, Hall of Fame, save migration
 sprites.js      Pixel art for Battle (data only)
 app.js          boot, routing, screens, events
 .nojekyll       tells GitHub Pages to serve files as-is
@@ -28,13 +30,16 @@ Adding a **set** = one `.json` file + a line in that class's `sets` array.
 - **Quiz** — by chapter, multiple-choice and select-all, immediate feedback with explanations, star any question, per-question grid.
 - **Shuffle** — endless questions with a live streak and best-streak counter.
 - **Lesson button** — in Shuffle and Battle, any question from a chapter that has lessons shows a 📖 Lesson button next to the star. It opens the matching lesson in a pop-up over the question (the lesson sitting in front of that question in the chapter), so your streak and battle stay exactly where they are. Chapters with two lessons get Lesson 1 / Lesson 2 tabs in the pop-up.
-- **Battle** — every answer is an attack. Three save slots per deck (stored under `fc:adv:<deck id>`, separate from quiz progress), saved after every answer.
-  - Classes: **Knight** (takes 30% less damage; Shield Bash, Holy Strike), **Wizard** (charges twice as fast; Fireball, Meteor), **Ranger** (30% crit chance; Piercing Shot, Arrow Rain with overkill carry). Correct answers fill charge; arm a special before answering, and a wrong answer fizzles it.
-  - Five themed floors (Greenwood, Stone Peaks, Haunted Crypt, Dark Keep, Dragon's Lair), each ending in a boss that pulls about two thirds of its questions from your misses. Beating Ashmaw the Dragon unlocks Endless floors.
-  - Getting knocked out sends you back to the floor entrance with your level and XP intact.
-  - Regular foes never repeat a question until you've seen the whole pool (tracked per save slot, so it survives closing the app). Bosses still pull from your misses, and starred questions can come back now and then on purpose.
-  - Basic attacks match the class: Knight swings, Ranger shoots, Wizard throws a bolt. A defeated foe's spot stays empty until you hit Next, then the next one walks in.
-  - On wide screens the arena sits beside the question so the fight never scrolls away.
+- **Battle** — every answer is an attack. Three save slots per deck (`fc:adv:<deck id>`, v2), saved after every answer.
+  - **Heroes** live across decks (`fc:heroes`). Make one (class + name) or bring an old one into a new slot. Heroes keep their level, boon and trophies forever; each adventure starts them on Floor 1 with fresh techniques.
+  - **Levels never stop.** Flat 50 XP per level (5 per correct answer, more for kills and bosses). Every level is a pick: +20 max HP and a full heal, learn one of four class techniques (Hone once all four are known), or roll a boon.
+  - **Boons**: one at a time per hero, rolled by rarity (common, uncommon, rare, legendary, chaos). Rerolling is a gamble that replaces the current one. Chaos boons are cosmetic chaos with a small upside (rainbow hero, noodle body, mirrored arena, kazoo hits...).
+  - **Stories** (`stories.js`): each deck gets its own five-floor story with scenery, foes, bosses, a final boss and a trophy. Library: Shrunk!, The Ember Relic, The Captive Princess, The Sunken Kingdom, The Clockwork Tower, Frostbound, Sands of the Pharaoh, The Midnight Carnival, plus the original Dragon's Lair. A deck picks one automatically from its id; set `"story": "<id>"` on the set in `manifest.json` to choose.
+  - **Trophies**: beating a story's final boss gives the hero that story's trophy and a small permanent perk. The home screen's **Hall of Fame** shows every trophy (animated) and the hero roster.
+  - Classes: **Knight** (30% less damage; Shield Bash, Whirlwind, Holy Strike, Judgment), **Wizard** (charges twice as fast; Frost Lance, Fireball, Chain Lightning, Meteor), **Ranger** (30% crit; Volley, Piercing Shot, Snipe, Arrow Rain). Arm a technique before answering; a wrong answer fizzles it.
+  - Regular foes never repeat a question until you've seen the whole pool (tracked per save slot). Bosses still pull from your misses, and starred questions can come back now and then on purpose.
+  - A defeated foe's spot stays empty until you hit Next, then the next one walks in. On wide screens the arena sits beside the question.
+  - Getting knocked out sends you back to the floor entrance with your level, picks and boon intact.
 
 All three write to the same progress record, so anything you answer anywhere shows up in the chapter grids.
 

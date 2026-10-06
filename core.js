@@ -742,6 +742,15 @@ function navMove(dir) {
 }
 document.addEventListener("keydown", ev => {
   const k = ev.key;
+  const tg = ev.target;
+  if (tg && (tg.tagName === "INPUT" || tg.tagName === "TEXTAREA")) {   // typing: leave keys alone
+    if (k === "Enter" && tg.dataset.enter) {
+      ev.preventDefault();
+      const b = document.querySelector(`#app [data-act="${tg.dataset.enter}"]`);
+      if (b) b.click();
+    }
+    return;
+  }
   const dirs = { ArrowDown: "down", ArrowUp: "up", ArrowLeft: "left", ArrowRight: "right" };
 
   if (modalOpen()) {                                     // modals: Enter = confirm, Esc/Backspace = cancel

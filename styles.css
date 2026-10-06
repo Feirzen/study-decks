@@ -1,3 +1,12 @@
+:root {
+  --corner-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' width='9' height='9' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%234a2c06'/%3E%3C/svg%3E");
+  --corner-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' width='9' height='9' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='4' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%234a2c06'/%3E%3C/svg%3E");
+  --corner-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' width='9' height='9' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='3' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='4' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%234a2c06'/%3E%3C/svg%3E");
+  --corner-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 9' width='9' height='9' shape-rendering='crispEdges'%3E%3Crect x='5' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='0' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='1' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='1' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='2' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='2' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23b7791f'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='4' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='5' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='6' y='6' width='1' height='1' fill='%23e0a526'/%3E%3Crect x='7' y='6' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='6' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='6' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='7' y='7' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='8' y='7' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='0' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='1' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='4' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='5' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='6' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='7' y='8' width='1' height='1' fill='%234a2c06'/%3E%3Crect x='8' y='8' width='1' height='1' fill='%234a2c06'/%3E%3C/svg%3E");
+  --arrow-img: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 9' width='20' height='9' shape-rendering='crispEdges'%3E%3Crect x='14' y='0' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%231f2937'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='1' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='1' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='15' y='1' width='1' height='1' fill='%231f2937'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23d1d5db'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23d1d5db'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='15' y='2' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='16' y='2' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23d1d5db'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23d1d5db'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='11' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='15' y='3' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='16' y='3' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='17' y='3' width='1' height='1' fill='%231f2937'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%231f2937'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23d1d5db'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='14' y='4' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='15' y='4' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='16' y='4' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='17' y='4' width='1' height='1' fill='%23e5e7eb'/%3E%3Crect x='18' y='4' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='5' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='15' y='5' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='16' y='5' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='17' y='5' width='1' height='1' fill='%231f2937'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='6' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='15' y='6' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='16' y='6' width='1' height='1' fill='%231f2937'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%231f2937'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%231f2937'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='7' width='1' height='1' fill='%239ca3af'/%3E%3Crect x='15' y='7' width='1' height='1' fill='%231f2937'/%3E%3Crect x='14' y='8' width='1' height='1' fill='%231f2937'/%3E%3C/svg%3E");
+  --arrow-gold: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 9' width='20' height='9' shape-rendering='crispEdges'%3E%3Crect x='14' y='0' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='1' width='1' height='1' fill='%233b2405'/%3E%3Crect x='2' y='1' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='1' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='1' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='15' y='1' width='1' height='1' fill='%233b2405'/%3E%3Crect x='0' y='2' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='2' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='2' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='15' y='2' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='16' y='2' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='2' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='5' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='6' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='7' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='8' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='9' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='10' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='11' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='3' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='15' y='3' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='16' y='3' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='17' y='3' width='1' height='1' fill='%233b2405'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%233b2405'/%3E%3Crect x='3' y='4' width='1' height='1' fill='%23fde68a'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='6' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='7' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='8' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='9' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='10' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='12' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='13' y='4' width='1' height='1' fill='%23e5c07b'/%3E%3Crect x='14' y='4' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='15' y='4' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='16' y='4' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='17' y='4' width='1' height='1' fill='%23fef9c3'/%3E%3Crect x='18' y='4' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='2' y='5' width='1' height='1' fill='%23d4a017'/%3E%3Crect x='3' y='5' width='1' height='1' fill='%23d4a017'/%3E%3Crect x='4' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='5' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='6' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='7' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='8' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='9' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='10' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='11' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='12' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='5' width='1' height='1' fill='%23facc15'/%3E%3Crect x='15' y='5' width='1' height='1' fill='%23facc15'/%3E%3Crect x='16' y='5' width='1' height='1' fill='%23facc15'/%3E%3Crect x='17' y='5' width='1' height='1' fill='%233b2405'/%3E%3Crect x='0' y='6' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='6' width='1' height='1' fill='%23d4a017'/%3E%3Crect x='2' y='6' width='1' height='1' fill='%23d4a017'/%3E%3Crect x='3' y='6' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='6' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='6' width='1' height='1' fill='%23facc15'/%3E%3Crect x='15' y='6' width='1' height='1' fill='%23facc15'/%3E%3Crect x='16' y='6' width='1' height='1' fill='%233b2405'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%233b2405'/%3E%3Crect x='2' y='7' width='1' height='1' fill='%233b2405'/%3E%3Crect x='13' y='7' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='7' width='1' height='1' fill='%23facc15'/%3E%3Crect x='15' y='7' width='1' height='1' fill='%233b2405'/%3E%3Crect x='14' y='8' width='1' height='1' fill='%233b2405'/%3E%3C/svg%3E");
+}
+
 /* ===================================================================
    Study Decks — stylesheet
    Every color routes through a CSS custom property so themes are a
@@ -721,24 +730,24 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 }
 @keyframes meteorfall { 0% { opacity: 1; left: 98%; top: -60px; } 90% { opacity: 1; left: 74.5%; top: 66px; } 100% { opacity: 0; left: 74%; top: 72px; transform: scale(1.8); } }
 .arrow {
-  left: 22%; bottom: 46px; width: 30px; height: 3px; background: #e5e7eb; border-radius: 2px;
-  animation: arrowfly .17s linear .1s both;
+  left: 20%; bottom: 40px; width: 40px; height: 18px; background: var(--arrow-img) center / 100% 100% no-repeat;
+  image-rendering: pixelated; animation: arrowfly .17s linear .1s both;
 }
-.arrow.two { bottom: 54px; animation-delay: .16s; }
-.arrow::before { content: ""; position: absolute; right: -5px; top: -3px; border: 4.5px solid transparent; border-left: 7px solid #f1f5f9; }
-.arrow::after { content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 9px; background: #4ade80; clip-path: polygon(0 0, 100% 50%, 0 100%, 40% 50%); }
+.arrow.two { bottom: 50px; animation-delay: .16s; }
+.arrow.three { bottom: 30px; animation-delay: .1s; }
 @keyframes arrowfly { 0% { opacity: 1; left: 22%; } 99% { opacity: 1; left: 71%; } 100% { opacity: 0; left: 71%; } }
 /* piercing shot goes straight through and out the far side */
-.arrow.pierce { width: 40px; bottom: 48px; box-shadow: 0 0 6px 2px rgba(74,222,128,.75); animation: pierceflyby .4s linear .12s both; }
+.arrow.pierce { width: 48px; height: 22px; bottom: 38px; filter: drop-shadow(0 0 4px #4ade80) drop-shadow(0 0 2px #4ade80); animation: pierceflyby .4s linear .12s both; }
+.arrow.snipe { width: 48px; height: 22px; bottom: 38px; background-image: var(--arrow-gold); filter: drop-shadow(0 0 4px #fde047); animation: arrowfly .2s linear .16s both; }
 @keyframes pierceflyby { 0% { opacity: 1; left: 20%; } 85% { opacity: 1; left: 98%; } 100% { opacity: 0; left: 108%; } }
 /* the arrow that hit sticks in the foe (on purpose) until the next question */
 .stuck {
-  position: absolute; z-index: 4; left: 26%; bottom: 44%; width: 18px; height: 3px; background: #e5e7eb; border-radius: 2px;
+  position: absolute; z-index: 4; left: 4%; bottom: 40%; width: 26px; height: 18px;
+  background: var(--arrow-img) left center / 40px 18px no-repeat; image-rendering: pixelated;
   transform: rotate(-8deg); transform-origin: 100% 50%; opacity: 0; pointer-events: none;
   animation: stuckin .01s linear var(--d, .27s) forwards;
 }
-.stuck::after { content: ""; position: absolute; left: -3px; top: -3px; width: 7px; height: 9px; background: #4ade80; clip-path: polygon(0 0, 100% 50%, 0 100%, 40% 50%); }
-.stuck.two { bottom: 58%; left: 30%; transform: rotate(6deg); animation-delay: calc(var(--d, .27s) + .06s); }
+.stuck.two { bottom: 56%; left: 8%; transform: rotate(6deg); animation-delay: calc(var(--d, .27s) + .06s); }
 @keyframes stuckin { to { opacity: 1; } }
 .bolt {
   left: 21%; bottom: 52px; width: 12px; height: 12px; border-radius: 50%; background: #fff;
@@ -748,16 +757,16 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .bolt.two { bottom: 40px; animation-delay: .15s; }
 @keyframes boltfly { 0% { opacity: 1; left: 21%; transform: scale(.4); } 90% { opacity: 1; left: 72%; transform: scale(1.1); } 100% { opacity: 0; left: 73%; transform: scale(2); } }
 .uparrow {
-  left: calc(16% + var(--x)); bottom: 70px; width: 3px; height: 20px; background: #e5e7eb; border-radius: 2px;
+  left: calc(14% + var(--x)); bottom: 70px; width: 34px; height: 15px; transform: rotate(-90deg);
+  background: var(--arrow-img) center / 100% 100% no-repeat; image-rendering: pixelated;
   animation: upshot .3s cubic-bezier(.3,0,1,1) both;
 }
-.uparrow::before { content: ""; position: absolute; top: -6px; left: -3px; border: 4.5px solid transparent; border-bottom: 7px solid #f1f5f9; }
 @keyframes upshot { 0% { opacity: 1; bottom: 60px; } 80% { opacity: 1; } 100% { opacity: 0; bottom: 230px; } }
 .rainarrow {
-  left: calc(76% + var(--x)); top: -46px; width: 3px; height: 22px; background: #e5e7eb; border-radius: 2px;
+  left: calc(74% + var(--x)); top: -46px; width: 34px; height: 15px; transform: rotate(90deg);
+  background: var(--arrow-img) center / 100% 100% no-repeat; image-rendering: pixelated;
   animation: rainfall .24s cubic-bezier(.5,0,1,1) both;
 }
-.rainarrow::before { content: ""; position: absolute; bottom: -6px; left: -3px; border: 4.5px solid transparent; border-top: 7px solid #f1f5f9; }
 @keyframes rainfall { 0% { opacity: 1; top: -60px; } 92% { opacity: 1; top: 62px; } 100% { opacity: 0; top: 66px; } }
 .meteordark { position: absolute; inset: -400px; z-index: 0; pointer-events: none; background: rgba(40,8,0,.45); opacity: 0; animation: mdark .9s ease-out both; }
 @keyframes mdark { 0% { opacity: 0; } 30% { opacity: 1; } 65% { opacity: 1; } 100% { opacity: 0; } }
@@ -836,23 +845,132 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
   .battle .bright { padding-top: 0; }
 }
 
-/* ---- old-timey text boxes: an inked inner frame, paper grain, and a
-   soft vignette. Overlays only, so every theme keeps its own colors. ---- */
-.battle .tex { position: relative; isolation: isolate; }
-.battle .tex::before {
-  content: ""; position: absolute; inset: 3px; z-index: 2; pointer-events: none;
-  border: 1px solid color-mix(in srgb, var(--text) 17%, transparent);
-  border-radius: 9px;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--bg) 25%, transparent);
+
+/* ---- pixel gold corners on the text boxes (plain fills, no texture) ---- */
+.tex { position: relative; }
+.tex::before {
+  content: ""; position: absolute; inset: 3px; z-index: 5; pointer-events: none;
+  background-image: var(--corner-tl), var(--corner-tr), var(--corner-bl), var(--corner-br);
+  background-position: top left, top right, bottom left, bottom right;
+  background-size: 18px 18px; background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
-.battle .tex::after {
-  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; border-radius: inherit;
-  background-image:
-    radial-gradient(ellipse at center, transparent 55%, rgba(60,35,10,.22) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .38 0 0 0 0 .3 0 0 0 .9 -.42'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='60'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .42 0 0 0 0 .32 0 0 0 .7 -.38'/%3E%3C/filter%3E%3Crect width='300' height='60' filter='url(%23f)'/%3E%3C/svg%3E");
-  opacity: .32;
-}
-.battle .tex > * { position: relative; z-index: 3; }
-.battle .opt.tex::before { border-radius: 8px; }
+.opt.tex::before { inset: 2px; background-image: var(--corner-tl), var(--corner-br); background-position: top left, bottom right; background-size: 13px 13px; }
 .battle .qcard .eyebrow { font-variant: small-caps; letter-spacing: 2.5px; }
+[data-hide] { visibility: hidden; }
+.spn small { font-size: 10px; color: var(--star); }
+
+/* ---- new technique effects ---- */
+.bolt.frost { background: #f0f9ff; box-shadow: 0 0 0 3px #7dd3fc, 0 0 12px 6px rgba(56,189,248,.8); border-radius: 3px; transform: rotate(45deg); }
+.bolt.chain { background: #fef9c3; box-shadow: 0 0 0 3px #c4b5fd, 0 0 14px 6px rgba(250,204,21,.7); }
+.zap {
+  position: absolute; z-index: 5; left: 24%; right: 22%; bottom: 52px; height: 3px; pointer-events: none; opacity: 0;
+  background: repeating-linear-gradient(90deg, #fef08a 0 10px, transparent 10px 14px, #c4b5fd 14px 24px, transparent 24px 28px);
+  box-shadow: 0 0 10px 2px rgba(250,204,21,.8); animation: zap .26s steps(3) .1s both;
+}
+@keyframes zap { 0% { opacity: 1; transform: translateY(-4px); } 50% { opacity: 1; transform: translateY(4px); } 100% { opacity: 0; transform: none; } }
+.whirlring {
+  position: absolute; z-index: 5; left: 74%; bottom: 20px; width: 64px; height: 64px; margin-left: -32px; pointer-events: none; opacity: 0;
+  border-radius: 50%; border: 4px dashed #e0f2fe; box-shadow: 0 0 10px #93c5fd;
+  animation: whirl .45s ease-out .1s both;
+}
+@keyframes whirl { 0% { opacity: 1; transform: rotate(0) scale(.4); } 100% { opacity: 0; transform: rotate(540deg) scale(1.5); } }
+.holybeam.gold { width: 56px; margin-left: -28px; animation-delay: .3s;
+  background: linear-gradient(90deg, rgba(250,204,21,0), rgba(254,240,138,.95) 30%, #fff 50%, rgba(254,240,138,.95) 70%, rgba(250,204,21,0)); }
+.holybeam.gold.two { width: 120px; margin-left: -60px; opacity: 0; animation-delay: .38s; filter: blur(2px); }
+
+/* ---- chaos boons ---- */
+.fighter.cx-rainbow canvas { animation: rainbow 1.2s linear infinite; }
+@keyframes rainbow { from { filter: hue-rotate(0deg) saturate(1.6); } to { filter: hue-rotate(360deg) saturate(1.6); } }
+.fighter.cx-noodle canvas { transform-origin: 50% 100%; animation: noodle 1.4s ease-in-out infinite; }
+@keyframes noodle { 0%,100% { transform: scale(.8, 1.45) skewX(0); } 25% { transform: scale(.75, 1.55) skewX(8deg); } 75% { transform: scale(.85, 1.35) skewX(-8deg); } }
+.arena.cx-inverted .arena-bg, .arena.cx-inverted .stage { filter: invert(1) hue-rotate(180deg); }
+.arena.cx-mirror { scale: -1 1; }
+.arena.cx-mirror .ptag, .arena.cx-mirror .banner, .arena.cx-mirror .nameplate, .arena.cx-mirror .dmg { scale: -1 1; }
+.discolayer { position: absolute; inset: 0; z-index: 1; pointer-events: none; mix-blend-mode: overlay; opacity: .55;
+  background: conic-gradient(from 0deg at 50% 0%, #f43f5e, #f59e0b, #22c55e, #3b82f6, #a855f7, #f43f5e);
+  animation: disco 2.4s linear infinite; }
+@keyframes disco { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
+
+/* ---- boons & level-up ---- */
+.boonchip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: bold; letter-spacing: .3px;
+  padding: 2px 8px; border-radius: 999px; color: var(--rc, var(--muted)); border: 1px solid var(--rc, var(--border2));
+  background: color-mix(in srgb, var(--rc, var(--muted)) 10%, transparent); white-space: nowrap; }
+.boonchip.none { --rc: var(--muted); font-weight: normal; opacity: .8; }
+.hudboon { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.lvlpanel { background: var(--surface); border: 1.5px solid var(--star); border-radius: 14px; padding: 18px 18px 16px;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--star) 18%, transparent); animation: fbin .32s var(--ease-pop); }
+.lvlhead { margin-bottom: 12px; }
+.lvltitle { font-size: 26px; font-weight: bold; color: var(--star); margin: 2px 0; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: 1px; text-transform: uppercase; }
+.lvlopts { display: grid; gap: 10px; }
+.lvlopt { padding: 14px 16px; }
+.lvlopt:hover { border-color: var(--star); }
+.lvloptname { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+.reel { height: 40px; overflow: hidden; border: 1.5px solid var(--border2); border-radius: 10px; background: var(--surface2); margin: 6px 0 14px; position: relative; }
+.reel::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(var(--surface2), transparent 30%, transparent 70%, var(--surface2)); }
+.reelstrip { animation: reel 1.55s cubic-bezier(.15,.7,.25,1) both; }
+@keyframes reel { from { transform: translateY(0); } to { transform: translateY(-560px); } }
+.reelitem { height: 40px; line-height: 40px; text-align: center; font-weight: bold; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: .5px; }
+.boonresult { border: 2px solid var(--rc); border-radius: 12px; padding: 14px 16px; text-align: center;
+  background: color-mix(in srgb, var(--rc) 9%, var(--surface)); box-shadow: 0 0 18px color-mix(in srgb, var(--rc) 35%, transparent);
+  animation: boonin .45s var(--ease-pop) 1.6s both; }
+@keyframes boonin { from { opacity: 0; transform: scale(.7); } }
+.boonname { font-size: 22px; font-weight: bold; color: var(--rc); margin: 2px 0 6px; }
+
+/* ---- story intro / slot menu ---- */
+.storyblurb { background: var(--surface); border: 1.5px solid var(--border); border-left: 4px solid var(--sc); border-radius: 12px;
+  padding: 12px 16px; font-size: 13.5px; line-height: 1.55; color: var(--dim); margin-bottom: 14px; }
+.storyblurb b { color: var(--sc); }
+.intro { padding: 20px 22px; }
+.introhero { display: flex; align-items: flex-end; justify-content: space-between; padding: 6px 10px 10px; }
+.introhero canvas, .slotart canvas, .namehero canvas, .herorow canvas { image-rendering: pixelated; }
+.introtext { font-size: 16px; line-height: 1.65; margin: 8px 0 14px; }
+.introgoal { font-size: 14.5px; font-weight: bold; margin-bottom: 14px; }
+.path { display: grid; gap: 8px; border-top: 1px solid var(--border); padding-top: 14px; }
+.pathstep { display: flex; gap: 12px; align-items: center; font-size: 14px; }
+.pathn { flex: 0 0 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: #fff; font-size: 13px; text-shadow: 0 1px 0 #0006; font-family: ui-monospace, monospace; }
+
+/* ---- heroes ---- */
+.herocard { display: flex; gap: 14px; align-items: flex-start; padding: 16px; margin-bottom: 12px; }
+.herometa { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 6px; }
+.tmini { display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; }
+.tmini canvas { width: 20px !important; height: 20px !important; image-rendering: pixelated; }
+.namecard { text-align: center; padding: 22px; }
+.namehero { display: flex; justify-content: center; margin-bottom: 14px; }
+.namerow { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; }
+.nameinput { flex: 1; min-width: 0; font: inherit; font-size: 20px; text-align: center; padding: 12px 14px; border-radius: 12px;
+  border: 1.5px solid var(--border2); background: var(--surface2); color: var(--text); outline: none; }
+.nameinput:focus { border-color: var(--accent); }
+.dice { flex: 0 0 54px; font-size: 22px; padding: 0; }
+
+/* ---- Hall of Fame ---- */
+.hallbtn { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; padding: 12px 18px 12px 12px; border-color: color-mix(in srgb, var(--star) 45%, var(--border)); }
+.hallcup { flex: 0 0 auto; display: flex; }
+.hallcup canvas { image-rendering: pixelated; }
+.wrap.hall { max-width: 980px; }
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+.trophycard { background: radial-gradient(ellipse at 50% 35%, color-mix(in srgb, var(--star) 14%, var(--surface)), var(--surface) 70%);
+  border: 1.5px solid color-mix(in srgb, var(--star) 40%, var(--border)); border-radius: 16px; padding: 14px 14px 16px; text-align: center; }
+.trophybox { display: flex; justify-content: center; animation: bob 2.8s ease-in-out infinite; }
+.trophybox canvas { image-rendering: pixelated; filter: drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
+@keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.tname { font-size: 16px; font-weight: bold; color: var(--star); margin-top: 6px; }
+.tsub { font-size: 12.5px; color: var(--dim); margin-top: 2px; }
+.tmeta { font-size: 12px; margin-top: 6px; }
+.trophyempty { grid-column: 1 / -1; display: flex; gap: 16px; align-items: center; color: var(--muted); font-size: 14px;
+  border: 1.5px dashed var(--border2); border-radius: 16px; padding: 16px; }
+.trophybox.dim0 canvas { filter: grayscale(1) brightness(.5); }
+.roster { display: grid; gap: 8px; }
+.herorow { display: flex; gap: 12px; align-items: center; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.slotart.sm { flex: 0 0 54px; height: 54px; }
+.hrname { font-weight: bold; font-size: 15px; }
+.trophygot { display: flex; gap: 14px; align-items: center; text-align: left; margin: 18px auto 0; max-width: 460px;
+  border: 1.5px solid color-mix(in srgb, var(--star) 50%, var(--border)); border-radius: 14px; padding: 10px 16px 10px 8px;
+  background: color-mix(in srgb, var(--star) 8%, var(--surface)); }
+.introboss { display: inline-block; }
+.lvltitle { position: relative; }
+.lvltitle .rolling { animation: hideit 0s linear 1.55s forwards; }
+.lvltitle .rolled { position: absolute; left: 0; top: 0; visibility: hidden; animation: showit 0s linear 1.55s forwards; }
+@keyframes hideit { to { visibility: hidden; } }
+@keyframes showit { to { visibility: visible; } }
