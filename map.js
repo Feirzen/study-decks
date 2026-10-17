@@ -566,6 +566,7 @@ function mapSubmit() {
   const b = S.battle, s = b.s, ms = s.map, Q = S.mapQ, q = Q.q;
   const ok = grade(q, S.selected);
   recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
   if (!s.seen.includes(q.id)) s.seen.push(q.id);
   S.feedback = ok ? "correct" : "incorrect";
   if (!ok) S.showAnswer = true;
@@ -579,7 +580,7 @@ function mapSubmit() {
       Q.result = { ok, text: msg + "." };
       sfx.bVictory();
     } else {
-      const d = Math.min(6, s.hp - 1); s.hp -= d;
+      const d = Math.max(0, Math.min(S.idk ? 3 : 6, s.hp - 1)); s.hp -= d;
       Q.result = { ok, text: `The lock snaps at your fingers.${d > 0 ? " -" + d + " HP." : ""} You can try again.` };
       sfx.bHurt();
     }
@@ -703,16 +704,21 @@ function viewMapQ() {
     const ok = Q.result.ok;
     fb = `<div class="fb tex fbpop" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:14px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
-      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${esc(Q.result.text)}</div>
+      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${S.idk ? "Logged as \"don't know\". " : ""}${esc(Q.result.text)}</div>
       ${S.lastCleared === q.id ? clearedNote() : ""}
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div></div>`;
   }
   const btn = !S.feedback
-    ? `<button class="primary" data-act="mapSubmit" style="background:${S.selected.length ? "var(--accent)" : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>Answer</button>`
+    ? `<div style="display:flex;gap:10px"><button class="ghost idk" data-act="idk" title="Counts as a miss so your progress stays honest">I don't know</button><button class="primary" data-act="mapSubmit" style="flex:1;background:${S.selected.length ? "var(--accent)" : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>Answer</button></div>`
     : `<button class="primary" data-act="mapQNext" style="background:var(--accent)">${Q.result && Q.result.more ? "Next question →" : "Back to exploring →"}</button>`;
   const cc = q._cat ? ck(q._cat.color) : "var(--accent)";
+  const starred = !!progress.starred[q.id];
   return `<div class="card qcard tex" style="cursor:default">
-      <div class="eyebrow" style="color:var(--star);margin-bottom:6px">${title}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px">
+        <div class="eyebrow" style="color:var(--star)">${title}</div>
+        <div style="display:flex;align-items:center;gap:10px">${typeof lessonBtn === "function" ? lessonBtn(q) : ""}
+        <button class="star" data-act="star" data-id="${q.id}" title="Star this question" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button></div>
+      </div>
       <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
       <div class="qtext">${esc(q.question)}</div>
     </div>

@@ -406,9 +406,18 @@ function missedPool() {
    (tracked per save in s.seen, so it survives closing the app). Bosses
    still throw your old misses at you, and a starred question can sneak
    back in now and then on purpose. */
+/* No filter on = the deck in order (chapter by chapter), saved per run in
+   s.qpos. A filter on = the old weighted, no-repeat pool. */
+function orderMode() { return activeFilters().length === 0; }
+function deckOrder() { return allQuestions(S.set); }
+function initQpos(s, all) {
+  const seen = new Set(s.seen || []);
+  const i = all.findIndex(q => !seen.has(q.id));
+  return i < 0 ? 0 : i;
+}
 function pickQuestion() {
   const b = S.battle, s = b.s, last = b.cur ? b.cur.id : null;
-  b.curMiss = false; b.curStar = false;
+  b.curMiss = false; b.curStar = false; b.curOrder = false;
   if (b.enemy.boss) {
     const miss = missedPool();
     if (miss.length && Math.random() < 0.67) {
@@ -416,6 +425,14 @@ function pickQuestion() {
       const q = b.bq[b.bqi++];
       if (q.id !== last || miss.length === 1 && buildPool().length === 1) { b.cur = q; b.curMiss = true; return; }
     }
+  }
+  if (orderMode()) {
+    const all = deckOrder();
+    if (typeof s.qpos !== "number") s.qpos = initQpos(s, all);
+    if (s.qpos >= all.length || s.qpos < 0) s.qpos = 0;
+    b.cur = all[s.qpos]; b.curOrder = true;
+    if (typeof scrollCheck === "function") scrollCheck(b, s, all);
+    return;
   }
   const pool = buildPool();
   if (activeFilter() !== "starred" && !activeFilters().includes("fresh") && Math.random() < 0.12) {
@@ -520,7 +537,7 @@ function lvlRoll(i) {
   const b = S.battle, s = b.s, h = b.h, slots = heroBoons(h);
   const old = slots[i], nb = rollBoon(slots.filter(Boolean));
   slots[i] = nb.id;
-  h.boons = slots;
+  h.boons = slots; h.boonsAt = Date.now();
   if (!b.lvl.free) s.picks--;
   b.lvl = { stage: "reveal", boon: nb.id, old, slot: i, before: slots.map((x, k) => k === i ? old : x) };
   sfx.bReel(nb.r);
@@ -548,8 +565,10 @@ function gainXp(amount) {
 }
 function submitBattle() {
   const b = S.battle, s = b.s, h = b.h, C = CLASSES[h.cls], q = b.cur, m = mods(s, h);
+  if (S.idk) b.armed = null;                 // "I don't know" never burns charge
   const ok = grade(q, S.selected);
   recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
   if (!b.curMiss) {
     if (!Array.isArray(s.seen)) s.seen = [];
     if (!s.seen.includes(q.id)) s.seen.push(q.id);
@@ -646,6 +665,7 @@ function submitBattle() {
     let dmg = damageFrom(s, b.enemy.boss);
     if (h.cls === "knight") dmg = Math.round(dmg * 0.7);
     dmg = Math.round(dmg * (1 - m.armor));
+    if (S.idk) dmg = Math.ceil(dmg / 2);     // honest "don't know" = half the hit
     let blocked = false, missed = false, frozen = false, saved = null;
     if (s.frozen) { frozen = true; dmg = 0; s.frozen = false; }
     else if (s.guard) { blocked = true; dmg = 0; s.guard = false; }
@@ -1384,7 +1404,7 @@ function viewBattle() {
     else if (lh.frozen) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "The") + " frozen foe couldn't swing";
     else if (lh.missed) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "Wrong, but the") + " attack missed you";
     else if (lh.blocked) head = (lh.fizzle ? lh.fizzle + " fizzled, but your" : "Your") + " shield blocked the hit";
-    else head = (lh.fizzle ? lh.fizzle + " fizzled. " : "") + "You took " + lh.dmg + " damage" + (lh.saved ? ". " + lh.saved + " kept you standing!" : "");
+    else head = (lh.fizzle ? lh.fizzle + " fizzled. " : "") + (S.idk ? "Logged as \"don't know\". " : "") + "You took " + lh.dmg + " damage" + (lh.saved ? ". " + lh.saved + " kept you standing!" : "");
     fb = `<div class="fb tex ${fx ? "fbpop" : ""}" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:14px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
       <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${head}</div>
@@ -1397,7 +1417,7 @@ function viewBattle() {
   const nextLabel = pend && b.enemy.boss && pend.floor === s.floor ? "Face " + esc(b.enemy.name) + " →"
     : pend && pend.floor !== s.floor ? "Onward to " + esc(floorInfo(s, s.floor).name) + " →" : "Next →";
   const btn = !S.feedback
-    ? `<button class="primary" data-act="submitBattle" style="background:${S.selected.length ? (armedSp ? `color-mix(in srgb, ${C.color} 62%, #000)` : "var(--accent)") : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>${atkLabel}</button>`
+    ? `<div style="display:flex;gap:10px"><button class="ghost idk" data-act="idk" title="Half damage, no charge spent. Counts as a miss so your progress stays honest">I don't know</button><button class="primary" data-act="submitBattle" style="flex:1;background:${S.selected.length ? (armedSp ? `color-mix(in srgb, ${C.color} 62%, #000)` : "var(--accent)") : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>${atkLabel}</button></div>`
     : b.dying
       ? `<button class="primary" data-act="battleNext" style="background:var(--bad)">See results →</button>`
       : b.victory
@@ -1428,7 +1448,7 @@ function viewBattle() {
           <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
           ${tag}
           <div class="qtext">${esc(q.question)}</div>
-          <div class="qleft">${left} new question${left === 1 ? "" : "s"} left before repeats</div>
+          <div class="qleft">${b.curOrder ? `In order · question ${deckOrder().findIndex(x => x.id === q.id) + 1} of ${deckOrder().length}` : `${left} new question${left === 1 ? "" : "s"} left before repeats`}</div>
         </div>
         <div class="bopts">${opts}</div>
         ${fb}

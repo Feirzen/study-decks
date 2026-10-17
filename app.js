@@ -474,14 +474,14 @@ function viewQuiz() {
     const showExp = S.showAnswer || ok;
     fb = `<div class="fb fbpop" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:18px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
-      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${ok ? "Correct!" : "Incorrect"}</div>
+      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${ok ? "Correct!" : S.idk ? "Logged as \"don't know\". Here's how it works:" : "Incorrect"}</div>
       ${showExp ? `<div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div>` : ""}</div>
     </div>`;
   }
 
   let buttons;
   if (!S.feedback) {
-    buttons = `<button class="primary" data-act="submitQuiz" style="background:${S.selected.length ? col : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>Submit Answer</button>`;
+    buttons = `<button class="ghost idk" data-act="idk" title="Counts as a miss so your progress stays honest">I don't know</button><button class="primary" data-act="submitQuiz" style="background:${S.selected.length ? col : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>Submit Answer</button>`;
   } else if (S.feedback === "incorrect") {
     buttons = `${!S.showAnswer ? `<button class="ghost" data-act="showAns">Show Answer</button>` : ""}
       <button class="ghost" data-act="retry" style="border-color:var(--bad);color:var(--bad)">↻ Retry</button>
@@ -549,14 +549,14 @@ function viewShuffle() {
     const ok = S.feedback === "correct";
     fb = `<div class="fb fbpop" style="background:${ok ? "var(--okBg)" : "var(--badBg)"};border:1px solid ${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:18px">
       ${ok ? I.check("var(--ok)") : I.x("var(--bad)")}
-      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${ok ? "Correct!  Streak " + S.streak : "Streak ended" + (S.high ? " — best: " + S.high : "")}</div>
+      <div><div style="font-weight:bold;color:${ok ? "var(--ok)" : "var(--bad)"};margin-bottom:4px">${ok ? "Correct!  Streak " + S.streak : (S.idk ? "Logged as \"don't know\"" : "Streak ended") + (S.high ? " · best: " + S.high : "")}</div>
       ${S.lastCleared === q.id ? clearedNote() : ""}
       <div class="dim" style="font-size:14px;line-height:1.6">${esc(q.explanation || "")}</div></div>
     </div>`;
   }
 
   const btn = !S.feedback
-    ? `<button class="primary" data-act="submitShuffle" style="background:${S.selected.length ? "var(--accent)" : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"}" ${S.selected.length ? "" : "disabled"}>Submit Answer</button>`
+    ? `<div style="display:flex;gap:10px"><button class="ghost idk" data-act="idk" title="Counts as a miss so your progress stays honest">I don't know</button><button class="primary" data-act="submitShuffle" style="background:${S.selected.length ? "var(--accent)" : "var(--border)"};color:${S.selected.length ? "#fff" : "var(--muted)"};flex:1" ${S.selected.length ? "" : "disabled"}>Submit Answer</button></div>`
     : `<button class="primary" data-act="nextShuffle" style="background:var(--accent)">Next →</button>`;
 
   return `<div class="wrap">
@@ -583,7 +583,7 @@ function viewShuffle() {
 }
 
 /* ===================== ANSWER HANDLERS ===================== */
-function resetQ() { S.selected = []; S.feedback = null; S.showAnswer = false; }
+function resetQ() { S.selected = []; S.feedback = null; S.showAnswer = false; S.idk = false; }
 
 function pick(pos) {
   if (S.feedback) return;
@@ -782,6 +782,15 @@ document.addEventListener("click", ev => {
   }
   if (act === "pick") return pick(+t.dataset.pos);
   if (act === "submitQuiz") return submitQuiz();
+  if (act === "idk") {                     // honest miss: no guessing, show the answer
+    if (S.feedback) return;
+    S.selected = []; S.idk = true; S.showAnswer = true;
+    if (S.screen === "quiz") return submitQuiz();
+    if (S.screen === "shuffle") return submitShuffle();
+    if (S.screen === "battle") return submitBattle();
+    if (S.screen === "map") return mapSubmit();
+    return;
+  }
   if (act === "showAns") { S.showAnswer = true; return render(); }
   if (act === "retry") { resetQ(); sfx.tick(); return render(); }
   if (act === "nextQuiz") return nextQuiz();

@@ -14,9 +14,38 @@ function loadHeroes() {
   } catch (e) {}
   return (_heroes = { v: 1, heroes: [] });
 }
-function saveHeroes() {
-  try { localStorage.setItem("fc:heroes", JSON.stringify(loadHeroes())); } catch (e) {}
+/* Saving writes the whole roster, so a second open copy of the site (another
+   tab, or the home-screen app next to Safari) could write back an older
+   roster and wipe a boon you just rolled. Merge first: per hero keep the
+   newer boons (boonsAt), the higher XP, and every trophy either copy has. */
+function mergeHero(mine, theirs) {
+  if ((theirs.boonsAt || 0) > (mine.boonsAt || 0)) { mine.boons = theirs.boons; mine.boonsAt = theirs.boonsAt; }
+  if ((theirs.xp || 0) > (mine.xp || 0)) mine.xp = theirs.xp;
+  const t = mine.trophies || (mine.trophies = []);
+  (theirs.trophies || []).forEach(x => { if (!t.some(y => y.story === x.story && y.date === x.date)) t.push(x); });
+  ["kills", "deaths"].forEach(k => { if ((theirs[k] || 0) > (mine[k] || 0)) mine[k] = theirs[k]; });
 }
+function saveHeroes() {
+  const st = loadHeroes();
+  try {
+    const raw = localStorage.getItem("fc:heroes");
+    const disk = raw ? JSON.parse(raw) : null;
+    if (disk && Array.isArray(disk.heroes)) disk.heroes.forEach(dh => {
+      const mh = st.heroes.find(h => h.id === dh.id);
+      if (mh) mergeHero(mh, dh);
+    });
+  } catch (e) {}
+  try { localStorage.setItem("fc:heroes", JSON.stringify(st)); } catch (e) {}
+}
+/* another copy of the site saved: pull its newer boons/XP into this one */
+window.addEventListener("storage", ev => {
+  if (ev.key !== "fc:heroes" || !ev.newValue || !_heroes) return;
+  try {
+    const d = JSON.parse(ev.newValue);
+    (d.heroes || []).forEach(dh => { const mh = _heroes.heroes.find(h => h.id === dh.id); if (mh) mergeHero(mh, dh); });
+    if (typeof render === "function" && (S.screen === "map" || S.screen === "battle" || S.screen === "advMenu")) render();
+  } catch (e) {}
+});
 function heroById(id) { return loadHeroes().heroes.find(h => h.id === id) || null; }
 function createHero(name, cls, extra) {
   const h = Object.assign({ id: "h" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
