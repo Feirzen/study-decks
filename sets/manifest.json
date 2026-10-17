@@ -62,6 +62,20 @@
           "file": "sets/chem-481/exam-1.json"
         }
       ]
+    },
+    {
+      "id": "exsc-362",
+      "name": "EXSC 362 Biomechanics",
+      "color": "#F97316",
+      "sets": [
+        {
+          "id": "exsc-362-midterm",
+          "title": "Midterm",
+          "subtitle": "Lessons 1-5: Forces through Work & Energy",
+          "color": "#FB923C",
+          "file": "sets/exsc-362/midterm.json"
+        }
+      ]
     }
   ]
 }
