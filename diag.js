@@ -81,3 +81,31 @@ viewHall = function () {
 .dg-row.warn { background: var(--badBg); }`;
   document.head.appendChild(st);
 })();
+
+/* One-time gift links: #gift=<boonId>&hero=<name>  (e.g. #gift=giant&hero=Fenwick)
+   Puts the boon in the hero's empty slot, or swaps out their lowest-rarity boon. */
+(function () {
+  const m = location.hash.match(/gift=([a-z]+)(?:&hero=([^&]+))?/i);
+  if (!m) return;
+  const bn = boonById(m[1]); if (!bn) return;
+  const want = m[2] ? decodeURIComponent(m[2]).toLowerCase() : null;
+  const hs = loadHeroes().heroes;
+  const h = (want && hs.find(x => x.name.toLowerCase() === want)) || hs.slice().sort((a, b) => (b.boonsAt || 0) - (a.boonsAt || 0))[0];
+  const done = () => { history.replaceState(null, "", location.pathname + location.search); };
+  if (!h) return done();
+  const slots = heroBoons(h);
+  let msg;
+  if (slots.includes(bn.id)) msg = h.name + " already has " + bn.name + ".";
+  else {
+    const order = ["chaos", "common", "uncommon", "rare", "legendary"];
+    let i = slots.indexOf(null);
+    if (i < 0) i = slots.map((id, k) => [order.indexOf(boonById(id).r), k]).sort((a, b) => a[0] - b[0])[0][1];
+    const old = slots[i];
+    slots[i] = bn.id; h.boons = slots; h.boonsAt = Date.now();
+    saveHeroes(); boonLog("gift " + bn.name, h);
+    msg = bn.name + " added to " + h.name + (old ? " (replaced " + boonById(old).name + ")" : "") + ".";
+  }
+  done();
+  setTimeout(() => showModal(`<div style="text-align:center"><div style="font-size:34px">🎁</div><h2 style="margin:6px 0">${esc(msg)}</h2>
+    <button class="primary" data-act="closeModal" style="background:var(--star);color:#1a1a1a;margin-top:12px">Nice</button></div>`), 600);
+})();
