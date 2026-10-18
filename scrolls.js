@@ -116,7 +116,7 @@ render = function () {
   const head = document.querySelector("#app .bhead");
   if (head && !head.querySelector(".scrbtn") && scrollIndex().length) {
     const btn = document.createElement("button");
-    btn.className = "iconbtn scrbtn"; btn.dataset.act = "scrLib"; btn.dataset.nonav = "1";
+    btn.className = "scrbtn"; btn.dataset.act = "scrLib"; btn.dataset.nonav = "1";
     btn.title = "Scrolls of Wisdom";
     btn.innerHTML = `📜<span>${scrollFound().length}</span>`;
     const last = head.lastElementChild;
@@ -129,7 +129,9 @@ render = function () {
     const ids = b.scrollPending; b.scrollPending = null;
     b.s.scrolls = (b.s.scrolls || []).concat(ids.filter(id => !(b.s.scrolls || []).includes(id)));
     saveAdv();
+    S.modalSoon = true;
     setTimeout(() => {
+      S.modalSoon = false;
       showModal(scrollFoundHtml(ids));
       scrollChime();
       const sb = document.querySelector(".scrbtn span"); if (sb) sb.textContent = scrollFound().length;

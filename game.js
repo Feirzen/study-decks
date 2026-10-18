@@ -256,14 +256,25 @@ function damageFrom(run, boss) {
   return Math.round(base * (boss ? 1.45 : 1) * diffOf(run).dmg);
 }
 
+/* Story length scales with the deck so one adventure walks every question.
+   Playtesting: about 0.55 new (in-order) questions per hit of foe HP once
+   crits, techniques and review turns are mixed in, so HP scales at
+   deck size / 55. Small decks get a shorter run, never below 60% of the
+   base story; big ones up to 4x. The final boss's ward mops up the rest.
+   Endless floors keep their own numbers. */
+function deckScale(run) {
+  if (!S.set || run.floor > STORY_LEN) return 1;
+  const n = allQuestions(S.set).length;
+  return Math.max(0.6, Math.min(4, n / 55));
+}
 function makeEnemy(run) {
-  const f = floorInfo(run, run.floor);
+  const f = floorInfo(run, run.floor), k = deckScale(run);
   if (run.idx >= f.foes.length) {
-    const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp));
+    const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp * k));
     return { key: f.boss.key, name: f.boss.name, boss: true, final: run.floor === STORY_LEN,
              hits: bh, maxHits: bh, scale: f.boss.scale || 5 };
   }
-  const foe = f.foes[run.idx], h = Math.max(1, Math.round(foeHits(run.floor) * diffOf(run).hp));
+  const foe = f.foes[run.idx], h = Math.max(1, Math.min(12, Math.round(foeHits(run.floor) * diffOf(run).hp * k)));
   return { key: foe.key, name: foe.name, boss: false, hits: h, maxHits: h, scale: 4 };
 }
 
@@ -415,9 +426,54 @@ function initQpos(s, all) {
   const i = all.findIndex(q => !seen.has(q.id));
   return i < 0 ? 0 : i;
 }
+/* The final story boss is shielded by a ward: one rune for every question
+   in the deck you haven't faced yet on this adventure's first pass. Each
+   answer (right or wrong) breaks a rune; only then can the boss be hurt.
+   That guarantees one adventure covers the whole deck. */
+function wardLeft(s) {
+  if (!orderMode() || s.passDone || !S.battle || !S.battle.enemy || !S.battle.enemy.final) return 0;
+  return Math.max(0, deckOrder().length - (s.qpos || 0));
+}
+/* Review rules (deck-order mode). Learning pass: every 4th question is a
+   review pulled from your weak spots, weighted by weakness() (misses,
+   "don't know"s, low confidence ratings). Bosses lean on review harder.
+   After the first full pass, review takes over most turns while a second
+   in-order pass keeps cycling underneath. Nothing you saw in the last
+   few turns comes back right away. */
+function reviewPick(s) {
+  const all = deckOrder();
+  const met = s.passDone ? all : all.slice(0, s.qpos || 0);
+  const recent = new Set((s.recent || []).slice(-8));
+  const pool = met.filter(q => !recent.has(q.id)).map(q => [q, typeof weakness === "function" ? weakness(q) : weightOf(q) - 1]).filter(x => x[1] >= 1.5);
+  if (!pool.length) return null;
+  let tot = pool.reduce((a, x) => a + x[1], 0), r = Math.random() * tot;
+  for (const [q, w] of pool) { r -= w; if (r <= 0) return q; }
+  return pool[pool.length - 1][0];
+}
 function pickQuestion() {
   const b = S.battle, s = b.s, last = b.cur ? b.cur.id : null;
-  b.curMiss = false; b.curStar = false; b.curOrder = false;
+  b.curMiss = false; b.curStar = false; b.curOrder = false; b.curReview = false;
+  if (orderMode()) {
+    const all = deckOrder();
+    if (typeof s.qpos !== "number") s.qpos = initQpos(s, all);
+    if (s.qpos >= all.length) { s.qpos = 0; s.passDone = true; }
+    s.since = s.since || 0;
+    const warded = wardLeft(s) > 0;
+    let want = false;
+    if (!warded) {
+      if (s.passDone) want = Math.random() < 0.6;
+      else if (b.enemy.boss) want = Math.random() < 0.45;
+      else want = s.since >= 3;
+    }
+    const rq = want ? reviewPick(s) : null;
+    if (rq) { b.cur = rq; b.curReview = true; s.since = 0; }
+    else {
+      b.cur = all[s.qpos]; b.curOrder = true; s.since++;
+      if (typeof scrollCheck === "function") scrollCheck(b, s, all);
+    }
+    s.recent = (s.recent || []).concat(b.cur.id).slice(-12);
+    return;
+  }
   if (b.enemy.boss) {
     const miss = missedPool();
     if (miss.length && Math.random() < 0.67) {
@@ -425,14 +481,6 @@ function pickQuestion() {
       const q = b.bq[b.bqi++];
       if (q.id !== last || miss.length === 1 && buildPool().length === 1) { b.cur = q; b.curMiss = true; return; }
     }
-  }
-  if (orderMode()) {
-    const all = deckOrder();
-    if (typeof s.qpos !== "number") s.qpos = initQpos(s, all);
-    if (s.qpos >= all.length || s.qpos < 0) s.qpos = 0;
-    b.cur = all[s.qpos]; b.curOrder = true;
-    if (typeof scrollCheck === "function") scrollCheck(b, s, all);
-    return;
   }
   const pool = buildPool();
   if (activeFilter() !== "starred" && !activeFilters().includes("fresh") && Math.random() < 0.12) {
@@ -473,6 +521,7 @@ function proceedNext() {
   if (b.pend) {
     // the next foe only walks in once you're ready for it
     const p = b.pend; b.pend = null;
+    b.s.carry = 0;                            // quick mode already applied it to the foe walking in
     fightStart(b.s, b.h);
     b.fx = { type: "foeEnter", carry: p.carry, newFloor: p.floor !== b.s.floor };
     if (b.fx.newFloor) sfx.bStart();
@@ -566,6 +615,7 @@ function gainXp(amount) {
 function submitBattle() {
   const b = S.battle, s = b.s, h = b.h, C = CLASSES[h.cls], q = b.cur, m = mods(s, h);
   if (S.idk) b.armed = null;                 // "I don't know" never burns charge
+  const wardBefore = wardLeft(s);
   const ok = grade(q, S.selected);
   recordAnswer(q, ok);
   if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
@@ -592,6 +642,8 @@ function submitBattle() {
     }
     dmg += m.flat;
     if (m.dmg) dmg = Math.max(1, Math.round(dmg * (1 + m.dmg)));
+    const warded = b.enemy.final && wardBefore > 0;
+    if (warded) dmg = 0;                     // the hit breaks a ward rune instead
     const before = b.enemy.hits;
     b.enemy.hits = Math.max(0, before - dmg);
     const overkill = Math.max(0, dmg - before);
@@ -606,7 +658,7 @@ function submitBattle() {
     let leveled = gainXp(xpGot);
     const wasFrozen = s.frozen && !(sp && sp.freeze);
     b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fxs.includes("kazoo"), frozenHit: wasFrozen };
-    b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged };
+    b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged, ward: warded ? wardLeft(s) : null };
 
     if (b.enemy.hits <= 0) {
       const dead = b.enemy, hpBefore = s.hp - healed, oldFloor = s.floor, oldIdx = s.idx;
@@ -634,6 +686,7 @@ function submitBattle() {
       b.enemy = makeEnemy(s);
       const carried = carry ? Math.min(carry, b.enemy.maxHits - 1) : 0;
       if (carried) b.enemy.hits = b.enemy.maxHits - carried;
+      s.carry = carried;                       // exploration builds a fresh foe on contact, so remember it
       // the fallen foe stays "on stage" until Next, then the new one enters
       b.pend = { dead: { key: dead.key, name: dead.name, boss: dead.boss, maxHits: dead.maxHits, scale: dead.scale },
                  floor: oldFloor, done: oldIdx + 1, carry: carried };
@@ -1284,7 +1337,7 @@ function viewBattle() {
     const frozen = s.frozen && t !== "foeEnter";
     const plate = `<div class="nameplate ${b.enemy.boss ? "boss" : ""} ${frozen ? "frozen" : ""}">${frozen ? "❄ " : ""}${esc(b.enemy.name)}</div>`;
     let ex = t === "heroAttack" ? strike + hitTag + stuck : "";
-    if (t === "foeEnter" && fx.carry) ex += `<div class="dmg" style="color:${C.color};--d:.75s">-${fx.carry} carried</div>`;
+    if ((t === "foeEnter" || t === "enter") && fx.carry) ex += `<div class="dmg" style="color:${C.color};--d:.75s">-${fx.carry} carried</div>`;
     if (t === "foeEnter" && b.enemy.boss) ex += `<div class="bossbang">!</div>`;
     if (frozen) ex += `<div class="iceblock"></div>`;
     if (t === "enemyAttack" && fx.thorned) ex += `<div class="dmg" style="color:#fca5a5;--d:.5s">-1 thorns</div>`;
@@ -1399,7 +1452,8 @@ function viewBattle() {
   if (S.feedback) {
     const ok = S.feedback === "correct", lh = b.lastHit || {};
     let head;
-    if (ok) head = (lh.name ? lh.name + " hit for " + lh.dmg + "!" : lh.crit ? "Critical hit! " + lh.dmg + " damage" : lh.dmg > 1 ? "Hit for " + lh.dmg + "!" : "Hit!") + (lh.surged ? " Mana Surge refilled your charge." : "");
+    if (ok && lh.ward != null) head = lh.ward > 0 ? "A ward rune shatters! " + lh.ward + " more shield " + esc(b.enemy.name) + "." : "The last ward rune shatters. " + esc(b.enemy.name) + " is exposed!";
+    else if (ok) head = (lh.name ? lh.name + " hit for " + lh.dmg + "!" : lh.crit ? "Critical hit! " + lh.dmg + " damage" : lh.dmg > 1 ? "Hit for " + lh.dmg + "!" : "Hit!") + (lh.surged ? " Mana Surge refilled your charge." : "");
     else if (b.dying) head = "Knocked out" + (lh.fizzle ? ". " + lh.fizzle + " fizzled" : "");
     else if (lh.frozen) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "The") + " frozen foe couldn't swing";
     else if (lh.missed) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "Wrong, but the") + " attack missed you";
@@ -1428,7 +1482,10 @@ function viewBattle() {
           ? `<button class="primary" data-act="battleNext" style="background:var(--star);color:#111">★ Level up! Choose your pick →</button>`
           : `<button class="primary" data-act="battleNext" style="background:${pend && b.enemy.boss ? "var(--bad)" : "var(--accent)"}">${nextLabel}</button>`;
 
-  const tag = b.curMiss ? `<div class="qtag">${esc(b.enemy.name)} remembers your misses</div>`
+  const wl = wardLeft(s);
+  const tag = wl > 0 ? `<div class="qtag">🔮 Warded · ${wl} unanswered question${wl === 1 ? "" : "s"} shield ${esc(b.enemy.name)}</div>`
+    : b.curReview ? `<div class="qtag">Review · one of your weak spots</div>`
+    : b.curMiss ? `<div class="qtag">${esc(b.enemy.name)} remembers your misses</div>`
     : b.curStar ? `<div class="qtag star">Starred · back for another round</div>` : "";
   const left = freshLeft();
 
@@ -1448,7 +1505,7 @@ function viewBattle() {
           <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
           ${tag}
           <div class="qtext">${esc(q.question)}</div>
-          <div class="qleft">${b.curOrder ? `In order · question ${deckOrder().findIndex(x => x.id === q.id) + 1} of ${deckOrder().length}` : `${left} new question${left === 1 ? "" : "s"} left before repeats`}</div>
+          <div class="qleft">${b.curReview ? "Review question" : b.curOrder ? `In order${s.passDone ? " (pass 2+)" : ""} · question ${deckOrder().findIndex(x => x.id === q.id) + 1} of ${deckOrder().length}` : `${left} new question${left === 1 ? "" : "s"} left before repeats`}</div>
         </div>
         <div class="bopts">${opts}</div>
         ${fb}

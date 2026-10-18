@@ -354,11 +354,16 @@ function startMapFight(o) {
   const b = S.battle, s = b.s;
   s.idx = o.boss ? floorInfo(s, s.floor).foes.length : o.foe;
   b.enemy = makeEnemy(s);
+  // overkill from a carry technique (Whirlwind, Chain Lightning, Piercing Shot, Arrow Rain) hits the next foe you meet
+  const carried = s.carry ? Math.min(s.carry, b.enemy.maxHits - 1) : 0;
+  if (carried) b.enemy.hits = b.enemy.maxHits - carried;
+  s.carry = 0;
   b.mapFight = o.boss ? "boss" : o.id;
   b.pend = null; b.armed = null; b.note = null; b.lvl = null;
   fightStart(s, b.h);
   pickQuestion(); resetQ(); freshOrder(b.cur);
-  b.fx = { type: o.boss ? "foeEnter" : "enter" };
+  b.fx = { type: o.boss ? "foeEnter" : "enter", carry: carried };
+  if (carried) b.note = { kind: "kill", text: "Your attack carried over: -" + carried };
   persistMap();
   S.screen = "battle"; S.navIdx = 0;
   if (o.boss) setTimeout(() => sfx.bBoss(), 380); else sfx.bStart();
