@@ -173,6 +173,7 @@ function topbar() {
   if (settings.theme === "chameleon") items.push(chamControl());
   items.push(`<button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>`);
   items.push(`<button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>`);
+  items.push(`<button class="iconbtn" data-act="raiseFlag" data-nonav title="Raise a flag" aria-label="Raise a flag"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 22V3"/><path d="M5 3h12l-2.5 4.5L17 12H5"/></svg></button>`);
   items.push(`<button class="iconbtn ${mapOn() ? "" : "off"}" data-act="toggleMap" data-nonav title="${mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"}">${MAP_ICON}</button>`);
   if (fsSupported()) items.push(`<button class="iconbtn" data-act="fullscreen" data-nonav title="${isFs() ? "Exit fullscreen" : "Fullscreen"}">${FS_SVG(isFs())}</button>`);
   const n = items.length;
@@ -734,6 +735,7 @@ document.addEventListener("click", ev => {
   }
   if (act === "chamTone") { cycleChamTone(); _flushColorCache(); sfx.select(); return render(); }
   if (act === "chamLock") { toggleChamLock(); _flushColorCache(); sfx.select(); return render(); }
+  if (act === "raiseFlag") { if (window.Kit) Kit.flag.menu(); return; }
   if (act === "toggleMute") {
     settings.muted = !settings.muted; saveSettings();
     if (!settings.muted) sfx.select();
