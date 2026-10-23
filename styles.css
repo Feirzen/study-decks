@@ -1169,6 +1169,8 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .dlgbtns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
 .iconbtn.off { opacity: .5; }
 .iconbtn.off svg { stroke-dasharray: 3 2; }
+.fk-btn.sd-off { opacity: .5; }
+.fk-btn.sd-off svg { stroke-dasharray: 3 2; }
 @media (max-width: 939px) { .mapwrap .bright { margin-top: 12px; } }
 
 /* ---- three study filters ---- */

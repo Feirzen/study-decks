@@ -165,35 +165,11 @@ function syncFsBtn() {
 }
 ["fullscreenchange", "webkitfullscreenchange"].forEach(e => document.addEventListener(e, syncFsBtn));
 
-/* Settings gear: tap it and it spins while the buttons roll out below it.
-   Tap again and they roll back up. Toggled straight on the live element
-   (no re-render) so the CSS transitions get to play. */
-function topbar() {
-  const items = [];
-  if (settings.theme === "chameleon") items.push(chamControl());
-  items.push(`<button class="iconbtn" data-act="toggleMute" data-nonav title="${settings.muted ? "Unmute" : "Mute"}">${I.sound(!settings.muted)}</button>`);
-  items.push(`<button class="iconbtn ${S.menuOpen ? "on" : ""}" data-act="themeMenu" data-nonav title="Theme">${I.palette}</button>`);
-  items.push(`<button class="iconbtn" data-act="raiseFlag" data-nonav title="Raise a flag" aria-label="Raise a flag"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 22V3"/><path d="M5 3h12l-2.5 4.5L17 12H5"/></svg></button>`);
-  items.push(`<button class="iconbtn ${mapOn() ? "" : "off"}" data-act="toggleMap" data-nonav title="${mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"}">${MAP_ICON}</button>`);
-  if (fsSupported()) items.push(`<button class="iconbtn" data-act="fullscreen" data-nonav title="${isFs() ? "Exit fullscreen" : "Fullscreen"}">${FS_SVG(isFs())}</button>`);
-  const n = items.length;
-  return `<div class="topbar ${S.gearOpen ? "open" : ""}">
-    <button class="iconbtn gear" data-act="gear" data-nonav title="Settings" aria-label="Settings" aria-expanded="${!!S.gearOpen}">${GEAR_SVG}</button>
-    <div class="tray">${items.map((h, i) => `<div class="tritem" style="--i:${i};--r:${n - 1 - i}">${h}</div>`).join("")}</div>
-  </div>`;
-}
-function toggleGear() {
-  S.gearOpen = !S.gearOpen;
-  const bar = document.querySelector(".topbar");
-  if (bar) {
-    bar.classList.toggle("open", S.gearOpen);
-    bar.querySelector(".gear").setAttribute("aria-expanded", S.gearOpen);
-  }
-  if (!S.gearOpen && S.menuOpen) S.menuOpen = false;
-  if (!S.menuOpen) { const m = document.querySelector(".thememenu"); if (m) m.remove();
-    const p = document.querySelector('.topbar [data-act="themeMenu"]'); if (p) p.classList.remove("on"); }
-  sfx.tick();
-}
+/* Settings gear: the shared kit (Feirzen/flag-hub kit/kit.js) owns it now. The gear
+   button lives in index.html outside #app so it survives every re-render, and the kit
+   rolls out Look, Flag, Sound, Map and Fullscreen under it (wired at the bottom of this file).
+   Views still call topbar(); it has nothing left to draw. */
+function topbar() { return ""; }
 function themeMenu() {
   const rows = Object.keys(THEMES).map(k => {
     const t = THEMES[k];
@@ -713,7 +689,6 @@ document.addEventListener("click", ev => {
   const act = t.dataset.act;
 
   // ---- top bar / modals
-  if (act === "gear") return toggleGear();
   if (act === "fullscreen") { sfx.tick(); return toggleFullscreen(); }
   if (act === "toggleMap") {
     settings.mapMode = !mapOn(); saveSettings(); sfx.select();
@@ -858,5 +833,39 @@ document.addEventListener("click", ev => {
 });
 
 function _flushColorCache() { for (const k in _ckCache) delete _ckCache[k]; }
+
+/* ===================== SHARED SETTINGS GEAR (Feirzen/flag-hub kit) =====================
+   Study Decks keeps painting its own looks (Paper / Midnight / Sepia / Chameleon);
+   the kit is just the controls. Keep the kit <script> tag at the bottom of index.html. */
+const KIT_TO_SD = { light: "paper", dark: "midnight", sepia: "sepia", chameleon: "chameleon" };
+const SD_TO_KIT = { paper: "light", midnight: "dark", sepia: "sepia", chameleon: "chameleon" };
+function kitBtn(id) { return document.querySelector(`.fk-tray [data-id="${id}"]`); }
+function kitSync() {
+  const s = kitBtn("sound"); if (s) { s.innerHTML = I.sound(!settings.muted); s.title = s.ariaLabel = settings.muted ? "Sound off (tap for on)" : "Sound on (tap for off)"; }
+  const m = kitBtn("map"); if (m) { m.classList.toggle("sd-off", !mapOn()); m.title = m.ariaLabel = mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"; }
+  const f = kitBtn("fullscreen"); if (f) { f.innerHTML = FS_SVG(isFs()); f.title = f.ariaLabel = isFs() ? "Exit fullscreen" : "Fullscreen"; }
+}
+function lookChanged() { _flushColorCache(); render(); }
+window.KitConfig = {
+  gear: "#sdGear",
+  look: {
+    labels: { light: "Paper", dark: "Midnight" },
+    get: () => ({ theme: SD_TO_KIT[settings.theme] || "dark", tone: settings.chamTone === "light" || settings.chamTone === "dark" ? settings.chamTone : "any", locked: !!settings.chamLock }),
+    set: t => { settings.theme = KIT_TO_SD[t] || "midnight"; settings.chamLock = null; chamCounter = 0; saveSettings(); applyTheme(); sfx.select(); lookChanged(); },
+    tone: t => { settings.chamTone = t === "light" || t === "dark" ? t : "auto"; chamCounter = 0; paintChameleon(makeChameleon()); if (settings.chamLock) lockChameleon(); else saveSettings(); lookChanged(); },
+    lock: on => { if (on) lockChameleon(); else { settings.chamLock = null; saveSettings(); } },
+    reroll: () => { rollChameleon(true); lookChanged(); },
+  },
+  tray: [
+    { id: "sound", label: "Sound", icon: I.sound(!settings.muted), onClick: () => { settings.muted = !settings.muted; saveSettings(); if (!settings.muted) sfx.select(); kitSync(); } },
+    { id: "map", label: "Exploration map", icon: MAP_ICON, onClick: () => {
+      settings.mapMode = !mapOn(); saveSettings(); sfx.select(); kitSync();
+      if (S.screen === "map" && S.battle && !mapOn()) { S.battle.mapMode = false; openSlot(S.battle.slot); }
+    } },
+    ...(fsSupported() ? [{ id: "fullscreen", label: "Fullscreen", icon: FS_SVG(isFs()), onClick: () => { sfx.tick(); toggleFullscreen(); } }] : []),
+  ],
+};
+["fullscreenchange", "webkitfullscreenchange"].forEach(e => document.addEventListener(e, kitSync));
+document.addEventListener("DOMContentLoaded", () => setTimeout(kitSync, 0));
 
 boot();
