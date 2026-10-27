@@ -60,6 +60,13 @@
           "subtitle": "Water, Amino Acids, Protein Structure, Separations & Hemoglobin",
           "color": "#F43F5E",
           "file": "sets/chem-481/exam-1.json"
+        },
+        {
+          "id": "chem-481-exam-2",
+          "title": "Exam 2",
+          "subtitle": "Kinetics, Chymotrypsin, Lipids & Membranes, Signaling, Thermo & Redox",
+          "color": "#8B5CF6",
+          "file": "sets/chem-481/exam-2.json"
         }
       ]
     },
