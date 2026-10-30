@@ -253,15 +253,13 @@ function viewHome() {
       <div class="wordmark">Study<span class="l2">Decks</span></div>
       <div class="rule"></div>
     </div>
-    <button class="card hallbtn" data-act="openHall">
-      <span class="hallcup">${trophyCanvas(firstTrophyStory(), 2)}</span>
-      <div style="flex:1"><div class="eyebrow" style="color:var(--star)">Trophies</div>
-      <div style="font-size:17px;font-weight:bold;margin-top:2px">Hall of Fame</div>
-      <div class="muted" style="font-size:12px;margin-top:2px">${hallLine()}</div></div>
-      <div style="font-size:22px;color:var(--star)">›</div>
-    </button>
     ${resume}
     ${cards || '<div class="empty">No classes yet. Add one in <code>sets/manifest.json</code>.</div>'}
+    <button class="hallbtn hallmini" data-act="openHall">
+      <span class="hallcup">${trophyCanvas(firstTrophyStory(), 1)}</span>
+      <span style="flex:1;text-align:left"><b>Hall of Fame</b><span class="muted"> · ${hallLine()}</span></span>
+      <span style="color:var(--star)">›</span>
+    </button>
   </div>`;
 }
 
