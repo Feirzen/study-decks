@@ -853,6 +853,9 @@ window.KitConfig = {
     tone: t => { settings.chamTone = t === "light" || t === "dark" ? t : "auto"; chamCounter = 0; paintChameleon(makeChameleon()); if (settings.chamLock) lockChameleon(); else saveSettings(); lookChanged(); },
     lock: on => { if (on) lockChameleon(); else { settings.chamLock = null; saveSettings(); } },
     reroll: () => { rollChameleon(true); lookChanged(); },
+    extras: [{ icon: "🎃", label: "Halloween decorations", sub: "Bats, cobwebs, falling leaves, pumpkins",
+      get: () => typeof hwOn === "function" && hwOn(),
+      set: on => { settings.halloween = !!on; saveSettings(); if (typeof hwApply === "function") hwApply(); sfx.select(); } }],
   },
   tray: [
     { id: "sound", label: "Sound", icon: I.sound(!settings.muted), onClick: () => { settings.muted = !settings.muted; saveSettings(); if (!settings.muted) sfx.select(); kitSync(); } },
