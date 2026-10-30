@@ -1737,6 +1737,37 @@ function ambEmit(key, rate, dt, fn) {
   AMB.acc[key] = (AMB.acc[key] || 0) + rate * dt;
   while (AMB.acc[key] >= 1) { AMB.acc[key] -= 1; AMB.parts.push(fn()); }
 }
+/* The fight uses the same ambience as the map room it started in
+   (quick battles: one look per floor). Falls back to particles. */
+function battleAmb(b) {
+  try { if (typeof roomAmb !== "function" || !b.s) return "parts"; return roomAmb(b.s, b.mapMode && b.s.map ? b.s.map.room : 0); }
+  catch (e) { return "parts"; }
+}
+const _bGrass = { key: "", blades: [] };
+function battleGrass(g, b, W, H, groundY, scene, hero, foe) {
+  const key = W + ":" + scene + ":" + (b.s.created || 0) + ":" + b.s.floor;
+  if (_bGrass.key !== key) {
+    const look = (typeof AMB_LOOK !== "undefined" && AMB_LOOK[scene]) || { grass: ["#365314", "#3f6212", "#a3e635", "#d9f99d"] }, cols = look.grass;
+    let h = (hashStr(key) >>> 0) || 1; const R = () => { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; return h / 4294967296; };
+    const out = [];
+    for (let x = 1; x < W - 1; x += 1 + Math.floor(R() * 3)) {
+      if (R() > 0.55) continue;
+      out.push({ x, y: groundY + 1 + Math.floor(R() * 3), h: (look.tall ? 4 : 3) + Math.floor(R() * (look.tall ? 4 : 3)), ph: R() * 6.28,
+        c: cols[Math.floor(R() * (cols.length - 1))], tip: cols[cols.length - 1] });
+    }
+    _bGrass.key = key; _bGrass.blades = out;
+  }
+  const t = AMB.t, near = [hero, foe].filter(Boolean);
+  for (const bl of _bGrass.blades) {
+    let sway = Math.sin(t * 1.6 + bl.ph) * 0.8 + Math.sin(t * 0.55 + bl.x * 0.05) * 1;
+    for (const o of near) { const cx = o.x + o.w / 2; if (Math.abs(bl.x - cx) < o.w * 0.6) sway += bl.x < cx ? -1.5 : 1.5; }   // fighters press it aside
+    for (let i = 0; i < bl.h; i++) {
+      const k = i / bl.h;
+      g.fillStyle = i === bl.h - 1 ? bl.tip : bl.c;
+      g.fillRect(Math.round(bl.x + sway * k * k), bl.y - i, 1, 1);
+    }
+  }
+}
 function ambientLoop(now) {
   const cv = document.getElementById("ambient");
   const b = S.battle;
@@ -1752,9 +1783,13 @@ function ambientLoop(now) {
   const rnd = (a, c) => a + R() * (c - a);
   const pick = arr => arr[Math.floor(R() * arr.length)];
 
-  /* --- story weather --- */
-  const scene = storyOf(s).scene;
-  if (scene === "cells" || scene === "sea") ambEmit("w", scene === "sea" ? 7 : 5, dt, () => ({
+  /* --- story weather (the room's look follows you into the fight: particles, mist, or grass) --- */
+  const scene = storyOf(s).scene, amb = battleAmb(b);
+  if (amb === "grass") battleGrass(g, b, W, H, groundY, scene, hero, foe);
+  else if (amb === "mist") { const mc = ((typeof AMB_LOOK !== "undefined" && AMB_LOOK[scene]) || { mist: "#e2e8f0" }).mist;
+    ambEmit("m", scene === "lava" ? 3 : 2.5, dt, () => ({ x: rnd(-6, W), y: rnd(groundY - 18, groundY + 4), vx: rnd(1, 3), vy: -(scene === "lava" ? rnd(3, 6) : rnd(1, 2.5)),
+      life: rnd(5, 8), l0: 0, c: mc, mist: 1, r0: rnd(2, 4) })); }
+  else if (scene === "cells" || scene === "sea") ambEmit("w", scene === "sea" ? 7 : 5, dt, () => ({
     x: rnd(0, W), y: groundY, vx: 0, vy: -rnd(5, 12), life: rnd(3, 6), c: scene === "sea" ? pick(["#bae6fd", "#e0f2fe", "#7dd3fc"]) : pick(["#d1fae5", "#a7f3d0", "#ffffff"]),
     wob: rnd(0, 6), sz: R() < 0.25 ? 2 : 1, ring: R() < 0.3 }));
   else if (scene === "lava") ambEmit("w", 9, dt, () => ({ x: rnd(0, W), y: groundY + rnd(0, 6), vx: rnd(-3, 3), vy: -rnd(12, 26), life: rnd(1.2, 2.4), c: pick(["#fde047", "#fb923c", "#f97316", "#ef4444"]), flick: 1 }));
@@ -1790,6 +1825,16 @@ function ambientLoop(now) {
     if (p.life <= 0 || p.x < -4 || p.x > W + 4 || p.y < -6 || p.y > H + 4) continue;
     p.x += (p.vx + (p.wob != null ? Math.sin(AMB.t * 2 + p.wob) * 3 : 0)) * dt;
     p.y += p.vy * dt;
+    if (p.mist) {
+      if (!p.l0) p.l0 = p.life;
+      const age = 1 - p.life / p.l0, r = p.r0 + age * 8, X = Math.round(p.x), Y = Math.round(p.y);
+      g.fillStyle = p.c;
+      [[1, 0.06], [0.7, 0.07], [0.4, 0.08]].forEach(([k, a]) => {
+        g.globalAlpha = a * Math.sin(Math.PI * age);
+        g.beginPath(); g.ellipse(X, Y, Math.max(1, Math.round(r * 2.2 * k)), Math.max(1, Math.round(r * 0.9 * k)), 0, 0, Math.PI * 2); g.fill();
+      });
+      g.globalAlpha = 1; keep.push(p); continue;
+    }
     if (p.blink && Math.floor((AMB.t + p.x) * 4) % 3 === 0) { keep.push(p); continue; }
     g.globalAlpha = p.life < 0.3 ? 0.5 : 1;
     g.fillStyle = p.flick && R() < 0.2 ? "#ffffff" : p.c;
