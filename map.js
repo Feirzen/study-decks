@@ -872,6 +872,8 @@ function mapLoop(now) {
   if (rm.last) drawDoor(g, rm, "east", foesLeft(s) === 0, "gate");
   else if (rm.lock) drawDoor(g, rm, "east", ms.unlocked, "lock");
   rm.torches.forEach(t => drawTorch(g, t.x, t.y, MS.time));
+  const amb = roomAmb(s, ms.room);
+  if (amb === "grass") mapGrass(g, s, F, ms.room, rm);
   // y-sorted things
   const things = [];
   rm.props.forEach(p => things.push({ y: p.y, draw: () => { const im = spriteImg(p.key, p.flip); if (im) g.drawImage(im, p.x * T + Math.round((T - im.width) / 2), p.y * T + T - im.height); } }));
@@ -917,7 +919,7 @@ function mapLoop(now) {
     g.fillStyle = near.type === "foe" ? "#ef4444" : "#fde047"; g.fillRect(X + 1, Y, 2, 4); g.fillRect(X + 1, Y + 5, 2, 1);
   }
   // ---------- weather (low-key, logical pixels) ----------
-  mapWeather(g, dt, F.scene);
+  mapWeather(g, dt, F.scene, amb);
   // ---------- darkness with torch + hero light ----------
   if (F.dark) {
     const dc = MS.cache.dark || (MS.cache.dark = document.createElement("canvas"));
@@ -948,11 +950,63 @@ function mapLoop(now) {
   if (MS.fadeTo) { MS.fade = Math.min(1, MS.fade + dt * 6); g.fillStyle = "rgba(0,0,0," + (Math.ceil(MS.fade * 4) / 4) + ")"; g.fillRect(0, 0, cv.width, cv.height); }
   MS.raf = requestAnimationFrame(mapLoop);
 }
-function mapWeather(g, dt, scene) {
+/* ===================== ROOM AMBIENCE =====================
+   Each room picks one of three looks, so walking room to room changes the
+   feel: the story's floating particles, rising mist (steam on lava), or
+   grass swaying up from the floor. Tinted per story. Picked from the map
+   seed without drawing from the floor RNG, so layouts never change. */
+const AMB_LOOK = {
+  mountains: { mist: "#e2e8f0", grass: ["#365314", "#3f6212", "#a3e635", "#d9f99d"] },
+  castle:    { mist: "#cbd5e1", grass: ["#365314", "#4d7c0f", "#84cc16", "#bef264"] },
+  cells:     { mist: "#fbcfe8", grass: ["#db2777", "#f472b6", "#f9a8d4", "#fbe4e0"], tall: 1 },
+  lava:      { mist: "#fed7aa", grass: ["#451a03", "#7c2d12", "#9a3412", "#f97316"] },
+  sea:       { mist: "#ccfbf1", grass: ["#115e59", "#0f766e", "#14b8a6", "#65a30d"], tall: 1 },
+  gears:     { mist: "#e7e5e4", grass: ["#78350f", "#92400e", "#b45309", "#d4a373"] },
+  ice:       { mist: "#f0f9ff", grass: ["#7dd3fc", "#bae6fd", "#e0f2fe", "#ffffff"] },
+  desert:    { mist: "#fde68a", grass: ["#854d0e", "#a16207", "#ca8a04", "#e7c27d"] },
+  carnival:  { mist: "#e9d5ff", grass: ["#f472b6", "#facc15", "#60a5fa", "#4ade80", "#c084fc"] },
+};
+const AMB_KINDS = ["parts", "mist", "grass"];
+function roomAmb(run, ri) { return AMB_KINDS[(mapSeed(run) + ri * 7) % 3]; }
+const _grassCache = {};
+function grassBlades(run, F, ri, rm) {
+  const key = mapSeed(run) + ":" + ri;
+  if (_grassCache[key]) return _grassCache[key];
+  let h = (mapSeed(run) ^ (ri + 1) * 2654435761) >>> 0;
+  const R = () => { h = (Math.imul(h, 1664525) + 1013904223) >>> 0; return h / 4294967296; };
+  const look = AMB_LOOK[F.scene] || AMB_LOOK.mountains, cols = look.grass, out = [];
+  for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) {
+    if (rm.g[y][x] !== 0 || R() > 0.22) continue;
+    const n = 2 + Math.floor(R() * 3), bx = x * T + 2 + Math.floor(R() * 10), by = y * T + 8 + Math.floor(R() * 7);
+    for (let i = 0; i < n; i++) out.push({ x: bx + i * 2 - n + Math.floor(R() * 2), y: by + Math.floor(R() * 2),
+      h: (look.tall ? 6 : 4) + Math.floor(R() * (look.tall ? 6 : 4)), ph: R() * 6.28, c: cols[Math.floor(R() * (cols.length - 1))], tip: cols[cols.length - 1] });
+  }
+  return (_grassCache[key] = out);
+}
+function mapGrass(g, run, F, ri, rm) {
+  const t = MS.time, hx = MS.x * T + 8, hy = MS.y * T + T;
+  for (const b of grassBlades(run, F, ri, rm)) {
+    let sway = Math.sin(t * 1.6 + b.ph) * 1.1 + Math.sin(t * 0.55 + b.x * 0.025) * 1.3;
+    const dx = b.x - hx, dy = b.y - hy;
+    if (Math.abs(dx) < 9 && Math.abs(dy) < 6) sway += dx < 0 ? -2.5 : 2.5;      // the hero brushes it aside
+    for (let i = 0; i < b.h; i++) {
+      const k = i / b.h;
+      g.fillStyle = i === b.h - 1 ? b.tip : b.c;
+      g.fillRect(Math.round(b.x + sway * k * k), b.y - i, 1, 1);
+    }
+  }
+}
+function mapWeather(g, dt, scene, amb) {
   const W = RW * T, H = RH * T, R = Math.random, P = MS.parts;
   const emit = (k, rate, fn) => { MS.acc[k] = (MS.acc[k] || 0) + rate * dt; while (MS.acc[k] >= 1) { MS.acc[k]--; P.push(fn()); } };
   const pick = a => a[Math.floor(R() * a.length)];
-  if (scene === "ice") emit("w", 14, () => ({ x: R() * W, y: -2, vx: R() * 6 - 3, vy: 10 + R() * 10, l: 8, c: pick(["#ffffff", "#e0f2fe"]) }));
+  if (amb === "grass") { /* the grass is the ambience in this room */ }
+  else if (amb === "mist") {
+    const look = AMB_LOOK[scene] || AMB_LOOK.mountains;
+    emit("m", scene === "lava" ? 5 : 4, () => ({ x: R() * W, y: H * (0.35 + R() * 0.7), vx: 2 + R() * 4, vy: -(scene === "lava" ? 6 + R() * 5 : 2 + R() * 3),
+      l: 6 + R() * 3, l0: 0, c: look.mist, mist: 1, r0: 3 + R() * 3 }));
+  }
+  else if (scene === "ice") emit("w", 14, () => ({ x: R() * W, y: -2, vx: R() * 6 - 3, vy: 10 + R() * 10, l: 8, c: pick(["#ffffff", "#e0f2fe"]) }));
   else if (scene === "desert") emit("w", 22, () => ({ x: -2, y: R() * H, vx: 40 + R() * 30, vy: R() * 6 - 3, l: 6, c: pick(["#e7c27d", "#f5deb3", "#d6b26a"]) }));
   else if (scene === "lava") emit("w", 9, () => ({ x: R() * W, y: H + 2, vx: R() * 4 - 2, vy: -(14 + R() * 16), l: 4, c: pick(["#fde047", "#f97316", "#ef4444"]), fl: 1 }));
   else if (scene === "gears") emit("w", 5, () => ({ x: R() * W, y: H * (0.2 + R() * 0.8), vx: R() * 4 - 2, vy: -(6 + R() * 8), l: 2.5, c: pick(["#d6d3d1", "#e7e5e4"]), sz: 2 }));
@@ -963,6 +1017,17 @@ function mapWeather(g, dt, scene) {
   for (const p of P) {
     p.l -= dt; if (p.l <= 0 || p.x > W + 4 || p.y > H + 4 || p.y < -6) continue;
     p.x += (p.vx + (p.wob != null ? Math.sin(MS.time * 2 + p.wob) * 4 : 0)) * dt; p.y += p.vy * dt;
+    if (p.mist) {
+      if (!p.l0) p.l0 = p.l;
+      const age = 1 - p.l / p.l0, r = p.r0 + age * 12, X = Math.round(p.x), Y = Math.round(p.y);
+      g.fillStyle = p.c;                                   // soft, wide wisps: three stacked layers, faint at the edges
+      [[1, 0.05], [0.7, 0.06], [0.4, 0.07]].forEach(([k, a]) => {
+        g.globalAlpha = a * Math.sin(Math.PI * age);
+        g.beginPath(); g.ellipse(X, Y, Math.max(1, Math.round(r * 2.2 * k)), Math.max(1, Math.round(r * 0.9 * k)), 0, 0, Math.PI * 2); g.fill();
+      });
+      g.globalAlpha = 1;
+      keep.push(p); continue;
+    }
     if (p.bl && Math.floor((MS.time + p.x) * 3) % 3 === 0) { keep.push(p); continue; }
     g.fillStyle = p.fl && R() < 0.2 ? "#ffffff" : p.c;
     g.fillRect(Math.round(p.x), Math.round(p.y), p.sz || 1, p.sz || 1);
