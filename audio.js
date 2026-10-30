@@ -153,9 +153,8 @@ lessonPeekHtml = function (id) {
   const html = _audBasePeek(id);
   const hit = findLesson(id);
   if (!html || !hit || !hit.l.audio) return html;
-  const anchor = '<div class="ls-body">';
-  const i = html.indexOf(anchor);
-  return i < 0 ? html : html.slice(0, i) + `<div style="margin-bottom:14px">${audPlayer(hit.l.audio, hit.l.title, hit.c.category, hit.l.audioSecs)}</div>` + html.slice(i);
+  // docked at the bottom of the pop-up so play/pause stays in reach while you scroll the reading
+  return html + `<div class="pk-au">${audPlayer(hit.l.audio, hit.l.title, hit.c.category, hit.l.audioSecs)}</div>`;
 };
 const _audBaseSetHome = viewSetHome;
 viewSetHome = function () {
@@ -194,6 +193,8 @@ render = function () { _audBaseRender(); audPaint(); };
 .au-time { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .au-sp { flex: 0 0 auto; background: var(--surface2); border: 1px solid var(--border); color: var(--dim); border-radius: 999px; padding: 6px 10px; font-size: 12px; cursor: pointer; font-family: inherit; min-width: 50px; }
 .au-list { margin-bottom: 14px; }
+.pk-au { position: sticky; bottom: -22px; z-index: 2; margin: 14px -20px -22px; padding: 10px 20px 14px; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -10px 18px -12px var(--shadow); }
+.pk-au .au { margin-bottom: 0; }
 #auMini { position: fixed; left: 50%; bottom: 14px; transform: translate(-50%, 140%); width: min(560px, calc(100% - 24px)); display: flex; align-items: center; gap: 12px;
   background: var(--surface); border: 1.5px solid var(--accent); border-radius: 16px; padding: 8px 10px; box-shadow: 0 10px 30px var(--shadow); z-index: 60; overflow: hidden;
   transition: transform .4s cubic-bezier(.22,.8,.3,1); }
