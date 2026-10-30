@@ -272,7 +272,10 @@ pickQuestion = function () {
 };
 const _twDamage = damageFrom;
 damageFrom = function (run, boss) {
-  const d = _twDamage(run, boss);
+  /* floors are ~3x longer than the old 5-floor runs, so each wrong answer hurts less (and kills heal, below) */
+  const d = run && run.v3 && run.floor <= SL() + 1
+    ? Math.round((6 + 1.2 * Math.min(run.floor, 12)) * (boss ? 1.45 : 1) * diffOf(run).dmg)
+    : _twDamage(run, boss);
   return S.battle && S.battle.bossFx === "fury" ? Math.round(d * 1.5) : d;
 };
 
@@ -281,7 +284,16 @@ const _twSubmit = submitBattle;
 submitBattle = function () {
   const b = S.battle; if (!b) return _twSubmit();
   const s = b.s, f0 = s.floor, wasBoss = b.enemy && b.enemy.boss, wasMinion = b.enemy && b.enemy.minion;
+  const kills0 = s.kills, idx0 = s.idx, keep = s.map && s.map.floor === s.floor ? { cleared: s.map.cleared.slice(), quest: s.map.quest, items: s.map.items } : null;
   _twSubmit();
+  // every regular kill patches you up a little (on top of Vampiric)
+  if (s.v3 && s.kills > kills0 && !wasBoss && !b.over) {
+    const mx = maxHpOf(s, b.h), amt = Math.min(mx - s.hp, Math.round(mx * 0.2));
+    if (amt > 0) { s.hp += amt; if (b.fx) b.fx.heal = (b.fx.heal || 0) + amt; saveAdv(); }
+  }
+  // a knockout sends you back to the entrance, but the foes you beat stay beaten
+  if (s.v3 && b.over && keep && s.map && s.map.floor === f0) { Object.assign(s.map, keep); saveAdv(); }
+  if (s.v3 && b.over && !b.mapMode && s.floor === f0 && !wasBoss) { s.idx = idx0; saveAdv(); }
   b.bossFx = null;
   document.body.classList.remove("bfx-fog", "bfx-quake", "bfx-shadow", "bfx-heal", "bfx-fury");
   if (!s.v3) return;
@@ -848,6 +860,15 @@ viewMap = function () {
   if (S.picker) html += twPickerHtml();
   return html;
 };
+const _twViewBattle = viewBattle;
+viewBattle = function () {
+  let html = _twViewBattle();
+  const b = S.battle;
+  if (!b || !b.s.v3 || b.mapMode) return html;
+  if (!S.feedback && !b.lvl) html = html.replace('title="Save & exit">', `title="Save & exit">`).replace(/(<div class="bhead">\s*<div style="display:flex;align-items:center;gap:8px">)/, `$1<button class="iconbtn tw-qstairs" data-act="twOpen" data-nonav title="Floors" aria-label="Floors" style="order:2">${STAIRS_SVG}</button>`);
+  if (S.picker) html += twPickerHtml();
+  return html;
+};
 /* the throne room fight is easier to follow with the boss named on the gate */
 document.addEventListener("click", ev => {
   const t = ev.target.closest("[data-act]"); if (!t) return;
@@ -932,6 +953,7 @@ render = function () {
     transition: transform .18s ease, background .2s ease; }
   .tw-stairs:hover { background: rgba(10,8,16,.75); transform: translateY(-1px); }
   .tw-stairs:active { transform: scale(.94); }
+  .tw-qstairs { opacity: .85; }
   .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; height: auto; image-rendering: pixelated; pointer-events: none;
     padding: 5px; border-radius: 9px; background: rgba(10,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   .tw-prog { margin: 2px 0 8px; }

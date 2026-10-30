@@ -412,7 +412,7 @@ const F = (name, tint, foes, boss) => ({ name, tint, foes: foes.map(([k, n]) => 
 const STORIES = {
   classic: {
     title: "The Dragon's Lair", scene: "mountains", color: "#f59e0b",
-    premise: "Five floors of monsters stand between you and Ashmaw, the dragon who burned the valley.",
+    premise: "A tower of monsters stands between you and Ashmaw, the dragon who burned the valley.",
     goal: "Slay Ashmaw the Dragon.",
     victory: "Ashmaw is beaten and the lair is quiet. The valley can finally rebuild.",
     trophy: { name: "Fang of Ashmaw", perk: "maxhp", text: "+10 max HP" },

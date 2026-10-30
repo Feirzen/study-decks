@@ -1352,7 +1352,7 @@ function viewBattle() {
   const sfxLayer = attacking ? projectiles(style, fx.crit && !sp) : "";
 
   /* ---- floor progress dots ---- */
-  const nFoes = fl.foes.length;
+  const nFoes = b.mapMode && s.map && typeof totalFoes === "function" ? totalFoes(s) : fl.foes.length;
   const doneIdx = b.mapMode && s.map ? (b.enemy && b.enemy.boss && !pend ? nFoes : s.map.cleared.length) : pend ? pend.done : s.idx;
   let dots = "";
   for (let i = 0; i <= nFoes; i++) {

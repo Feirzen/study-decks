@@ -651,7 +651,7 @@ function viewMap() {
   } else if (b.lvl) panel = viewLevelUp();
   const help = S.mapHelpOpen ? `<div class="maphelpwrap"><div class="maphelp tex fbpop">
       <div class="eyebrow" style="margin-bottom:6px;color:var(--star)">Exploring</div>
-      <div class="dim" style="font-size:14px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Chests, shrines and strangers are optional, and secrets hide near the walls.</div>
+      <div class="dim" style="font-size:14px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Doors lead every direction: some need a key, and some rooms seal you in until you clear them. The <b>boss door</b> opens once every guardian is down and you've seen every question in the chapter (the meter below tracks it). Chests, shrines and strangers are optional, and secrets can sparkle anywhere. The stairs button (top left) lets you jump between floors.</div>
       <label class="nohelp"><input type="checkbox" id="mapHelpNo"> Don't show this again</label>
       <button class="primary" data-act="mapHelpOk" style="background:var(--accent);margin-top:10px">Got it</button>
     </div></div>` : "";
