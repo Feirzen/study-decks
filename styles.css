@@ -1205,3 +1205,8 @@ canvas[data-ghost] { animation: ghostout .3s steps(2) var(--d, .14s) forwards; }
 .mapdlg.overmap .dlgbtns { flex-direction: row; flex-wrap: wrap; margin-top: 10px; }
 .mapdlg.overmap .dlgbtns > * { flex: 1 1 160px; padding: 10px; font-size: 14px; }
 @media (max-width: 520px) { .mapdlg.overmap { left: 6px; right: 6px; bottom: 6px; padding: 10px 12px; } .mapdlg.overmap .dlgtext { font-size: 13.5px; } }
+
+.hallmini { width: 100%; margin: 22px 0 10px; padding: 10px 14px; border-radius: 12px; background: transparent; border: 1px dashed var(--border);
+  color: var(--text); font: inherit; font-size: 13.5px; cursor: pointer; opacity: .8; transition: opacity .2s ease, border-color .2s ease; }
+.hallmini:hover, .hallmini:focus-visible { opacity: 1; border-color: color-mix(in srgb, var(--star) 55%, var(--border)); }
+.hallmini .muted { font-size: 12.5px; }

@@ -553,6 +553,8 @@ function armSpecial(id) {
 function lvlPick(kind, id) {
   const b = S.battle, s = b.s, h = b.h;
   if (!b.lvl) return;
+  // a double tap must never roll twice (the second roll would replace the boon you just saw)
+  if (b.lvl.stage === "reveal" || b.lvl.stage === "done") return;
   const free = b.lvl.free;
   if (s.picks <= 0 && !free) return;
   if (kind === "learnMenu") { b.lvl = { stage: "learn" }; sfx.tick(); return rerender(); }
