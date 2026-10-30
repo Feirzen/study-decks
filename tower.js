@@ -672,6 +672,13 @@ function spawnCheck(ri, entering) {
 }
 const _twEnterMap = enterMap;
 enterMap = function (banner) {
+  const bb = S.battle, mm = bb && bb.s.map;
+  if (mm && bb.s.v3) {                                     // a save from an older layout: never start inside a wall
+    const F = floorData(bb.s), rm = F.rooms[mm.room];
+    if (!rm) { mm.room = 0; }
+    const R0 = F.rooms[mm.room];
+    if (!R0.g[mm.y] || R0.g[mm.y][mm.x] !== 0) { mm.x = R0.start.x; mm.y = R0.start.y; }
+  }
   const r = _twEnterMap(banner);
   const b = S.battle;
   if (b && b.s.v3 && b.s.map && floorData(b.s).graph) { spawnCheck(b.s.map.room, false); trialCheck(); render(); }
