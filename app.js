@@ -842,10 +842,10 @@ const SD_TO_KIT = { paper: "light", midnight: "dark", sepia: "sepia", chameleon:
 function kitBtn(id) { return document.querySelector(`.fk-tray [data-id="${id}"]`); }
 function kitSync() {
   const s = kitBtn("sound"); if (s) { s.innerHTML = I.sound(!settings.muted); s.title = s.ariaLabel = settings.muted ? "Sound off (tap for on)" : "Sound on (tap for off)"; }
-  const m = kitBtn("map"); if (m) { m.classList.toggle("sd-off", !mapOn()); m.title = m.ariaLabel = mapOn() ? "Exploration on (tap for quick battles)" : "Quick battles (tap to explore)"; }
   const f = kitBtn("fullscreen"); if (f) { f.innerHTML = FS_SVG(isFs()); f.title = f.ariaLabel = isFs() ? "Exit fullscreen" : "Fullscreen"; }
 }
 function lookChanged() { _flushColorCache(); render(); }
+const SX_ICON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v14"/><path d="m3 7 4-4 4 4"/><path d="M17 21V7"/><path d="m21 17-4 4-4-4"/></svg>';
 window.KitConfig = {
   gear: "#sdGear",
   look: {
@@ -858,10 +858,7 @@ window.KitConfig = {
   },
   tray: [
     { id: "sound", label: "Sound", icon: I.sound(!settings.muted), onClick: () => { settings.muted = !settings.muted; saveSettings(); if (!settings.muted) sfx.select(); kitSync(); } },
-    { id: "map", label: "Exploration map", icon: MAP_ICON, onClick: () => {
-      settings.mapMode = !mapOn(); saveSettings(); sfx.select(); kitSync();
-      if (S.screen === "map" && S.battle && !mapOn()) { S.battle.mapMode = false; openSlot(S.battle.slot); }
-    } },
+    { id: "transfer", label: "Transfer progress", icon: SX_ICON, onClick: () => openTransfer() },
     ...(fsSupported() ? [{ id: "fullscreen", label: "Fullscreen", icon: FS_SVG(isFs()), onClick: () => { sfx.tick(); toggleFullscreen(); } }] : []),
   ],
 };

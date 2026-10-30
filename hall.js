@@ -35,7 +35,20 @@ function saveHeroes() {
       if (mh) mergeHero(mh, dh);
     });
   } catch (e) {}
-  try { localStorage.setItem("fc:heroes", JSON.stringify(st)); } catch (e) {}
+  try { localStorage.setItem("fc:heroes", JSON.stringify(st)); }
+  catch (e) { heroSaveFailed(e); }
+}
+/* if the browser refuses the write (storage full, private mode), say so loudly
+   instead of letting a fresh boon quietly vanish on the next reload */
+let _heroWarned = 0;
+function heroSaveFailed(e) {
+  if (Date.now() - _heroWarned < 60000) return;
+  _heroWarned = Date.now();
+  try { if (typeof boonLog === "function") boonLog("SAVE FAILED " + (e && e.name || ""), S.battle && S.battle.h); } catch (x) {}
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:9999;max-width:340px;padding:12px 16px;border-radius:12px;background:#b91c1c;color:#fff;font-size:14px;line-height:1.4;box-shadow:0 6px 24px rgba(0,0,0,.35)";
+  d.textContent = "Couldn't save your hero on this device (" + ((e && e.name) || "storage error") + "). Export your progress from Settings → Transfer so nothing gets lost.";
+  document.body.appendChild(d); setTimeout(() => d.remove(), 9000);
 }
 /* another copy of the site saved: pull its newer boons/XP into this one */
 window.addEventListener("storage", ev => {
