@@ -189,13 +189,14 @@ function deckAnswered() {
   return t ? d / t : 0;
 }
 const THRONE_AT = 0.9;
+function floorDone(s, k) { const c = chapterStat(k); return (c.total && c.done >= c.total) || (s.cf || []).includes(k); }
+/* the next floor to learn on: the lowest one you haven't finished */
+function nextFloor(s) { for (let k = 1; k <= SL(); k++) if (!floorDone(s, k)) return k; return 0; }
 function floorOpen(s, k) {
-  const N = SL(), cf = s.cf || [];
+  const N = SL();
   if (k > N + 1) return !!s.cleared;
   if (k === N + 1) return deckAnswered() >= THRONE_AT || !!s.cleared;
-  if (k === 1) return true;
-  const c = chapterStat(k);
-  return (c.total && c.done >= c.total) || cf.includes(k) || cf.includes(k - 1);
+  return floorDone(s, k) || k === nextFloor(s);
 }
 
 /* ===================== SAVES: v3 only ===================== */
@@ -318,8 +319,8 @@ battleNextQuestion = function () {
 /* never walk onto a sealed floor: stay on the one you just cleared and open the stairs */
 function twSealedMsg(s, k) {
   if (isThrone(k)) return `The throne room is sealed. It opens once you've answered ${Math.round(THRONE_AT * 100)}% of the deck (you're at ${Math.round(deckAnswered() * 100)}%). Practice any floor in the meantime.`;
-  const c = chapterStat(k);
-  return `Floor ${k} is sealed. Finish its chapter (${c.done}/${c.total} answered) or clear floor ${k - 1} to open it.`;
+  const c = chapterStat(k), nx = nextFloor(s);
+  return `Floor ${k} is still sealed (${c.done}/${c.total} of its chapter answered).${nx ? ` Next up is floor ${nx}, the first one you haven't finished.` : ""}`;
 }
 const _twReturn = returnToMap;
 returnToMap = function () {
@@ -366,6 +367,141 @@ const RETURN_LINES = [
   "A fresh crate of supplies. Somebody's been restocking.",
   "Graffiti: \"Back again? Respect.\"",
 ];
+/* ===================== BRANCHING FLOORS =====================
+   Rooms sit on a grid and connect in every direction (a tree plus a few
+   loops). Some doors need keys, one room may seal you in (clear it, or
+   light its braziers), and the boss door can be anywhere. The boss door
+   opens only when every guardian is down AND you've seen every question
+   in the chapter. If you're tearing through foes faster than questions,
+   new foes show up in the rooms you walk into.                          */
+const GDIR = { e: [1, 0], w: [-1, 0], n: [0, -1], s: [0, 1] };
+const GOPP = { e: "w", w: "e", n: "s", s: "n" };
+function doorTile(side, pos) { return side === "e" ? { x: RW - 1, y: pos } : side === "w" ? { x: 0, y: pos } : side === "n" ? { x: pos, y: 0 } : { x: pos, y: RH - 1 }; }
+function doorInner(d) { return d.side === "e" ? { x: RW - 2, y: d.y } : d.side === "w" ? { x: 1, y: d.y } : d.side === "n" ? { x: d.x, y: 1 } : { x: d.x, y: RH - 2 }; }
+const GSHAPES = ["hall", "cave", "cross", "ring", "split", "L", "diamond", "pillars", "twin", "zigzag", "arena"];
+function genRoomG(R, idx, doors) {
+  const g = [];
+  for (let y = 0; y < RH; y++) { g.push([]); for (let x = 0; x < RW; x++) g[y].push(1); }
+  const carve = (x0, y0, x1, y1) => { for (let y = Math.max(1, y0); y <= Math.min(RH - 2, y1); y++) for (let x = Math.max(1, x0); x <= Math.min(RW - 2, x1); x++) g[y][x] = 0; };
+  const shape = GSHAPES[Math.floor(R() * GSHAPES.length)], cx = Math.floor(RW / 2), cy = Math.floor(RH / 2);
+  if (shape === "hall") carve(2, 2, RW - 3, RH - 3);
+  else if (shape === "cross") { carve(2, 5, RW - 3, RH - 6); carve(8, 2, RW - 9, RH - 3); }
+  else if (shape === "ring") { carve(2, 2, RW - 3, RH - 3); for (let y = 6; y <= RH - 7; y++) for (let x = 9; x <= RW - 10; x++) g[y][x] = 1; }
+  else if (shape === "split") { carve(2, 2, RW - 3, RH - 3); const wx = 8 + Math.floor(R() * 10); for (let y = 2; y < RH - 2; y++) if (Math.abs(y - cy) > 2) g[y][wx] = 1; }
+  else if (shape === "L") { carve(2, 2, RW - 3, 8); if (R() < 0.5) carve(2, 2, 10, RH - 3); else carve(RW - 11, 2, RW - 3, RH - 3); carve(2, RH - 7, RW - 3, RH - 3); }
+  else if (shape === "diamond") { for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) if (Math.abs(x - cx) / 12 + Math.abs(y - cy) / 7 <= 1.05) g[y][x] = 0; }
+  else if (shape === "pillars") { carve(2, 2, RW - 3, RH - 3); for (let y = 4; y < RH - 3; y += 4) for (let x = 5; x < RW - 4; x += 5) { g[y][x] = 1; g[y][x + 1] = 1; } }
+  else if (shape === "twin") { carve(2, 2, 11, RH - 3); carve(RW - 12, 2, RW - 3, RH - 3); carve(11, cy - 1, RW - 12, cy + 1); }
+  else if (shape === "zigzag") { carve(2, 2, RW - 3, 5); carve(RW - 7, 2, RW - 3, RH - 3); carve(2, RH - 6, RW - 3, RH - 3); carve(2, 5, 6, RH - 3); carve(9, 7, RW - 10, 9); }
+  else if (shape === "arena") { for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) if (((x - cx) / 11) ** 2 + ((y - cy) / 6.5) ** 2 <= 1) g[y][x] = 0; }
+  else {
+    for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) g[y][x] = R() < 0.42 ? 1 : 0;
+    for (let k = 0; k < 4; k++) {
+      const c = g.map(r => r.slice());
+      for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) {
+        let w = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) w += c[y + dy][x + dx];
+        g[y][x] = w >= 5 ? 1 : 0;
+      }
+    }
+  }
+  carve(cx - 1, cy - 1, cx + 1, cy + 1);
+  const dig = (x0, y0, x1, y1) => {
+    let x = x0, y = y0;
+    const hFirst = R() < 0.5;
+    const stepX = () => { while (x !== x1) { g[y][x] = 0; x += Math.sign(x1 - x); } };
+    const stepY = () => { while (y !== y1) { g[y][x] = 0; y += Math.sign(y1 - y); } };
+    if (hFirst) { stepX(); stepY(); } else { stepY(); stepX(); }
+    g[y][x] = 0;
+  };
+  doors.forEach(d => { const t = doorTile(d.side, d.side === "e" || d.side === "w" ? d.y : d.x); g[t.y][t.x] = 0; const i = doorInner(d); dig(i.x, i.y, cx, cy); });
+  const reach = flood(g, cx, cy);
+  for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) if (!g[y][x] && !reach[y][x]) g[y][x] = 1;
+  return { idx, g, doors, objs: [], props: [], torches: [], graph: true, west: { y: -9 }, east: { y: -9 }, first: false, last: false, lock: false,
+           start: { x: cx, y: cy }, shape };
+}
+function genGraphFloor(run, seed) {
+  const R = rng32(seed), st = storyOf(run), look = LOOK[st.look || st.scene] || LOOK.mountains, fi = floorInfo(run, run.floor);
+  const nFoes = fi.foes.length, n = clampN(4 + Math.ceil(nFoes / 4), 5, 8);
+  // 1. grid layout: random growth, then a couple of loops
+  const cells = [{ x: 0, y: 0 }], at = { "0,0": 0 }, edges = [];
+  let guard = 0;
+  while (cells.length < n && guard++ < 500) {
+    const from = Math.floor(R() < 0.6 ? cells.length - 1 - Math.floor(R() * Math.min(3, cells.length)) : R() * cells.length);
+    const side = "ensw"[Math.floor(R() * 4)], [dx, dy] = GDIR[side], c = cells[from], k = (c.x + dx) + "," + (c.y + dy);
+    if (at[k] != null) continue;
+    at[k] = cells.length; cells.push({ x: c.x + dx, y: c.y + dy });
+    edges.push({ a: from, b: cells.length - 1, side });
+  }
+  let loops = 0;
+  cells.forEach((c, i) => ["e", "s"].forEach(side => {
+    const [dx, dy] = GDIR[side], j = at[(c.x + dx) + "," + (c.y + dy)];
+    if (j == null || loops >= 2 || edges.some(e => (e.a === i && e.b === j) || (e.a === j && e.b === i))) return;
+    if (R() < 0.3) { edges.push({ a: i, b: j, side, loop: true }); loops++; }
+  }));
+  // 2. locks on a couple of tree edges (never right next to the start)
+  const tree = edges.filter(e => !e.loop && e.a !== 0);
+  shuffled(tree, R).slice(0, n >= 6 ? 2 : 1).forEach(e => { e.lock = true; });
+  edges.forEach((e, i) => { e.id = "d" + i; });
+  // 3. doors per room
+  const doors = cells.map(() => []);
+  const pos = side => side === "e" || side === "w" ? 3 + Math.floor(R() * (RH - 6)) : 4 + Math.floor(R() * (RW - 8));
+  edges.forEach(e => {
+    doors[e.a].push({ id: e.id, side: e.side, to: e.b, lock: !!e.lock, [e.side === "e" || e.side === "w" ? "y" : "x"]: pos(e.side) });
+    const o = GOPP[e.side];
+    doors[e.b].push({ id: e.id, side: o, to: e.a, lock: !!e.lock, [o === "e" || o === "w" ? "y" : "x"]: pos(o) });
+  });
+  doors.forEach(ds => ds.forEach(d => { const t = doorTile(d.side, d.side === "e" || d.side === "w" ? d.y : d.x); d.x = t.x; d.y = t.y; }));
+  // 4. the boss door: any room except the start, on a side with no neighbour
+  const dist = cells.map(() => 99); dist[0] = 0;
+  for (let k = 0; k < n; k++) edges.forEach(e => { dist[e.b] = Math.min(dist[e.b], dist[e.a] + 1); dist[e.a] = Math.min(dist[e.a], dist[e.b] + 1); });
+  const cands = cells.map((c, i) => ({ i, sides: "ensw".split("").filter(sd => at[(c.x + GDIR[sd][0]) + "," + (c.y + GDIR[sd][1])] == null) }))
+    .filter(x => x.i !== 0 && x.sides.length).sort((p, q) => dist[q.i] - dist[p.i] || R() - 0.5);
+  const bc = cands[Math.floor(R() * Math.min(3, cands.length))] || { i: n - 1, sides: ["e"] };
+  const bside = bc.sides[Math.floor(R() * bc.sides.length)], bt = doorTile(bside, pos(bside));
+  doors[bc.i].push({ id: "boss", side: bside, boss: true, x: bt.x, y: bt.y });
+  // 5. rooms
+  const rooms = cells.map((c, i) => Object.assign(genRoomG(R, i, doors[i]), { gx: c.x, gy: c.y }));
+  const F = { rooms, dark: run.floor > 1 && R() < 0.22, look, scene: st.scene, story: run.story, nRooms: n, graph: true, bossRoom: bc.i };
+  // 6. a trial room that seals you in
+  if (n >= 5 && R() < 0.7) {
+    const tr = shuffled(rooms.filter(r => r.idx !== 0 && r.idx !== bc.i), R)[0];
+    if (tr) tr.trial = R() < 0.5 ? "fight" : "torch";
+  }
+  // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
+  const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
+  const others = rooms.filter(r => r.idx !== 0);
+  foes.forEach((f, i) => {
+    const fight = rooms.find(r => r.trial === "fight");
+    let r = fight && i < 2 ? fight : others[(i + Math.floor(R() * others.length)) % others.length];
+    if (!placeObj(R, r, f, {})) placeObj(R, others[(others.indexOf(r) + 1) % others.length], f, {});
+  });
+  // 8. keys live on the start side of every lock
+  const reach0 = new Set([0]);
+  for (let k = 0; k < n; k++) edges.forEach(e => { if (e.lock) return; if (reach0.has(e.a)) reach0.add(e.b); if (reach0.has(e.b)) reach0.add(e.a); });
+  const free = rooms.filter(r => reach0.has(r.idx) && !r.trial);
+  const opts = [];
+  edges.filter(e => e.lock).forEach((e, i) => opts.push({ id: "k" + i, type: "chest", key: true, room: free[Math.floor(R() * free.length)].idx }));
+  opts.push({ id: "c0", type: "chest", room: Math.floor(R() * n) });
+  if (n >= 6) opts.push({ id: "c1", type: "chest", room: Math.floor(R() * n) });
+  shuffled(["shrine", "npc"], R).slice(0, 1 + (R() < 0.6 ? 1 : 0)).forEach(k => opts.push({ id: k === "shrine" ? "s0" : "n0", type: k, room: Math.floor(R() * n) }));
+  const tt = rooms.find(r => r.trial === "torch");
+  if (tt) for (let i = 0; i < 3; i++) opts.push({ id: "b" + i, type: "brazier", room: tt.idx });
+  const eggs = 2 + Math.floor(R() * 2);
+  for (let i = 0; i < eggs; i++) opts.push({ id: "e" + i, type: "egg", room: Math.floor(R() * n), line: Math.floor(R() * EGG_LINES.length) });
+  const revisit = run.visits && run.visits[run.floor] && (run.cf || []).includes(run.floor);
+  if (revisit) {
+    opts.push({ id: "c9", type: "chest", room: Math.floor(R() * n) });
+    opts.push({ id: "e9", type: "egg", room: Math.floor(R() * n), line: 0, ret: Math.floor(R() * RETURN_LINES.length) });
+    if (R() < 0.5 && !opts.some(o => o.type === "shrine")) opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * n) });
+  }
+  opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
+  rooms.forEach(rm => placeProps(R, rm, look));
+  rooms.forEach(rm => placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
+  // foes that showed up later in this visit come back after a reload
+  const ms = run.map;
+  if (ms && ms.floor === run.floor && Array.isArray(ms.extra)) ms.extra.forEach(x => { if (rooms[x.room]) rooms[x.room].objs.push({ id: x.id, type: "foe", foe: x.foe, key: x.key, name: x.name, x: x.x, y: x.y }); });
+  return F;
+}
 const _twGenFloor = genFloor;
 genFloor = function (run, seed) {
   if (!S.set || !run.v3) return _twGenFloor(run, seed);
@@ -376,41 +512,263 @@ genFloor = function (run, seed) {
     placeProps(R, rm, look); placeTorches(R, rm, 9);
     return F;
   }
-  const nFoes = fi.foes.length;
-  const nRooms = clampN(Math.ceil(nFoes / 3) + 1, 2, 6);
-  const dark = run.floor > 1 && R() < 0.22;
-  const rooms = [];
-  for (let r = 0; r < nRooms; r++) rooms.push(genRoom(R, r, nRooms, look));
-  const F = { rooms, dark, look, scene: st.scene, story: run.story, nRooms };
-  const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
-  foes.forEach((f, i) => {
-    const r = f.key === "goblin~h50" ? Math.floor(R() * nRooms) : Math.min(nRooms - 1, Math.floor(i * nRooms / nFoes));
-    if (!placeObj(R, rooms[r], f, { minFromEntrance: r === 0 ? 6 : 3 })) placeObj(R, rooms[(r + 1) % nRooms], f, { minFromEntrance: 3 });
-  });
-  const opts = [];
-  const lockRoom = nRooms >= 2 && R() < 0.5 ? nRooms - 2 : -1;
-  if (lockRoom >= 0) { rooms[lockRoom].lock = true; opts.push({ id: "c0", type: "chest", key: true, room: Math.floor(R() * (lockRoom + 1)) }); }
-  else opts.push({ id: "c0", type: "chest", room: Math.floor(R() * nRooms) });
-  const pool = ["shrine", "npc", "chest2"].sort(() => R() - 0.5);
-  pool.slice(0, nRooms >= 4 ? 3 : 1 + (R() < 0.5 ? 1 : 0)).forEach(k => {
-    if (k === "shrine") opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * nRooms) });
-    if (k === "npc") opts.push({ id: "n0", type: "npc", room: Math.floor(R() * nRooms) });
-    if (k === "chest2") opts.push({ id: "c1", type: "chest", room: Math.floor(R() * nRooms) });
-  });
-  const eggs = Math.max(1, Math.round(nRooms / 2));
-  for (let i = 0; i < eggs; i++) opts.push({ id: "e" + i, type: "egg", room: Math.floor(R() * nRooms), line: Math.floor(R() * EGG_LINES.length) });
-  // coming back to a cleared floor: something new
-  const revisit = run.visits && run.visits[run.floor] && (run.cf || []).includes(run.floor);
-  if (revisit) {
-    opts.push({ id: "c9", type: "chest", room: nRooms - 1 });
-    opts.push({ id: "e9", type: "egg", room: Math.floor(R() * nRooms), line: 0, ret: Math.floor(R() * RETURN_LINES.length) });
-    if (R() < 0.5 && !opts.some(o => o.type === "shrine")) opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * nRooms) });
-  }
-  opts.forEach(o => placeObj(R, rooms[o.room], o, { minFromEntrance: o.type === "egg" ? 2 : 3, wallHug: o.type === "egg" }));
-  rooms.forEach(rm => placeProps(R, rm, look));
-  rooms.forEach(rm => placeTorches(R, rm, dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
-  return F;
+  return genGraphFloor(run, seed);
 };
+
+/* ---------- room checks that understand many doors ---------- */
+const _twRoomOk = roomOk;
+roomOk = function (rm) {
+  if (!rm.graph) return _twRoomOk(rm);
+  const reach = flood(rm.g, rm.start.x, rm.start.y, roomBlocked(rm));
+  if (rm.doors.some(d => { const i = doorInner(d); return !reach[i.y][i.x]; })) return false;
+  return rm.objs.every(o => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => {
+    const x = o.x + dx, y = o.y + dy; return x >= 0 && y >= 0 && x < RW && y < RH && reach[y][x];
+  }));
+};
+const _twFreeTiles = freeTiles;
+freeTiles = function (rm) {
+  if (!rm.graph) return _twFreeTiles(rm);
+  const b = roomBlocked(rm), out = [];
+  for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) {
+    if (rm.g[y][x] || b[y + "," + x]) continue;
+    if (Math.abs(x - rm.start.x) + Math.abs(y - rm.start.y) < 2) continue;
+    if (rm.doors.some(d => { const i = doorInner(d); return Math.abs(i.x - x) + Math.abs(i.y - y) < 2; })) continue;
+    out.push({ x, y });
+  }
+  return out;
+};
+
+/* ---------- doors: open, locked, sealed, boss ---------- */
+function doorAt(rm, x, y) { return rm.doors ? rm.doors.find(d => d.x === x && d.y === y) || null : null; }
+function chapterLeft(s) {
+  const k = chapterFloor(); if (!k) return 0;
+  const seen = new Set(s.seen || []);
+  return towerChaps()[k - 1].questions.filter(q => !seen.has(q.id)).length;
+}
+function bossReady(s) { return foesLeft(s) === 0 && chapterLeft(s) === 0; }
+function trialOn(s, ri) { return s.map && s.map.trials && s.map.trials[ri] === "on"; }
+function doorPass(s, rm, d) {
+  if (trialOn(s, rm.idx)) return false;
+  if (d.boss) return bossReady(s);
+  if (d.lock) return (s.map.ul || []).includes(d.id);
+  return true;
+}
+function bumpG(d) {
+  const s = S.battle.s, ms = s.map, rm = curRoom();
+  sfx.bBlock && sfx.bBlock();
+  if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
+  if (d.boss) {
+    const left = foesLeft(s), q = chapterLeft(s), bits = [];
+    if (left) bits.push(`${left} ${left === 1 ? "guardian still stands" : "guardians still stand"}`);
+    if (q) bits.push(`${q} ${q === 1 ? "question" : "questions"} in this chapter you haven't seen yet`);
+    return say(`The boss door won't budge. ${bits.join(" and ")}.`, null, "Boss door");
+  }
+  if (d.lock) {
+    if (ms.keys > 0) { ms.keys--; (ms.ul = ms.ul || []).push(d.id); sfx.bArm(); persistMap(); return say("You turn the key. The door grinds open."); }
+    return say("Locked tight. A key is hidden in a chest somewhere on this floor.");
+  }
+}
+function enterRoomG(d) {
+  const s = S.battle.s, ms = s.map, F = floorData(s), target = F.rooms[d.to], back = target.doors.find(x => x.id === d.id);
+  MS.fadeTo = { r: d.to }; MS.fade = 0; MS.path = []; MS.goal = null;
+  sfx.tick();
+  setTimeout(() => {
+    ms.room = d.to;
+    const i = doorInner(back);
+    MS.tx = i.x; MS.ty = i.y; MS.x = i.x; MS.y = i.y; MS.t = 1; MS.dir = back.side === "w" ? 1 : back.side === "e" ? -1 : MS.dir;
+    MS.parts = []; MS.fadeTo = null;
+    spawnCheck(d.to, true);
+    trialEnter(target);
+    persistMap();
+    render();
+  }, 220);
+}
+const _twTileBlocked = tileBlocked;
+tileBlocked = function (rm, x, y) {
+  if (rm.graph) { const d = doorAt(rm, x, y); if (d) return !doorPass(S.battle.s, rm, d); }
+  return _twTileBlocked(rm, x, y);
+};
+const _twStepTo = stepTo;
+stepTo = function (nx, ny) {
+  const rm = curRoom();
+  if (rm.graph) { const d = doorAt(rm, nx, ny); if (d && !doorPass(S.battle.s, rm, d)) { faceTo(nx); MS.path = []; return bumpG(d); } }
+  return _twStepTo(nx, ny);
+};
+const _twArrive = arrive;
+arrive = function () {
+  const rm = curRoom();
+  if (rm.graph) {
+    const d = doorAt(rm, MS.tx, MS.ty);
+    if (d) {
+      const ms = S.battle.s.map; ms.x = MS.tx; ms.y = MS.ty;
+      if (d.boss) { const i = doorInner(d); MS.tx = i.x; MS.ty = i.y; MS.x = i.x; MS.y = i.y; return startMapFight({ boss: true }); }
+      return enterRoomG(d);
+    }
+  }
+  return _twArrive();
+};
+const _twGoTo = mapGoTo;
+mapGoTo = function (x, y) {
+  const rm = curRoom(), d = rm.graph ? doorAt(rm, x, y) : null;
+  if (d && !doorPass(S.battle.s, rm, d)) {
+    const p = bfs(rm, MS.tx, MS.ty, (px, py) => adjacent(px, py, x, y));
+    MS.path = p || []; MS.goal = p ? { type: "gdoor", d, x, y } : null;
+    if (p && !p.length) { MS.goal = null; bumpG(d); }
+    return;
+  }
+  return _twGoTo(x, y);
+};
+
+/* ---------- trial rooms ---------- */
+function roomFoesLeft(s, ri) { return floorData(s).rooms[ri].objs.filter(o => o.type === "foe" && !s.map.cleared.includes(o.id)).length; }
+function trialEnter(rm) {
+  const s = S.battle.s, ms = s.map;
+  if (!rm.trial) return;
+  ms.trials = ms.trials || {};
+  if (ms.trials[rm.idx]) return;
+  if (rm.trial === "fight" && !roomFoesLeft(s, rm.idx)) { ms.trials[rm.idx] = "done"; return; }
+  ms.trials[rm.idx] = "on";
+  sfx.bBoss && sfx.bBoss();
+  setTimeout(() => say(rm.trial === "torch"
+    ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
+    : "The doors slam shut behind you! Defeat everything in this room to break the seal.", null, "Sealed in"), 240);
+}
+function trialCheck() {
+  const b = S.battle; if (!b || !b.s.map) return;
+  const s = b.s, ms = s.map, rm = curRoom();
+  if (!trialOn(s, rm.idx)) return;
+  const done = rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
+  if (!done) return;
+  ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
+  sfx.bVictory && sfx.bVictory();
+  say("The seal breaks and the doors grind open. (+15 XP)", null, "Trial cleared");
+}
+
+/* ---------- keep the floor stocked until the chapter is covered ---------- */
+let _spawnN = 0;
+function spawnCheck(ri, entering) {
+  const b = S.battle, s = b.s, ms = s.map, k = chapterFloor();
+  if (!k) return;
+  const need = chapterLeft(s); if (!need) return;
+  const fi = floorInfo(s, s.floor), perFoe = Math.max(1.5, fi.foeHits * 0.8);
+  const alive = foesLeft(s);
+  if (alive * perFoe >= need) return;
+  if (!entering && alive > 0) return;                      // only pop in new foes mid-room when the floor is empty
+  const add = Math.min(3, Math.ceil((need - alive * perFoe) / perFoe));
+  const rm = floorData(s).rooms[ri], base = fi.foes.filter(f => !f.gold);
+  ms.extra = ms.extra || [];
+  let placed = 0;
+  for (let i = 0; i < add; i++) {
+    const fidx = Math.floor(Math.random() * base.length), f = base[fidx];
+    const o = { id: "x" + Date.now().toString(36) + (_spawnN++), type: "foe", foe: fidx, key: f.key, name: f.name };
+    let ok = false;
+    for (let t = 0; t < 6 && !ok; t++) {
+      if (!placeObj(Math.random, rm, o, {})) break;
+      if (Math.abs(o.x - MS.tx) + Math.abs(o.y - MS.ty) >= 4) ok = true; else rm.objs.pop();
+    }
+    if (ok) { ms.extra.push({ id: o.id, room: ri, x: o.x, y: o.y, foe: fidx, key: o.key, name: o.name }); placed++; }
+  }
+  if (placed && !entering) twToast(`${placed === 1 ? "A new foe has" : placed + " new foes have"} crept onto the floor. ${need} chapter question${need === 1 ? "" : "s"} still to go.`);
+}
+const _twEnterMap = enterMap;
+enterMap = function (banner) {
+  const r = _twEnterMap(banner);
+  const b = S.battle;
+  if (b && b.s.v3 && b.s.map && floorData(b.s).graph) { spawnCheck(b.s.map.room, false); trialCheck(); render(); }
+  return r;
+};
+
+/* ---------- braziers ---------- */
+const _twInteract2 = interact;
+interact = function (o) {
+  const ms = S.battle.s.map;
+  if (o && o.type === "gdoor") return bumpG(o.d);
+  if (o && o.type === "brazier") {
+    if ((ms.lit || []).includes(o.id)) return say("This brazier is already burning.");
+    return say("A cold brazier. A riddle is scratched into the stone around it.", [{ label: "Light it (1 question)", act: "mapQStart", arg: o.id }], "Brazier");
+  }
+  return _twInteract2(o);
+};
+const _twMapSubmit = mapSubmit;
+mapSubmit = function () {
+  const Q = S.mapQ;
+  if (!Q || Q.kind !== "brazier") return _twMapSubmit();
+  const b = S.battle, s = b.s, ms = s.map, q = Q.q, ok = grade(q, S.selected);
+  recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
+  if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  S.feedback = ok ? "correct" : "incorrect";
+  if (!ok) S.showAnswer = true;
+  if (ok) {
+    (ms.lit = ms.lit || []).push(Q.obj); grantXp(6);
+    const rm = curRoom(), n = rm.objs.filter(o => o.type === "brazier").length, lit = rm.objs.filter(o => o.type === "brazier" && ms.lit.includes(o.id)).length;
+    Q.result = { ok, text: `It roars to life! (${lit}/${n} lit) +6 XP` };
+    sfx.bArm();
+  } else {
+    const d = Math.max(0, Math.min(S.idk ? 3 : 6, s.hp - 1)); s.hp -= d;
+    Q.result = { ok, text: `It sputters out.${d > 0 ? " -" + d + " HP." : ""} Try again.` };
+    sfx.bFizzle();
+  }
+  persistMap(); render();
+};
+const _twQNext = mapQNext;
+mapQNext = function () { const r = _twQNext(); trialCheck(); return r; };
+
+/* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
+function drawDoorG(g, d, open, kind, L) {
+  const X = d.x * T, Y = d.y * T;
+  if (kind === "open") { g.fillStyle = "#0b0a0f"; g.fillRect(X + 1, Y + 1, T - 2, T - 2); g.fillStyle = L.hi; g.fillRect(X, Y, T, 1); return; }
+  if (kind === "boss") {
+    g.fillStyle = "#1c1917"; g.fillRect(X, Y, T, T);
+    if (!open) { g.fillStyle = "#57534e"; for (let k = 1; k < T; k += 4) g.fillRect(X + k, Y + 1, 2, T - 2); g.fillStyle = "#a8a29e"; g.fillRect(X, Y + 4, T, 2); g.fillRect(X, Y + 10, T, 2); }
+    else { g.fillStyle = "#7f1d1d"; g.fillRect(X + 2, Y + 2, T - 4, T - 4); }
+    const ph = Math.floor(MS.time * 3) % 2; g.fillStyle = open ? (ph ? "#f97316" : "#fde047") : "#ef4444"; g.fillRect(X + 6, Y + 6, 4, 4);
+    return;
+  }
+  if (kind === "sealed") { g.fillStyle = "#111"; g.fillRect(X, Y, T, T); g.fillStyle = "#a8a29e"; for (let k = 1; k < T; k += 3) g.fillRect(X + k, Y, 1, T); g.fillStyle = "#c084fc"; g.fillRect(X + 6, Y + 6, 4, 4); return; }
+  if (kind === "lock") {
+    g.fillStyle = "#6b3e1f"; g.fillRect(X + 1, Y + 1, T - 2, T - 2);
+    g.fillStyle = "#8a5530"; for (let k = 2; k < T; k += 5) g.fillRect(X + 2, Y + k, T - 4, 2);
+    g.fillStyle = "#facc15"; g.fillRect(X + 7, Y + 6, 3, 4); g.fillStyle = "#1c1917"; g.fillRect(X + 8, Y + 8, 1, 2);
+  }
+}
+const _twDrawDoor = drawDoor;
+drawDoor = function (g, rm, side, open, kind) {
+  if (!rm.graph) return _twDrawDoor(g, rm, side, open, kind);
+  if (side !== "west") return;
+  const s = S.battle.s, ms = s.map, sealed = trialOn(s, rm.idx);
+  rm.doors.forEach(d => {
+    if (d.boss) return drawDoorG(g, d, !sealed && bossReady(s), "boss", ms && floorData(s).look);
+    if (sealed) return drawDoorG(g, d, false, "sealed");
+    if (d.lock && !(ms.ul || []).includes(d.id)) return drawDoorG(g, d, false, "lock");
+    drawDoorG(g, d, true, "open", floorData(s).look);
+  });
+  rm.objs.forEach(o => {
+    if (o.type !== "brazier") return;
+    const X = o.x * T, Y = o.y * T, lit = (ms.lit || []).includes(o.id);
+    g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
+    g.fillStyle = "#57534e"; g.fillRect(X + 4, Y + 9, 8, 5); g.fillStyle = "#78716c"; g.fillRect(X + 3, Y + 8, 10, 2); g.fillRect(X + 6, Y + 14, 4, 2);
+    if (lit) { const f = Math.floor(MS.time * 10 + o.x) % 3; g.fillStyle = "#f97316"; g.fillRect(X + 5, Y + 3 - (f === 1 ? 1 : 0), 6, 5); g.fillStyle = "#fde047"; g.fillRect(X + 7, Y + 4 - (f === 2 ? 1 : 0), 2, 3); }
+    else { g.fillStyle = "#292524"; g.fillRect(X + 5, Y + 7, 6, 1); }
+  });
+};
+
+/* ---------- HUD: how close the boss door is ---------- */
+function goalsHtml(s) {
+  const ms = s.map, left = foesLeft(s), total = totalFoes(s), k = chapterFloor();
+  const qn = k ? towerChaps()[k - 1].questions.length : 0, qs = qn - chapterLeft(s);
+  const ready = bossReady(s), item = QUEST_ITEM[s.story] || "items";
+  const pct = Math.round(((qn ? qs / qn : 1) * 0.7 + (total ? (total - left) / total : 1) * 0.3) * 100);
+  return `<div class="tw-prog"><div class="tw-proghead"><span>${ready ? "🚪 Boss door open" : "🔒 Boss door"}</span><b>${ready ? "Go!" : pct + "%"}</b></div>
+      <div class="tw-progbar ${ready ? "ready" : ""}"><i style="width:${ready ? 100 : pct}%"></i></div></div>
+    <ul class="goals">
+      ${k ? `<li class="${qs >= qn ? "done" : ""}">${qs >= qn ? "✓" : "📖"} Chapter questions seen: ${qs}/${qn}</li>` : ""}
+      <li class="${left === 0 ? "done" : ""}">${left === 0 ? "✓" : "⚔"} Guardians defeated: ${total - left}/${total}</li>
+      ${ms.quest === 1 ? `<li>📜 Bring ${ms.need} ${item}: ${ms.items}/${ms.need}</li>` : ""}
+      ${ms.keys ? `<li>🗝 Keys: ${ms.keys}</li>` : ""}
+    </ul>`;
+}
+
 /* the return-visit egg reads its own line */
 if (typeof interact === "function") {
   const _twInteract = interact;
@@ -436,7 +794,7 @@ function twPickerHtml() {
     if (fi.throne) desc = done ? `${fi.boss.name} has fallen.` : open ? `${fi.boss.name} waits, with minions at his side.` : `Opens at ${Math.round(THRONE_AT * 100)}% of the deck answered (you're at ${Math.round(deckAnswered() * 100)}%).`;
     else {
       const c = chapterStat(k);
-      desc = done ? `${fi.boss.name} defeated. Come back any time: new things turn up.` : open ? `${fi.boss.name} guards the top. ${c.done}/${c.total} answered.` : `Answer every question in this chapter to open it (${c.done}/${c.total}).`;
+      desc = done ? `${fi.boss.name} defeated. Come back any time: new things turn up.` : open ? `Next up. ${fi.boss.name} guards this floor. ${c.done}/${c.total} answered.` : `Opens when it's your next unfinished floor, or once you've answered its whole chapter (${c.done}/${c.total}).`;
     }
     const pct = fi.throne ? deckAnswered() : (chapterStat(k).total ? chapterStat(k).done / chapterStat(k).total : 0);
     nodes.push(`<button class="tw-node ${open ? "open" : "locked"} ${done ? "done" : ""} ${cur ? "cur" : ""} ${fi.throne ? "throne" : ""}" ${open ? `data-act="twGo" data-f="${k}"` : `data-act="twLocked" data-f="${k}"`} style="--i:${N + 1 - k};--tc:rgb(${fi.tint.join(",")})">
@@ -455,7 +813,7 @@ function twPickerHtml() {
       <button class="rd-x" data-act="twClose" aria-label="Close">✕</button>
       <div class="eyebrow" style="color:${storyOf(s).color}">${esc(storyOf(s).title)}</div>
       <h2>The Tower</h2>
-      <div class="muted tw-sub">Every chapter is a floor. Finish a chapter's questions anywhere in the app to open its floor, or clear the floor below.</div>
+      <div class="muted tw-sub">Every chapter is a floor. Your next unfinished floor is always open, and any chapter you finish anywhere in the app opens its floor too.</div>
       ${msg ? `<div class="tw-msg">${esc(msg)}</div>` : ""}
       <div class="tw-line"><span class="tw-rail"></span>${nodes.join("")}</div>
     </div></div>`;
@@ -479,6 +837,7 @@ viewMap = function () {
   const b = S.battle; if (!b || !b.s.v3) return html;
   const ms = b.s.map; if (ms) { ms.seen = ms.seen || []; if (!ms.seen.includes(ms.room)) ms.seen.push(ms.room); }
   html = html.replace('id="mapbox">', `id="mapbox"><button class="tw-stairs" data-act="twOpen" data-nonav title="Floors" aria-label="Floors">${STAIRS_SVG}</button><canvas id="twMini" class="tw-mini"></canvas>`);
+  if (floorData(b.s).graph) html = html.replace(/<ul class="goals">[\s\S]*?<\/ul>/, goalsHtml(b.s));
   if (S.picker) html += twPickerHtml();
   return html;
 };
@@ -496,32 +855,49 @@ document.addEventListener("click", ev => {
 function drawMini() {
   const cv = document.getElementById("twMini"), b = S.battle;
   if (!cv || !b || !b.s.map) return;
-  const s = b.s, ms = s.map, F = floorData(s), n = F.rooms.length, P = 2, gap = 8, rw = RW * P, rh = RH * P;
-  cv.width = n * rw + (n - 1) * gap; cv.height = rh;
+  const s = b.s, ms = s.map, F = floorData(s), P = 1.5, rw = RW * P, rh = RH * P, gap = 10;
+  const blink = Math.floor(Date.now() / 400) % 2, seen = ms.seen || [ms.room];
+  const rooms = F.rooms.map((rm, i) => ({ rm, i, gx: rm.graph ? rm.gx : i, gy: rm.graph ? rm.gy : 0 }));
+  const near = new Set(seen);
+  if (F.graph) seen.forEach(i => F.rooms[i].doors.forEach(d => { if (d.to != null) near.add(d.to); }));
+  const vis = rooms.filter(r => near.has(r.i));
+  const minX = Math.min(...vis.map(r => r.gx)), minY = Math.min(...vis.map(r => r.gy));
+  const maxX = Math.max(...vis.map(r => r.gx)), maxY = Math.max(...vis.map(r => r.gy));
+  cv.width = Math.ceil((maxX - minX + 1) * (rw + gap) - gap + 8); cv.height = Math.ceil((maxY - minY + 1) * (rh + gap) - gap + 8);
   const g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height);
-  const seen = ms.seen || [ms.room], blink = Math.floor(Date.now() / 400) % 2;
-  F.rooms.forEach((rm, i) => {
-    const ox = i * (rw + gap);
-    if (i > 0) { g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(ox - gap, rh / 2 - 1, gap, 2); }
-    if (!seen.includes(i)) {
-      g.fillStyle = "rgba(255,255,255,.08)"; g.fillRect(ox, 0, rw, rh);
-      g.fillStyle = "rgba(255,255,255,.45)"; g.font = "bold 16px sans-serif"; g.textAlign = "center"; g.fillText("?", ox + rw / 2, rh / 2 + 6);
+  const ox = r => 4 + (r.gx - minX) * (rw + gap), oy = r => 4 + (r.gy - minY) * (rh + gap);
+  // links
+  if (F.graph) vis.forEach(r => r.rm.doors.forEach(d => {
+    const t = rooms[d.to]; if (d.to == null || !near.has(d.to) || d.to < r.i) return;
+    const locked = d.lock && !(ms.ul || []).includes(d.id);
+    g.fillStyle = locked ? "#facc15" : "rgba(255,255,255,.4)";
+    const x1 = ox(r) + rw / 2, y1 = oy(r) + rh / 2, x2 = ox(t) + rw / 2, y2 = oy(t) + rh / 2;
+    if (y1 === y2) g.fillRect(Math.min(x1, x2), y1 - 1, Math.abs(x2 - x1), 2); else g.fillRect(x1 - 1, Math.min(y1, y2), 2, Math.abs(y2 - y1));
+  }));
+  vis.forEach(r => {
+    const X = ox(r), Y = oy(r), rm = r.rm;
+    if (!seen.includes(r.i)) {
+      g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh); g.strokeStyle = "rgba(255,255,255,.3)"; g.strokeRect(X + .5, Y + .5, rw - 1, rh - 1);
+      g.fillStyle = "rgba(255,255,255,.55)"; g.font = "bold 13px sans-serif"; g.textAlign = "center"; g.fillText("?", X + rw / 2, Y + rh / 2 + 5);
       return;
     }
+    g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh);
     for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
       if (rm.g[y][x]) continue;
-      g.fillStyle = i === ms.room ? "rgba(255,255,255,.42)" : "rgba(255,255,255,.22)";
-      g.fillRect(ox + x * P, y * P, P, P);
+      g.fillStyle = r.i === ms.room ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)";
+      g.fillRect(X + x * P, Y + y * P, P, P);
     }
+    if (rm.trial) { g.strokeStyle = trialOn(s, r.i) ? "#c084fc" : "rgba(192,132,252,.45)"; g.lineWidth = 1.5; g.strokeRect(X + .5, Y + .5, rw - 1, rh - 1); }
     rm.objs.forEach(o => {
       if (o.type === "foe" && ms.cleared.includes(o.id)) return;
       if (o.type === "chest" && (ms.opened || []).includes(o.id)) return;
-      if (o.type === "egg") return;
-      g.fillStyle = o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : "#a78bfa";
-      g.fillRect(ox + o.x * P - 1, o.y * P - 1, P + 2, P + 2);
+      if (o.type === "egg" || (o.type === "brazier" && (ms.lit || []).includes(o.id))) return;
+      g.fillStyle = o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : o.type === "brazier" ? "#f97316" : "#a78bfa";
+      g.fillRect(X + o.x * P - 1, Y + o.y * P - 1, 3, 3);
     });
-    if (rm.last) { g.fillStyle = foesLeft(s) === 0 ? "#f97316" : "#7f1d1d"; g.fillRect(ox + (RW - 1) * P - 2, rm.east.y * P - 2, P + 4, P + 4); }
-    if (i === ms.room && blink) { g.fillStyle = "#ffffff"; g.fillRect(ox + MS.tx * P - 1, MS.ty * P - 1, P + 2, P + 2); }
+    (rm.doors || []).forEach(d => { if (!d.boss) return; const ready = bossReady(s); g.fillStyle = ready ? (blink ? "#f97316" : "#fde047") : "#b91c1c"; g.fillRect(X + d.x * P - 2, Y + d.y * P - 2, 5, 5); });
+    if (!rm.graph && rm.last) { g.fillStyle = foesLeft(s) === 0 ? "#f97316" : "#7f1d1d"; g.fillRect(X + (RW - 1) * P - 2, Y + rm.east.y * P - 2, 5, 5); }
+    if (r.i === ms.room && blink) { g.fillStyle = "#ffffff"; g.fillRect(X + MS.tx * P - 1, Y + MS.ty * P - 1, 4, 4); }
   });
 }
 setInterval(() => { if (S.screen === "map") drawMini(); }, 400);
@@ -551,6 +927,13 @@ render = function () {
   .tw-stairs:active { transform: scale(.94); }
   .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; height: auto; image-rendering: pixelated; pointer-events: none;
     padding: 5px; border-radius: 9px; background: rgba(10,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .tw-prog { margin: 2px 0 8px; }
+  .tw-proghead { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+  .tw-proghead b { color: var(--star); }
+  .tw-progbar { height: 7px; border-radius: 6px; background: var(--border); overflow: hidden; }
+  .tw-progbar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), var(--star)); transition: width .6s cubic-bezier(.2,.9,.3,1); }
+  .tw-progbar.ready i { background: linear-gradient(90deg, #f97316, #fde047); animation: twGlow 1.4s ease-in-out infinite; }
+  @keyframes twGlow { 50% { filter: brightness(1.35); } }
   .tw-pick { position: fixed; inset: 0; z-index: 60; background: rgba(5,3,10,.62); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
     display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 24px 12px; animation: twFade .25s ease both; }
   .tw-panel { position: relative; width: 100%; max-width: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
