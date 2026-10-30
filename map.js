@@ -139,7 +139,7 @@ function floorData(run) {
   return (_floorCache[key] = genFloor(run, key));
 }
 function genFloor(run, seed) {
-  const R = rng32(seed), st = storyOf(run), look = LOOK[st.scene] || LOOK.mountains;
+  const R = rng32(seed), st = storyOf(run), look = LOOK[st.look || st.scene] || LOOK.mountains;
   const fi = floorInfo(run, run.floor);
   const nRooms = R() < 0.55 ? 3 : 2;
   const dark = run.floor > 1 && R() < 0.22;

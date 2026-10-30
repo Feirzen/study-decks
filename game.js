@@ -224,7 +224,7 @@ function maxHpOf(run, hero) {
 function costOf(sp, m) { return Math.max(1, sp.cost - (m.costCut || 0)); }
 /* HP picks and Hone stop at a cap. The cap only rises in Endless, where
    foes keep getting stronger than anything the story throws at you.   */
-function statCap(run) { return 3 + Math.max(0, (run.floor || 1) - STORY_LEN - 1); }
+function statCap(run) { return 3 + Math.max(0, (run.floor || 1) - SL(run) - 1); }
 const DIFF = {
   easy:   { label: "Easy",   dmg: 0.6, hp: 0.8,  text: "Foes hit softly. Good for brand-new material." },
   normal: { label: "Normal", dmg: 1,   hp: 1,    text: "Fair fights. A few bad answers in a row will hurt." },
@@ -233,12 +233,12 @@ const DIFF = {
 function diffOf(run) { return DIFF[run && run.diff] || DIFF.normal; }
 
 /* ===================== FLOORS ===================== */
-const STORY_LEN = 5;
+function SL(run) { return 5; }                 // floors before the end; tower.js makes it one per chapter
 function storyOf(run) { return STORIES[run.story] || STORIES.classic; }
 function floorInfo(run, floor) {
   const st = storyOf(run);
-  if (floor <= STORY_LEN) return st.floors[floor - 1];
-  const n = floor - STORY_LEN, theme = st.floors[(n - 1) % STORY_LEN], rnd = seeded(floor * 13 + 5);
+  if (floor <= SL(run)) return st.floors[floor - 1];
+  const n = floor - SL(run), theme = st.floors[(n - 1) % 5], rnd = seeded(floor * 13 + 5);
   const all = st.floors.flatMap(f => f.foes);
   const foes = [0, 1, 2, 3].map(() => all[Math.floor(rnd() * all.length)]);
   const b = theme.boss;
@@ -263,7 +263,7 @@ function damageFrom(run, boss) {
    base story; big ones up to 4x. The final boss's ward mops up the rest.
    Endless floors keep their own numbers. */
 function deckScale(run) {
-  if (!S.set || run.floor > STORY_LEN) return 1;
+  if (!S.set || run.floor > SL(run)) return 1;
   const n = allQuestions(S.set).length;
   return Math.max(0.6, Math.min(4, n / 55));
 }
@@ -271,7 +271,7 @@ function makeEnemy(run) {
   const f = floorInfo(run, run.floor), k = deckScale(run);
   if (run.idx >= f.foes.length) {
     const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp * k));
-    return { key: f.boss.key, name: f.boss.name, boss: true, final: run.floor === STORY_LEN,
+    return { key: f.boss.key, name: f.boss.name, boss: true, final: run.floor === SL(run),
              hits: bh, maxHits: bh, scale: f.boss.scale || 5 };
   }
   const foe = f.foes[run.idx], h = Math.max(1, Math.min(12, Math.round(foeHits(run.floor) * diffOf(run).hp * k)));
@@ -645,7 +645,7 @@ function submitBattle() {
     }
     dmg += m.flat;
     if (m.dmg) dmg = Math.max(1, Math.round(dmg * (1 + m.dmg)));
-    const warded = b.enemy.final && wardBefore > 0;
+    const warded = (b.enemy.final || b.enemy.ward) && wardBefore > 0;
     if (warded) dmg = 0;                     // the hit breaks a ward rune instead
     const before = b.enemy.hits;
     b.enemy.hits = Math.max(0, before - dmg);
@@ -907,7 +907,7 @@ function drawArenaBg(cv, storyId, floor, boss) {
   const txt = toRgb(cssVar("--text"));
   const red = [190, 40, 40];
   const rnd = seeded(floor * 7 + (boss ? 3 : 0) + storyId.length * 31);
-  const lair = !fi.endless && floor === STORY_LEN;
+  const lair = !fi.endless && !!fi.throne;
   const scene = st.scene;
 
   // sky: banded gradient
@@ -1005,9 +1005,9 @@ function boonChip(h, small, slotsOverride) {
   }).join("");
 }
 function campaignPct(s) {
-  if (s.cleared || s.floor > STORY_LEN) return 100;
+  if (s.cleared || s.floor > SL(s)) return 100;
   const f = floorInfo(s, s.floor);
-  return Math.round(((s.floor - 1) + s.idx / (f.foes.length + 1)) / STORY_LEN * 100);
+  return Math.round(((s.floor - 1) + s.idx / (f.foes.length + 1)) / SL(s) * 100);
 }
 
 /* ===================== SLOT MENU ===================== */
@@ -1054,7 +1054,7 @@ function viewAdvMenu() {
     <div class="storyblurb tex" style="--sc:${story.color}"><b>${esc(story.title)}.</b> ${esc(story.goal)}</div>
     ${slots}
     <div class="muted" style="font-size:12.5px;line-height:1.6;margin-top:16px">
-      Five floors, a boss at the end of each, and bosses love asking questions you've missed. Heroes keep their level, boon and trophies between adventures and decks.
+      A floor for every chapter, a boss at the end of each, a throne room at the top, and bosses love asking questions you've missed. Heroes keep their level, boon and trophies between adventures and decks.
     </div>
   </div>`;
 }

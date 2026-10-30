@@ -40,7 +40,7 @@ missedCount  = function () { return S.set ? playQs().filter(q => (progress.missC
 freshCount   = function () { return S.set ? playQs().filter(q => !progress.results[q.id]).length : 0; };
 if (typeof deckScale === "function") {
   deckScale = function (run) {
-    if (!S.set || run.floor > STORY_LEN) return 1;
+    if (!S.set || run.floor > SL(run)) return 1;
     return Math.max(0.6, Math.min(4, playQs().length / 55));
   };
 }
