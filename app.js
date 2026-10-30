@@ -801,7 +801,7 @@ document.addEventListener("click", ev => {
   if (act === "heroRetire") return askRetire(t.dataset.id);
   if (act === "heroRetireYes") { retireHero(t.dataset.id); closeModal(); sfx.select(); return render(); }
   if (act === "openHall") { sfx.tick(); return goto("hall"); }
-  if (act === "lvlPick") return lvlPick(t.dataset.k);
+  if (act === "lvlPick") return lvlPick(t.dataset.k, t.dataset.id);
   if (act === "lvlLearn") return lvlPick("learn", t.dataset.id);
   if (act === "lvlBack") return lvlPick("back");
   if (act === "lvlDone") return lvlDone();

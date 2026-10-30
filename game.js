@@ -586,6 +586,7 @@ function lvlPick(kind, id) {
 /* roll a boon into slot i (replacing whatever is there) */
 function lvlRoll(i) {
   const b = S.battle, s = b.s, h = b.h, slots = heroBoons(h);
+  if (!(i >= 0 && i < slots.length)) return;          // never roll into a slot that doesn't exist
   const old = slots[i], nb = rollBoon(slots.filter(Boolean));
   slots[i] = nb.id;
   h.boons = slots; h.boonsAt = Date.now();
