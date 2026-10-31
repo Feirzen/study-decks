@@ -2,7 +2,8 @@
    filters.js: the Filters and Options pop-ups on the deck home.
    Loaded last. Replaces the three filter chips with two buttons:
      Filters  -> which chapters Shuffle/Battle use, the Starred / Misses /
-                 New narrowing, and whether Battle drops Scrolls of Wisdom.
+                 New narrowing. Options holds Recall first, Confidence Checks, and
+                 whether Battle drops Scrolls of Wisdom (that one is per deck).
      Options  -> Recall first (hide the choices until you've thought of an
                  answer) and Confidence Check pop-ups on/off.
    Chapter picks and the scrolls switch are saved per deck (progress);
@@ -73,12 +74,11 @@ function fxSummary() {
   if (chapNarrowed()) { const n = playCats().length; bits.push(n + " of " + S.set.categories.length + " chapters"); }
   const a = activeFilters();
   if (a.length) bits.push(a.map(k => FILTER_META[k].label).join(" + "));
-  if (progress.noScrolls) bits.push("no scrolls");
   return bits;
 }
 filterChips = function () {
   const bits = fxSummary(), on = bits.length;
-  const opts = [settings.recallFirst ? "Recall first" : "", settings.noConf ? "Checks off" : ""].filter(Boolean);
+  const opts = [settings.recallFirst ? "Recall first" : "", settings.noConf ? "Checks off" : "", progress.noScrolls ? "No scrolls" : ""].filter(Boolean);
   return `<div class="chiprow fx-row" style="margin-bottom:8px">
     <button class="chip fx-btn ${on ? "active" : ""}" data-act="fxOpenFilters">${FX_ICON.filter}<span>Filters${on ? " · " + on : ""}</span></button>
     <button class="chip fx-btn ${opts.length ? "active" : ""}" data-act="fxOpenOptions">${FX_ICON.sliders}<span>Options${opts.length ? " · " + opts.length : ""}</span></button>
@@ -115,9 +115,6 @@ function filtersHtml() {
     <div class="fx-hrow"><div class="eyebrow fx-h" style="margin:0">Chapters</div>
       <button class="linkbtn fx-all" data-act="fxChapAll">${allOn ? "Clear all" : "Select all"}</button></div>
     <div class="fx-chaps">${chaps}</div>
-    <div class="eyebrow fx-h">Battle</div>
-    <button class="fx-opt" data-act="fxScrolls">
-      <span><b>Scrolls of Wisdom</b><span class="muted">Learning pages pop up as you reach them in Battle.</span></span>${fxToggle(!progress.noScrolls)}</button>
     <button class="primary" data-act="closeModal" style="background:var(--accent);margin-top:16px">Done</button>
   </div>`;
 }
@@ -131,6 +128,9 @@ function optionsHtml() {
       <span><b>Recall first</b><span class="muted">Hides the choices until you've thought of your answer. Closer to a blank exam page, and it sticks better.</span></span>${fxToggle(!!settings.recallFirst)}</button>
     <button class="fx-opt" data-act="fxOpt" data-k="noConf">
       <span><b>Confidence Checks</b><span class="muted">The red / yellow / green pop-up after you finish an objective's questions. Turn off for fast cramming.</span></span>${fxToggle(!settings.noConf)}</button>
+    ${S.set ? `<div class="eyebrow fx-h">Battle</div>
+    <button class="fx-opt" data-act="fxScrolls">
+      <span><b>Scrolls of Wisdom</b><span class="muted">Learning pages pop up as you reach them in Battle. Set for this deck only.</span></span>${fxToggle(!progress.noScrolls)}</button>` : ""}
     <button class="primary" data-act="closeModal" style="background:var(--accent);margin-top:16px">Done</button>
   </div>`;
 }
@@ -190,7 +190,7 @@ document.addEventListener("click", ev => {
     if (allOn) S.set.categories.slice(1).forEach(c => { progress.chapOff[c.category] = true; });  // "clear" leaves chapter 1 so something stays on
     saveProgress(); sfx.select(); fxRefreshHome(); return fxShow(filtersHtml());
   }
-  if (act === "fxScrolls") { progress.noScrolls = !progress.noScrolls; saveProgress(); sfx.select(); fxRefreshHome(); return fxShow(filtersHtml()); }
+  if (act === "fxScrolls") { progress.noScrolls = !progress.noScrolls; saveProgress(); sfx.select(); fxRefreshHome(); return fxShow(optionsHtml()); }
   if (act === "fxOpt") { const k = t.dataset.k; settings[k] = !settings[k]; saveSettings(); sfx.select(); fxRefreshHome(); return fxShow(optionsHtml()); }
   if (act === "rfShow") { S.recallOpen = t.dataset.k; sfx.tick(); return render(); }
 });
