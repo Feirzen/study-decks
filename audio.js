@@ -75,7 +75,8 @@ function audPaint() {
     const playing = mine && !a.paused;
     box.classList.toggle("on", !!playing);
     const btn = box.querySelector(".au-btn");
-    if (btn) { const want = playing ? AU_PAUSE : AU_PLAY; if (btn.innerHTML !== want) btn.innerHTML = want; }
+    // only swap the icon when the state really changes: swapping it on every tick ate clicks that landed mid-swap
+    if (btn) { const st = playing ? "pause" : "play"; if (btn.dataset.st !== st) { btn.dataset.st = st; btn.innerHTML = playing ? AU_PAUSE : AU_PLAY; btn.setAttribute("aria-label", playing ? "Pause" : "Play"); } }
     if (!mine) return;
     const r = box.querySelector(".au-range");
     if (r && a.duration) { r.max = Math.round(a.duration); if (!r._drag) r.value = Math.round(a.currentTime); }
@@ -97,10 +98,17 @@ function audMini() {
     document.body.appendChild(bar);
   }
   const p = a.duration ? (a.currentTime / a.duration) * 100 : 0;
-  bar.innerHTML = `<div class="aum-fill" style="width:${p}%"></div>
-    <button class="au-btn" data-act="audToggle" data-file="${esc(AUD.file)}" aria-label="Play or pause">${a.paused ? AU_PLAY : AU_PAUSE}</button>
-    <div class="aum-t"><b>${esc(AUD.title)}</b><span>${audFmt(a.currentTime)} / ${audFmt(a.duration)}</span></div>
+  if (bar.dataset.file !== AUD.file || !bar.firstChild) {   // build once per track, then just update the bits that change
+    bar.dataset.file = AUD.file;
+    bar.innerHTML = `<div class="aum-fill"></div>
+    <button class="au-btn" data-act="audToggle" data-file="${esc(AUD.file)}" aria-label="Play or pause"></button>
+    <div class="aum-t"><b>${esc(AUD.title)}</b><span></span></div>
     <button class="aum-x" data-act="audStop" aria-label="Stop">✕</button>`;
+  }
+  bar.querySelector(".aum-fill").style.width = p + "%";
+  const mb = bar.querySelector(".au-btn"), st = a.paused ? "play" : "pause";
+  if (mb.dataset.st !== st) { mb.dataset.st = st; mb.innerHTML = a.paused ? AU_PLAY : AU_PAUSE; }
+  bar.querySelector(".aum-t span").textContent = audFmt(a.currentTime) + " / " + audFmt(a.duration);
   requestAnimationFrame(() => bar.classList.add("up"));
 }
 
@@ -135,6 +143,22 @@ document.addEventListener("change", ev => {
 });
 // keep arrow keys / Enter from the app's keyboard nav off the slider
 document.addEventListener("keydown", ev => { if (ev.target.classList && ev.target.classList.contains("au-range")) ev.stopPropagation(); }, true);
+// Space plays/pauses the narration when a player is around, instead of falling through to whatever button the keyboard nav has highlighted (like Reset)
+document.addEventListener("keydown", ev => {
+  if (ev.key !== " ") return;
+  const tg = ev.target;
+  if (tg && (tg.tagName === "INPUT" || tg.tagName === "TEXTAREA" || tg.isContentEditable)) return;
+  if (typeof modalOpen === "function" && modalOpen()) return;
+  if (typeof S !== "undefined" && ["battle", "map", "quiz", "exam", "shuffle"].includes(S.screen)) return;
+  const onPage = document.querySelector("#app .au");
+  const mini = document.querySelector("#auMini.up");
+  if (!onPage && !mini) return;
+  ev.preventDefault(); ev.stopPropagation();
+  if (ev.repeat) return;
+  if (AUD.file && (mini || document.querySelector(`#app .au[data-aud="${CSS.escape(AUD.file)}"]`))) return audPlay(AUD.file, AUD.title, AUD.sub);
+  const b = onPage.querySelector(".au-btn");   // nothing loaded yet: start the first player on the page
+  audPlay(b.dataset.file, b.dataset.title, b.dataset.sub);
+}, true);
 
 /* ---------- hooks ---------- */
 const _audBaseLesson = viewLesson;
