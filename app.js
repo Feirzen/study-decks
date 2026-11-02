@@ -855,7 +855,10 @@ window.KitConfig = {
     reroll: () => { rollChameleon(true); lookChanged(); },
     extras: [{ icon: "🎃", label: "Halloween decorations", sub: "Bats, cobwebs, falling leaves, pumpkins",
       get: () => typeof hwOn === "function" && hwOn(),
-      set: on => { settings.halloween = !!on; saveSettings(); if (typeof hwApply === "function") hwApply(); sfx.select(); } }],
+      set: on => { settings.halloween = !!on; saveSettings(); if (typeof hwApply === "function") hwApply(); sfx.select(); } },
+      { icon: "🎄", label: "Christmas decorations", sub: "Snow, twinkle lights, a jingly ornament",
+      get: () => typeof xmOn === "function" && xmOn(),
+      set: on => { settings.christmas = !!on; saveSettings(); if (typeof xmApply === "function") xmApply(); sfx.select(); } }],
   },
   tray: [
     { id: "sound", label: "Sound", icon: I.sound(!settings.muted), onClick: () => { settings.muted = !settings.muted; saveSettings(); if (!settings.muted) sfx.select(); kitSync(); } },

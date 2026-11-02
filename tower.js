@@ -15,7 +15,7 @@
    =================================================================== */
 
 /* ===================== SEASONS ===================== */
-const SEASONS = [{ id: "halloween", from: [10, 16], to: [11, 10] }];   // [month, day], inclusive
+const SEASONS = [{ id: "halloween", from: [10, 16], to: [11, 10] }, { id: "christmas", from: [12, 1], to: [12, 31] }];   // [month, day], inclusive
 function seasonNow(d) {
   d = d || new Date();
   const v = (d.getMonth() + 1) * 100 + d.getDate();
