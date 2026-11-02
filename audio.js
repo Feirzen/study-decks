@@ -45,6 +45,10 @@ function audPlay(file, title, sub) {
   a.play().catch(() => {});
   if ("mediaSession" in navigator) {
     try { navigator.mediaSession.metadata = new MediaMetadata({ title: AUD.title, artist: AUD.sub || "Study Decks" }); } catch (e) {}
+    try {
+      navigator.mediaSession.setActionHandler("seekbackward", d => audSkip(AUD.file, -((d && d.seekOffset) || 10)));
+      navigator.mediaSession.setActionHandler("seekforward", d => audSkip(AUD.file, (d && d.seekOffset) || 10));
+    } catch (e) {}
   }
   audPaint();
 }
@@ -55,7 +59,11 @@ function audPlayer(file, title, sub, secs, big) {
   const cur = AUD.file === file && AUD.el ? AUD.el.currentTime : lsGet("fc:audioPos:" + file, 0);
   const dur = AUD.file === file && AUD.el && AUD.el.duration ? AUD.el.duration : secs || 0;
   return `<div class="au ${big ? "au-big" : ""} ${playing ? "on" : ""}" data-aud="${esc(file)}">
-    <button class="au-btn" data-act="audToggle" data-file="${esc(file)}" data-title="${esc(title)}" data-sub="${esc(sub || "")}" aria-label="${playing ? "Pause" : "Play"}">${playing ? AU_PAUSE : AU_PLAY}</button>
+    <div class="au-ctl">
+      <button class="au-skip" data-act="audSkip" data-by="-10" data-file="${esc(file)}" aria-label="Back 10 seconds" title="Back 10 seconds">${AU_BACK}</button>
+      <button class="au-btn" data-act="audToggle" data-file="${esc(file)}" data-title="${esc(title)}" data-sub="${esc(sub || "")}" aria-label="${playing ? "Pause" : "Play"}">${playing ? AU_PAUSE : AU_PLAY}</button>
+      <button class="au-skip" data-act="audSkip" data-by="10" data-file="${esc(file)}" aria-label="Forward 10 seconds" title="Forward 10 seconds">${AU_FWD}</button>
+    </div>
     <div class="au-mid">
       <div class="au-t">${esc(title)}</div>
       <input class="au-range" type="range" min="0" max="${Math.round(dur) || 1}" step="1" value="${Math.round(cur)}" data-file="${esc(file)}" aria-label="Seek" data-nonav>
@@ -65,6 +73,25 @@ function audPlayer(file, title, sub, secs, big) {
   </div>`;
 }
 const AU_PLAY = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
+const AU_BACK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 3.5v4h4"/><text x="12" y="15.6" text-anchor="middle" font-size="8.5" font-weight="700" fill="currentColor" stroke="none" font-family="system-ui,sans-serif">10</text></svg>';
+const AU_FWD = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 3.5v4h-4"/><text x="12" y="15.6" text-anchor="middle" font-size="8.5" font-weight="700" fill="currentColor" stroke="none" font-family="system-ui,sans-serif">10</text></svg>';
+/* jump back or ahead. If that track isn't the one loaded, just move its saved spot so play picks up there */
+function audSkip(file, by) {
+  const a = AUD.el;
+  if (a && AUD.file === file) {
+    const end = a.duration || Infinity;
+    a.currentTime = Math.max(0, Math.min(end - 0.5, a.currentTime + by));
+    if (AUD.file) lsSet("fc:audioPos:" + AUD.file, a.currentTime);
+    return audPaint();
+  }
+  const box = document.querySelector(`.au[data-aud="${CSS.escape(file)}"]`);
+  const r = box && box.querySelector(".au-range");
+  const max = r ? +r.max : Infinity;
+  const pos = Math.max(0, Math.min(max, lsGet("fc:audioPos:" + file, 0) + by));
+  lsSet("fc:audioPos:" + file, pos + (pos > 3 ? 2 : 0));   // audPlay backs up 2s on resume, so add them here
+  if (r) r.value = Math.round(pos);
+  const c = box && box.querySelector(".au-cur"); if (c) c.textContent = audFmt(pos);
+}
 const AU_PAUSE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg>';
 
 /* live-update every player on screen without re-rendering the page */
@@ -101,7 +128,9 @@ function audMini() {
   if (bar.dataset.file !== AUD.file || !bar.firstChild) {   // build once per track, then just update the bits that change
     bar.dataset.file = AUD.file;
     bar.innerHTML = `<div class="aum-fill"></div>
+    <button class="au-skip" data-act="audSkip" data-by="-10" data-file="${esc(AUD.file)}" aria-label="Back 10 seconds">${AU_BACK}</button>
     <button class="au-btn" data-act="audToggle" data-file="${esc(AUD.file)}" aria-label="Play or pause"></button>
+    <button class="au-skip" data-act="audSkip" data-by="10" data-file="${esc(AUD.file)}" aria-label="Forward 10 seconds">${AU_FWD}</button>
     <div class="aum-t"><b>${esc(AUD.title)}</b><span></span></div>
     <button class="aum-x" data-act="audStop" aria-label="Stop">✕</button>`;
   }
@@ -118,6 +147,7 @@ document.addEventListener("click", ev => {
   if (!t) return;
   const act = t.dataset.act;
   if (act === "audToggle") { ev.stopPropagation(); return audPlay(t.dataset.file, t.dataset.title || AUD.title, t.dataset.sub || AUD.sub); }
+  if (act === "audSkip") { ev.stopPropagation(); return audSkip(t.dataset.file, +t.dataset.by); }
   if (act === "audSpeed") {
     const s = SPEEDS[(SPEEDS.indexOf(audSpeed()) + 1) % SPEEDS.length];
     lsSet("fc:audioSpeed", s);
@@ -211,6 +241,12 @@ render = function () { _audBaseRender(); audPaint(); };
 .au.on .au-btn { animation: auPulse 2.4s ease-in-out infinite; }
 @keyframes auPulse { 0%,100% { box-shadow: 0 0 0 0 var(--accBg); } 50% { box-shadow: 0 0 0 7px transparent; } }
 @media (prefers-reduced-motion: reduce) { .au.on .au-btn, .au-wrap { animation: none; } }
+.au-ctl { flex: 0 0 auto; display: flex; align-items: center; gap: 2px; }
+.au-skip { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; border: none; background: transparent; color: var(--dim); display: grid; place-items: center; cursor: pointer; padding: 0; transition: color .15s, transform .15s cubic-bezier(.175,.885,.32,1.275); }
+.au-skip:hover { color: var(--accent); }
+.au-skip:active { transform: scale(.88); }
+#auMini .au-skip { flex-basis: 30px; width: 30px; height: 30px; }
+@media (max-width: 380px) { .au { gap: 8px; } .au-skip { flex-basis: 28px; width: 28px; height: 28px; } }
 .au-mid { flex: 1; min-width: 0; }
 .au-t { font-size: 13.5px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
 .au-range { width: 100%; height: 18px; margin: 0; accent-color: var(--accent); cursor: pointer; background: transparent; }
