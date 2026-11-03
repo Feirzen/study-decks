@@ -83,6 +83,39 @@ STORIES.halloween = {
     F("Hollow Manor", [150, 70, 40], [["knight~h270", "Grave Knight"], ["imp", "Candy Devil"], ["ghost_violet", "Phantom"]], ["showman~pumpkin", "The Pumpkin King", 16, 5]),
   ],
 };
+/* ===================== CHRISTMAS STORY (Dec 1 to 31) ===================== */
+Object.assign(VARIANTS, {
+  "mushroom~gingerbread": { r: "#a0522d", w: "#fef3c7", R: "#78350f", s: "#d6a36a", S: "#a16207", e: "#1c1917", m: "#7f1d1d", f: "#dc2626" },
+  "goblin~elf":           { b: "#b91c1c", B: "#7f1d1d", l: "#166534", t: "#ffffff" },
+  "imp~coal":             { h: "#57534e", r: "#292524", y: "#f97316", m: "#0c0a09", W: "#44403c" },
+  "beetle~ornament":      { a: "#dc2626", b: "#7f1d1d", w: "#fecaca", d: "#450a0a", e: "#fde047", l: "#450a0a" },
+  "knight~toy":           { A: "#dc2626", a: "#991b1b", d: "#450a0a", r: "#facc15", p: "#1d4ed8", P: "#1e3a8a", s: "#f5c9a5", S: "#d39b78" },
+  "slimeking~eggnog":     { a: "#fef3c7", b: "#d6a36a", W: "#ffffff", e: "#78350f", m: "#78350f", g: "#facc15", G: "#b45309" },
+  "commander~nutcracker": { A: "#b91c1c", a: "#7f1d1d", d: "#450a0a", r: "#facc15", p: "#1e3a8a", P: "#172554", g: "#facc15", G: "#a16207" },
+  "showman~humbug":       { h: "#14532d", H: "#166534", r: "#dc2626", c: "#166534", C: "#052e16", w: "#ffffff", v: "#facc15", g: "#facc15", k: "#7f1d1d", K: "#dc2626" },
+  "m_npc~christmas":      { h: "#b91c1c", c: "#166534", C: "#22c55e" },
+  "m_crate~gift":         { c: "#dc2626", C: "#ef4444", d: "#facc15" },
+  "m_balloon~ornament":   { r: "#16a34a", R: "#86efac", w: "#facc15" },
+});
+LOOK.christmas = { floor: "#e3edf5", floor2: "#d8e5ef", speck: ["#ffffff", "#c3d6e6"], wall: "#14532d", hi: "#dc2626", lo: "#052e16",
+  pat: "brick", props: ["m_tree~snow", "m_crate~gift", "m_balloon~ornament", "m_crystal"], decal: "snow", fog: "#050a12" };
+QUEST_ITEM.christmas = "lost presents";
+NPC_NAME.christmas = "Lost Elf";
+STORIES.christmas = {
+  title: "The Stolen Christmas", scene: "ice", look: "christmas", color: "#dc2626", season: "christmas",
+  premise: "It's Christmas Eve and every stocking in town is empty. A trail of torn wrapping paper and tiny boot prints leads up to Tinsel Tower, where somebody has been hoarding everyone's presents.",
+  goal: "Climb Tinsel Tower and take Christmas back from the Humbug King.",
+  victory: "The Humbug King's crown clatters to the floor and he sits down with a grumpy \"fine.\" The presents float home down the chimneys one by one, and somewhere out in the snow a sleigh bell rings.",
+  trophy: { name: "The Humbug King's Star", perk: "maxhp", text: "+10 max HP" },
+  throne: "The Humbug King's Hall",
+  floors: [
+    F("Snowy Main Street", [200, 215, 235], [["slime_ice", "Frost Slime"], ["mushroom~gingerbread", "Gingerbread Shroom"], ["ghost~snow", "Snow Wraith"], ["imp~coal", "Coal Imp"]], ["golem~snow", "The Abominable Snowman", 6]),
+    F("The Candy Cane Forest", [200, 120, 130], [["mushroom~gingerbread", "Gingerbread Shroom"], ["beetle~ornament", "Ornament Beetle"], ["bat~frost", "Frost Bat"], ["goblin~elf", "Rogue Elf"]], ["slimeking~eggnog", "The Eggnog Blob", 8]),
+    F("The Toy Workshop", [170, 130, 90], [["goblin~elf", "Rogue Elf"], ["knight~toy", "Tin Soldier"], ["beetle~ornament", "Ornament Beetle"], ["imp~coal", "Coal Imp"]], ["commander~nutcracker", "The Nutcracker General", 10]),
+    F("The Frozen Chimneys", [120, 140, 180], [["ghost~snow", "Snow Wraith"], ["imp~coal", "Coal Imp"], ["bat~frost", "Frost Bat"], ["knight~toy", "Tin Soldier"]], ["lich~frost", "The Ghost of Christmas Past", 12]),
+    F("Tinsel Tower", [170, 60, 60], [["knight~toy", "Tin Soldier"], ["goblin~elf", "Rogue Elf"], ["ghost~snow", "Snow Wraith"]], ["showman~humbug", "The Humbug King", 16, 5]),
+  ],
+};
 /* in season, every deck plays the seasonal story */
 const _twStoryForDeck = storyForDeck;
 storyForDeck = function (meta) { const s = seasonNow(); return s && STORIES[s] ? s : _twStoryForDeck(meta); };
