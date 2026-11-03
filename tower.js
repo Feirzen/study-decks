@@ -925,7 +925,7 @@ function drawMini() {
     });
     (rm.doors || []).forEach(d => { if (!d.boss) return; const ready = bossReady(s); g.fillStyle = ready ? (blink ? "#f97316" : "#fde047") : "#b91c1c"; g.fillRect(X + d.x * P - 2, Y + d.y * P - 2, 5, 5); });
     if (!rm.graph && rm.last) { g.fillStyle = foesLeft(s) === 0 ? "#f97316" : "#7f1d1d"; g.fillRect(X + (RW - 1) * P - 2, Y + rm.east.y * P - 2, 5, 5); }
-    if (r.i === ms.room && blink) { g.fillStyle = "#ffffff"; g.fillRect(X + MS.tx * P - 1, Y + MS.ty * P - 1, 4, 4); }
+    if (r.i === ms.room) { g.fillStyle = "#ffffff"; g.fillRect(X + MS.tx * P - 1, Y + MS.ty * P - 1, 4, 4); }
   });
 }
 setInterval(() => { if (S.screen === "map") drawMini(); }, 400);
@@ -954,7 +954,7 @@ render = function () {
   .tw-stairs:hover { background: rgba(10,8,16,.75); transform: translateY(-1px); }
   .tw-stairs:active { transform: scale(.94); }
   .tw-qstairs { opacity: .85; }
-  .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; height: auto; image-rendering: pixelated; pointer-events: none;
+  .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; max-height: 40%; width: auto; height: auto; opacity: .88; image-rendering: pixelated; pointer-events: none;
     padding: 5px; border-radius: 9px; background: rgba(10,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
   .tw-prog { margin: 2px 0 8px; }
   .tw-proghead { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
@@ -963,6 +963,7 @@ render = function () {
   .tw-progbar i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--accent), var(--star)); transition: width .6s cubic-bezier(.2,.9,.3,1); }
   .tw-progbar.ready i { background: linear-gradient(90deg, #f97316, #fde047); animation: twGlow 1.4s ease-in-out infinite; }
   @keyframes twGlow { 50% { filter: brightness(1.35); } }
+  @media (min-width: 700px) { .tw-mini { max-width: 28%; max-height: 30%; } }
   .tw-pick { position: fixed; inset: 0; z-index: 60; background: rgba(5,3,10,.62); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
     display: flex; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 24px 12px; animation: twFade .25s ease both; }
   .tw-panel { position: relative; width: 100%; max-width: 520px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
