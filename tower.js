@@ -511,6 +511,8 @@ function genGraphFloor(run, seed) {
   if (n >= 5 && R() < 0.7) {
     const tr = shuffled(rooms.filter(r => r.idx !== 0 && r.idx !== bc.i), R)[0];
     if (tr) tr.trial = R() < 0.5 ? "fight" : "torch";
+    // sometimes the trial is a dark labyrinth instead (its own dice, so older floors keep their layout)
+    if (tr && mazeAllowed(run)) { const R2 = rng32((seed ^ 0x2545f491) >>> 0); if (R2() < 0.4) mazeRoom(R2, tr); }
   }
   // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
   const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
@@ -540,8 +542,8 @@ function genGraphFloor(run, seed) {
     if (R() < 0.5 && !opts.some(o => o.type === "shrine")) opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * n) });
   }
   opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
-  rooms.forEach(rm => placeProps(R, rm, look));
-  rooms.forEach(rm => placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
+  rooms.forEach(rm => { if (rm.trial !== "maze") placeProps(R, rm, look); });
+  rooms.forEach(rm => rm.trial !== "maze" && placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
   // foes that showed up later in this visit come back after a reload
   const ms = run.map;
   if (ms && ms.floor === run.floor && Array.isArray(ms.extra)) ms.extra.forEach(x => { if (rooms[x.room]) rooms[x.room].objs.push({ id: x.id, type: "foe", foe: x.foe, key: x.key, name: x.name, x: x.x, y: x.y }); });
@@ -564,7 +566,8 @@ genFloor = function (run, seed) {
 const _twRoomOk = roomOk;
 roomOk = function (rm) {
   if (!rm.graph) return _twRoomOk(rm);
-  const reach = flood(rm.g, rm.start.x, rm.start.y, roomBlocked(rm));
+  const bl = roomBlocked(rm); rm.objs.forEach(o => { if (o.type === "gate") delete bl[o.y + "," + o.x]; });
+  const reach = flood(rm.g, rm.start.x, rm.start.y, bl);
   if (rm.doors.some(d => { const i = doorInner(d); return !reach[i.y][i.x]; })) return false;
   return rm.objs.every(o => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => {
     const x = o.x + dx, y = o.y + dy; return x >= 0 && y >= 0 && x < RW && y < RH && reach[y][x];
@@ -601,7 +604,7 @@ function doorPass(s, rm, d) {
 function bumpG(d) {
   const s = S.battle.s, ms = s.map, rm = curRoom();
   sfx.bBlock && sfx.bBlock();
-  if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
+  if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : rm.trial === "maze" ? "The doors are sealed shut. Find the glowing rune somewhere in this labyrinth to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
   if (d.boss) {
     const left = foesLeft(s), q = chapterLeft(s), bits = [];
     if (left) bits.push(`${left} ${left === 1 ? "guardian still stands" : "guardians still stand"}`);
@@ -676,13 +679,15 @@ function trialEnter(rm) {
   sfx.bBoss && sfx.bBoss();
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
-    : "The doors slam shut behind you! Defeat everything in this room to break the seal.", null, "Sealed in"), 240);
+    : rm.trial === "maze" ? "The doors slam shut and the torches go out. You're in a labyrinth! Find the glowing rune to break the seal. Riddle gates block the way: answer one to pass."
+    : "The doors slam shut behind you! Defeat everything in this room to break the seal.", null, rm.trial === "maze" ? "The Labyrinth" : "Sealed in"), 240);
 }
 function trialCheck() {
   const b = S.battle; if (!b || !b.s.map) return;
   const s = b.s, ms = s.map, rm = curRoom();
   if (!trialOn(s, rm.idx)) return;
-  const done = rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
+  const done = rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
+    : rm.trial === "maze" ? rm.objs.some(o => o.type === "rune" && (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
   if (!done) return;
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
   sfx.bVictory && sfx.bVictory();
@@ -766,6 +771,136 @@ mapSubmit = function () {
 const _twQNext = mapQNext;
 mapQNext = function () { const r = _twQNext(); trialCheck(); return r; };
 
+/* ---------- labyrinth trials: a dark maze, riddle gates, and a rune to find ----------
+   Only on floor visits that started after this shipped (map.mz), so a floor
+   you're halfway through keeps the exact layout it had. */
+function mazeAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.mz; }
+const _twEnsureMap = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _twEnsureMap(run);
+  if (fresh && ms) ms.mz = true;
+  return ms;
+};
+function mazeRoom(R, rm) {
+  const g = [];
+  for (let y = 0; y < RH; y++) { g.push([]); for (let x = 0; x < RW; x++) g[y].push(1); }
+  // carve a perfect maze on the odd tiles (12 x 7 cells)
+  const cw = Math.floor((RW - 2) / 2), ch = Math.floor((RH - 2) / 2), seen = {};
+  const stack = [[Math.floor(R() * cw), Math.floor(R() * ch)]];
+  seen[stack[0]] = 1; g[stack[0][1] * 2 + 1][stack[0][0] * 2 + 1] = 0;
+  while (stack.length) {
+    const [cx, cy] = stack[stack.length - 1];
+    const nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [cx + dx, cy + dy, dx, dy])
+      .filter(([nx, ny]) => nx >= 0 && ny >= 0 && nx < cw && ny < ch && !seen[[nx, ny]]);
+    if (!nb.length) { stack.pop(); continue; }
+    const [nx, ny, dx, dy] = nb[Math.floor(R() * nb.length)];
+    g[cy * 2 + 1 + dy][cx * 2 + 1 + dx] = 0; g[ny * 2 + 1][nx * 2 + 1] = 0;
+    seen[[nx, ny]] = 1; stack.push([nx, ny]);
+  }
+  // a few extra openings so it isn't one long hallway
+  for (let k = 0; k < 4; k++) {
+    const x = 2 + 2 * Math.floor(R() * (cw - 1)), y = 1 + 2 * Math.floor(R() * ch);
+    if (x < RW - 2) g[y][x] = 0;
+  }
+  // hook every door into the maze
+  const odd = (v, max) => Math.max(1, Math.min(max, v % 2 ? v : v - 1));
+  rm.doors.forEach(d => {
+    g[d.y][d.x] = 0;
+    const i = doorInner(d); let x = i.x, y = i.y; g[y][x] = 0;
+    const tx = odd(x, cw * 2 - 1), ty = odd(y, ch * 2 - 1);
+    while (x !== tx) { x += Math.sign(tx - x); g[y][x] = 0; }
+    while (y !== ty) { y += Math.sign(ty - y); g[y][x] = 0; }
+  });
+  rm.g = g; rm.shape = "maze"; rm.trial = "maze"; rm.props = [];
+  rm.start = { x: odd(Math.floor(RW / 2), cw * 2 - 1), y: odd(Math.floor(RH / 2), ch * 2 - 1) };
+  // the rune sits in the spot that's farthest from every door
+  const distFrom = (sx, sy) => {
+    const dist = g.map(r => r.map(() => -1)), prev = {}, q = [[sx, sy]]; dist[sy][sx] = 0;
+    while (q.length) {
+      const [x, y] = q.shift();
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 1 || ny < 1 || nx > RW - 2 || ny > RH - 2 || g[ny][nx] || dist[ny][nx] >= 0) continue;
+        dist[ny][nx] = dist[y][x] + 1; prev[nx + "," + ny] = [x, y]; q.push([nx, ny]);
+      }
+    }
+    return { dist, prev };
+  };
+  const fromDoors = rm.doors.map(d => { const i = doorInner(d); return distFrom(i.x, i.y); });
+  let best = null, bestD = -1;
+  for (let y = 1; y < RH - 1; y += 2) for (let x = 1; x < RW - 1; x += 2) {
+    if (g[y][x]) continue;
+    const m = Math.min(...fromDoors.map(f => f.dist[y][x] < 0 ? 999 : f.dist[y][x]));
+    if (m < 999 && m > bestD) { bestD = m; best = { x, y }; }
+  }
+  if (!best) return;
+  rm.objs.push({ id: "r0", type: "rune", x: best.x, y: best.y });
+  // two riddle gates on the way in from the nearest door
+  const near = fromDoors.reduce((a, f) => (f.dist[best.y][best.x] >= 0 && (!a || f.dist[best.y][best.x] < a.dist[best.y][best.x]) ? f : a), null);
+  const path = []; let k = best.x + "," + best.y;
+  while (near && near.prev[k]) { const p = near.prev[k]; path.push({ x: p[0], y: p[1] }); k = p[0] + "," + p[1]; }
+  const inner = rm.doors.map(d => doorInner(d));
+  const okGate = t => t && !inner.some(i => Math.abs(i.x - t.x) + Math.abs(i.y - t.y) < 2) && !(t.x === rm.start.x && t.y === rm.start.y);
+  const picks = [2, Math.floor(path.length * 0.55)].map(i => path[i]).filter(okGate);
+  if (picks.length === 2 && Math.abs(picks[0].x - picks[1].x) + Math.abs(picks[0].y - picks[1].y) < 3) picks.pop();
+  picks.forEach((t, i) => rm.objs.push({ id: "q" + i, type: "gate", x: t.x, y: t.y }));
+}
+// an opened gate is just floor
+const _twObjAt = objAt;
+objAt = function (rm, x, y) {
+  const o = _twObjAt(rm, x, y);
+  if (o && o.type === "gate" && (S.battle.s.map.lit || []).includes(o.id)) return null;
+  return o;
+};
+const _twInteract3 = interact;
+interact = function (o) {
+  const s = S.battle.s, ms = s.map;
+  if (o && o.type === "gate") return say("Iron bars block the passage. A riddle glows on the lock.", [{ label: "Answer it (1 question)", act: "mapQStart", arg: o.id }], "Riddle gate");
+  if (o && o.type === "rune") {
+    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The rune hums quietly. Its light fills the labyrinth.");
+    (ms.lit = ms.lit || []).push(o.id);
+    MS.burst = { x: o.x, y: o.y, t: 0 };
+    return trialCheck();
+  }
+  return _twInteract3(o);
+};
+const _twMapSubmit2 = mapSubmit;
+mapSubmit = function () {
+  const Q = S.mapQ;
+  if (!Q || Q.kind !== "gate") return _twMapSubmit2();
+  const b = S.battle, s = b.s, ms = s.map, q = Q.q, ok = grade(q, S.selected);
+  recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
+  if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  S.feedback = ok ? "correct" : "incorrect";
+  if (!ok) S.showAnswer = true;
+  if (ok) { (ms.lit = ms.lit || []).push(Q.obj); grantXp(6); Q.result = { ok, text: "The bars slide into the floor. The way is open! +6 XP" }; sfx.bArm(); }
+  else {
+    const d = Math.max(0, Math.min(S.idk ? 3 : 6, s.hp - 1)); s.hp -= d;
+    Q.result = { ok, text: `The lock zaps you.${d > 0 ? " -" + d + " HP." : ""} Try again.` };
+    sfx.bFizzle();
+  }
+  persistMap(); render();
+};
+function mazeDark(s, rm) { return rm && rm.trial === "maze" && !(s.map.trials && s.map.trials[rm.idx] === "done"); }
+function drawMazeObj(g, o, ms) {
+  const X = o.x * T, Y = o.y * T, done = (ms.lit || []).includes(o.id), ph = Math.floor(MS.time * 4) % 2;
+  if (o.type === "gate") {
+    if (done) { g.fillStyle = "rgba(0,0,0,.25)"; for (let k = 2; k < T; k += 4) g.fillRect(X + k, Y + T - 3, 2, 2); return; }
+    g.fillStyle = "#292524"; g.fillRect(X + 1, Y, T - 2, T);
+    g.fillStyle = "#a8a29e"; for (let k = 2; k < T - 1; k += 4) g.fillRect(X + k, Y, 2, T);
+    g.fillStyle = "#78716c"; g.fillRect(X + 1, Y + 3, T - 2, 2); g.fillRect(X + 1, Y + T - 5, T - 2, 2);
+    g.fillStyle = ph ? "#c084fc" : "#e9d5ff"; g.fillRect(X + 6, Y + 6, 4, 4);
+    return;
+  }
+  const c = done ? "#fde047" : ph ? "#22d3ee" : "#a5f3fc";
+  g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
+  g.fillStyle = "#44403c"; g.fillRect(X + 3, Y + 4, T - 6, T - 6);
+  g.fillStyle = c; g.fillRect(X + 7, Y + 5, 2, 8); g.fillRect(X + 5, Y + 7, 6, 2); g.fillRect(X + 5, Y + 11, 2, 1); g.fillRect(X + 9, Y + 11, 2, 1);
+  if (!done) { g.globalAlpha = 0.25 + 0.15 * ph; g.fillRect(X - 2, Y - 2, T + 4, T + 4); g.globalAlpha = 1; }
+}
+
 /* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
 function drawDoorG(g, d, open, kind, L) {
   const X = d.x * T, Y = d.y * T;
@@ -796,6 +931,7 @@ drawDoor = function (g, rm, side, open, kind) {
     drawDoorG(g, d, true, "open", floorData(s).look);
   });
   rm.objs.forEach(o => {
+    if (o.type === "gate" || o.type === "rune") return drawMazeObj(g, o, ms);
     if (o.type !== "brazier") return;
     const X = o.x * T, Y = o.y * T, lit = (ms.lit || []).includes(o.id);
     g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
@@ -943,8 +1079,10 @@ function drawMini() {
       return;
     }
     g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh);
+    const hideMaze = rm.trial === "maze" && !(ms.trials && ms.trials[r.i] === "done");
     for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
-      if (rm.g[y][x]) continue;
+      if (rm.g[y][x] || (hideMaze && Math.abs(x - MS.tx) + Math.abs(y - MS.ty) > 3)) continue;
+      if (hideMaze && r.i !== ms.room) continue;
       g.fillStyle = r.i === ms.room ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)";
       g.fillRect(X + x * P, Y + y * P, P, P);
     }
@@ -953,6 +1091,7 @@ function drawMini() {
       if (o.type === "foe" && ms.cleared.includes(o.id)) return;
       if (o.type === "chest" && (ms.opened || []).includes(o.id)) return;
       if (o.type === "egg" || (o.type === "brazier" && (ms.lit || []).includes(o.id))) return;
+      if ((o.type === "gate" || o.type === "rune") && (hideMaze || (ms.lit || []).includes(o.id))) return;
       g.fillStyle = o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : o.type === "brazier" ? "#f97316" : "#a78bfa";
       g.fillRect(X + o.x * P - 1, Y + o.y * P - 1, 3, 3);
     });

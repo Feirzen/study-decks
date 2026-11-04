@@ -921,7 +921,7 @@ function mapLoop(now) {
   // ---------- weather (low-key, logical pixels) ----------
   mapWeather(g, dt, F.scene, amb);
   // ---------- darkness with torch + hero light ----------
-  if (F.dark) {
+  if (F.dark || (typeof mazeDark === "function" && mazeDark(s, rm))) {
     const dc = MS.cache.dark || (MS.cache.dark = document.createElement("canvas"));
     dc.width = RW * T; dc.height = RH * T;
     const d = dc.getContext("2d");
