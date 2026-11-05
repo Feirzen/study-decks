@@ -679,7 +679,7 @@ function trialEnter(rm) {
   sfx.bBoss && sfx.bBoss();
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
-    : rm.trial === "maze" ? "The doors slam shut and the torches go out. You're in a labyrinth! Find the glowing rune to break the seal. Riddle gates block the way: answer one to pass."
+    : rm.trial === "maze" ? "A flash of light, then the doors slam shut and everything goes black. You're in a labyrinth! Feel your way to the glowing rune to break the seal. Riddle gates block the way: answer one to pass. Somewhere in a dead end, a key can light the torches."
     : "The doors slam shut behind you! Defeat everything in this room to break the seal.", null, rm.trial === "maze" ? "The Labyrinth" : "Sealed in"), 240);
 }
 function trialCheck() {
@@ -845,12 +845,23 @@ function mazeRoom(R, rm) {
   const picks = [2, Math.floor(path.length * 0.55)].map(i => path[i]).filter(okGate);
   if (picks.length === 2 && Math.abs(picks[0].x - picks[1].x) + Math.abs(picks[0].y - picks[1].y) < 3) picks.pop();
   picks.forEach((t, i) => rm.objs.push({ id: "q" + i, type: "gate", x: t.x, y: t.y }));
+  // a brass key waits in one dead end; it lights the torches all over the room
+  const onPath = {}; path.forEach(t => { onPath[t.x + "," + t.y] = 1; });
+  const open = (x, y) => x > 0 && y > 0 && x < RW - 1 && y < RH - 1 && !g[y][x];
+  const ends = [];
+  for (let y = 1; y < RH - 1; y += 2) for (let x = 1; x < RW - 1; x += 2) {
+    if (g[y][x] || onPath[x + "," + y] || (x === best.x && y === best.y) || (x === rm.start.x && y === rm.start.y)) continue;
+    if ([[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => open(x + dx, y + dy)).length !== 1) continue;
+    if (inner.some(i => Math.abs(i.x - x) + Math.abs(i.y - y) < 4) || Math.abs(best.x - x) + Math.abs(best.y - y) < 4) continue;
+    ends.push({ x, y });
+  }
+  if (ends.length) { const e = ends[Math.floor(R() * ends.length)]; rm.objs.push({ id: "k0", type: "mkey", x: e.x, y: e.y }); }
 }
 // an opened gate is just floor
 const _twObjAt = objAt;
 objAt = function (rm, x, y) {
   const o = _twObjAt(rm, x, y);
-  if (o && o.type === "gate" && (S.battle.s.map.lit || []).includes(o.id)) return null;
+  if (o && (o.type === "gate" || o.type === "mkey") && (S.battle.s.map.lit || []).includes(o.id)) return null;
   return o;
 };
 const _twInteract3 = interact;
@@ -862,6 +873,13 @@ interact = function (o) {
     (ms.lit = ms.lit || []).push(o.id);
     MS.burst = { x: o.x, y: o.y, t: 0 };
     return trialCheck();
+  }
+  if (o && o.type === "mkey") {
+    if ((ms.lit || []).includes(o.id)) return;
+    (ms.lit = ms.lit || []).push(o.id);
+    MS.burst = { x: o.x, y: o.y, t: 0 }; MZ.glow = 0;
+    sfx.bArm && sfx.bArm(); grantXp(4); persistMap();
+    return say("You pick up a brass key and turn it in the wall. One by one, torches flicker on all over the labyrinth. It's dim, but now you can see the way. (+4 XP)", null, "Torch key");
   }
   return _twInteract3(o);
 };
@@ -884,6 +902,98 @@ mapSubmit = function () {
   persistMap(); render();
 };
 function mazeDark(s, rm) { return rm && rm.trial === "maze" && !(s.map.trials && s.map.trials[rm.idx] === "done"); }
+function mazeKeyLit(ms, rm) { return rm.objs.some(o => o.type === "mkey" && (ms.lit || []).includes(o.id)); }
+/* what the hero's light reaches: a few tiles, and never through a wall */
+const MZ = { at: "", t: 9, vis: null, eye: null, nextEye: 3, glow: 1 };
+function mazeSight(rm, px, py, R) {
+  const vis = new Set();
+  for (let y = Math.max(0, py - R); y <= Math.min(RH - 1, py + R); y++) for (let x = Math.max(0, px - R); x <= Math.min(RW - 1, px + R); x++) {
+    const dx = x - px, dy = y - py; if (dx * dx + dy * dy > (R + 0.5) * (R + 0.5)) continue;
+    const n = Math.max(Math.abs(dx), Math.abs(dy)) * 3; let clear = true;
+    for (let i = 1; i < n; i++) {
+      const sx = Math.round(px + dx * i / n), sy = Math.round(py + dy * i / n);
+      if ((sx !== x || sy !== y) && (sx !== px || sy !== py) && rm.g[sy][sx]) { clear = false; break; }
+    }
+    if (clear) vis.add(x + "," + y);
+  }
+  return vis;
+}
+function mazeTorchSpots(rm) {
+  if (rm.mzTorch) return rm.mzTorch;
+  const out = [];
+  for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++)
+    if (rm.g[y][x] && !rm.g[y + 1][x] && !out.some(t => Math.abs(t.x - x) + Math.abs(t.y - y) < 5)) out.push({ x, y });
+  return (rm.mzTorch = out);
+}
+/* the darkness itself: pitch black (dim once the torch key is used), a flash when you walk in,
+   the hero's short light, glowing locks on the riddle gates, and the odd pair of eyes */
+function mazeShade(g, s, rm, L, dt) {
+  const ms = s.map, keyLit = mazeKeyLit(ms, rm), at = ms.floor + ":" + ms.room;
+  if (MZ.at !== at) { MZ.at = at; MZ.t = 0; MZ.eye = null; MZ.nextEye = 2.5; }
+  MZ.t += dt; MZ.glow = Math.min(1, MZ.glow + dt * 0.8);
+  const px = Math.round(MS.x), py = Math.round(MS.y);
+  MZ.vis = mazeSight(rm, px, py, 4);
+  const dc = MS.cache.mz || (MS.cache.mz = document.createElement("canvas"));
+  dc.width = RW * T; dc.height = RH * T;
+  const d = dc.getContext("2d");
+  const full = keyLit ? 1 - 0.38 * MZ.glow : 1, ramp = Math.min(1, Math.max(0, (MZ.t - 0.15) / 0.7));
+  d.fillStyle = "#000"; d.globalAlpha = full * ramp; d.fillRect(0, 0, dc.width, dc.height); d.globalAlpha = 1;
+  d.globalCompositeOperation = "destination-out";
+  const hx = MS.x, hy = MS.y, fl = Math.floor(MS.time * 4) % 2 ? 0.15 : 0;
+  MZ.vis.forEach(k => {
+    const [x, y] = k.split(",").map(Number), dd = Math.hypot(x - hx, y - hy) - fl;
+    d.globalAlpha = dd < 1.6 ? 1 : dd < 2.6 ? 0.82 : dd < 3.6 ? 0.5 : 0.22;
+    d.fillRect(x * T, y * T, T, T);
+  });
+  if (keyLit) mazeTorchSpots(rm).forEach(t => {
+    [[34, 0.25], [22, 0.45]].forEach(([r, a]) => { d.globalAlpha = a * MZ.glow; d.beginPath(); d.arc(t.x * T + 8, t.y * T + 12, r + (Math.floor(MS.time * 6 + t.x) % 2) * 2, 0, Math.PI * 2); d.fill(); });
+  });
+  d.globalAlpha = 1; d.globalCompositeOperation = "source-over";
+  g.drawImage(dc, 0, 0);
+  // the flash when you step in
+  if (MZ.t < 0.35) { g.fillStyle = "rgba(255,255,240," + (0.75 * (1 - MZ.t / 0.35)).toFixed(2) + ")"; g.fillRect(0, 0, RW * T, RH * T); }
+  if (keyLit) {
+    g.globalAlpha = 0.1 * MZ.glow; g.fillStyle = "#f97316";
+    mazeTorchSpots(rm).forEach(t => { g.beginPath(); g.arc(t.x * T + 8, t.y * T + 12, 18, 0, Math.PI * 2); g.fill(); });
+    g.globalAlpha = 1;
+    mazeTorchSpots(rm).forEach(t => drawTorch(g, t.x, t.y, MS.time));
+  }
+  // riddle gate locks glow through the dark
+  const ph = Math.floor(MS.time * 4) % 2;
+  rm.objs.forEach(o => {
+    if (o.type !== "gate" || (ms.lit || []).includes(o.id) || MZ.vis.has(o.x + "," + o.y)) return;
+    const X = o.x * T, Y = o.y * T, pulse = 0.18 + 0.1 * Math.sin(MS.time * 3 + o.x);
+    g.globalAlpha = pulse; g.fillStyle = "#c084fc"; g.beginPath(); g.arc(X + 8, Y + 8, 9, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1;
+    g.fillStyle = ph ? "#c084fc" : "#e9d5ff"; g.fillRect(X + 6, Y + 6, 4, 4);
+    g.fillStyle = "#f5f3ff"; g.fillRect(X + 7, Y + 7, 2, 2);
+  });
+  // now and then, something blinks at you from the dark
+  if (!keyLit) {
+    MZ.nextEye -= dt;
+    if (!MZ.eye && MZ.nextEye <= 0) {
+      const spots = [];
+      for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++)
+        if (!rm.g[y][x] && !MZ.vis.has(x + "," + y) && Math.abs(x - px) + Math.abs(y - py) > 5) spots.push({ x, y });
+      if (spots.length) MZ.eye = Object.assign({ t: 0, c: Math.random() < 0.5 ? "#ef4444" : "#facc15" }, spots[Math.floor(Math.random() * spots.length)]);
+      MZ.nextEye = 4 + Math.random() * 5;
+    }
+    if (MZ.eye) {
+      const e = MZ.eye; e.t += dt;
+      if (e.t > 1.8 || MZ.vis.has(e.x + "," + e.y)) MZ.eye = null;
+      else if (!(e.t > 0.7 && e.t < 0.82)) {            // one slow blink
+        g.globalAlpha = Math.min(1, e.t * 3, (1.8 - e.t) * 3); g.fillStyle = e.c;
+        g.fillRect(e.x * T + 4, e.y * T + 7, 2, 2); g.fillRect(e.x * T + 10, e.y * T + 7, 2, 2); g.globalAlpha = 1;
+      }
+    }
+  }
+}
+// in the dark you can only tap where you can see (no auto-walking through the maze)
+const _twGoTo2 = mapGoTo;
+mapGoTo = function (x, y) {
+  const s = S.battle && S.battle.s, rm = curRoom();
+  if (s && mazeDark(s, rm) && !mazeKeyLit(s.map, rm) && MZ.vis && !MZ.vis.has(x + "," + y)) return;
+  return _twGoTo2(x, y);
+};
 function drawMazeObj(g, o, ms) {
   const X = o.x * T, Y = o.y * T, done = (ms.lit || []).includes(o.id), ph = Math.floor(MS.time * 4) % 2;
   if (o.type === "gate") {
@@ -892,6 +1002,16 @@ function drawMazeObj(g, o, ms) {
     g.fillStyle = "#a8a29e"; for (let k = 2; k < T - 1; k += 4) g.fillRect(X + k, Y, 2, T);
     g.fillStyle = "#78716c"; g.fillRect(X + 1, Y + 3, T - 2, 2); g.fillRect(X + 1, Y + T - 5, T - 2, 2);
     g.fillStyle = ph ? "#c084fc" : "#e9d5ff"; g.fillRect(X + 6, Y + 6, 4, 4);
+    return;
+  }
+  if (o.type === "mkey") {
+    if (done) return;
+    const b = Math.floor(MS.time * 3) % 2;
+    g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 4, Y + T - 3, T - 8, 2);
+    g.fillStyle = "#b45309"; g.fillRect(X + 4, Y + 6 - b, 4, 4);
+    g.fillStyle = "#facc15"; g.fillRect(X + 5, Y + 7 - b, 2, 2); g.fillRect(X + 8, Y + 7 - b, 5, 2); g.fillRect(X + 11, Y + 9 - b, 2, 2);
+    g.fillStyle = "#0b0a0f"; g.fillRect(X + 5, Y + 7 - b, 1, 1);
+    if (b) { g.fillStyle = "#fffbe6"; g.fillRect(X + 12, Y + 4, 1, 1); }
     return;
   }
   const c = done ? "#fde047" : ph ? "#22d3ee" : "#a5f3fc";
@@ -931,7 +1051,7 @@ drawDoor = function (g, rm, side, open, kind) {
     drawDoorG(g, d, true, "open", floorData(s).look);
   });
   rm.objs.forEach(o => {
-    if (o.type === "gate" || o.type === "rune") return drawMazeObj(g, o, ms);
+    if (o.type === "gate" || o.type === "rune" || o.type === "mkey") return drawMazeObj(g, o, ms);
     if (o.type !== "brazier") return;
     const X = o.x * T, Y = o.y * T, lit = (ms.lit || []).includes(o.id);
     g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
@@ -1079,9 +1199,10 @@ function drawMini() {
       return;
     }
     g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh);
-    const hideMaze = rm.trial === "maze" && !(ms.trials && ms.trials[r.i] === "done");
+    const hideMaze = rm.trial === "maze" && !(ms.trials && ms.trials[r.i] === "done") && !mazeKeyLit(ms, rm);
+    const mSee = hideMaze && r.i === ms.room ? mazeSight(rm, MS.tx, MS.ty, 4) : null;
     for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
-      if (rm.g[y][x] || (hideMaze && Math.abs(x - MS.tx) + Math.abs(y - MS.ty) > 3)) continue;
+      if (rm.g[y][x] || (hideMaze && !(mSee && mSee.has(x + "," + y)))) continue;
       if (hideMaze && r.i !== ms.room) continue;
       g.fillStyle = r.i === ms.room ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)";
       g.fillRect(X + x * P, Y + y * P, P, P);
@@ -1091,7 +1212,8 @@ function drawMini() {
       if (o.type === "foe" && ms.cleared.includes(o.id)) return;
       if (o.type === "chest" && (ms.opened || []).includes(o.id)) return;
       if (o.type === "egg" || (o.type === "brazier" && (ms.lit || []).includes(o.id))) return;
-      if ((o.type === "gate" || o.type === "rune") && (hideMaze || (ms.lit || []).includes(o.id))) return;
+      if ((o.type === "gate" || o.type === "rune" || o.type === "mkey") && (hideMaze || (ms.lit || []).includes(o.id))) return;
+      if (hideMaze && !(mSee && mSee.has(o.x + "," + o.y))) return;
       g.fillStyle = o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : o.type === "brazier" ? "#f97316" : "#a78bfa";
       g.fillRect(X + o.x * P - 1, Y + o.y * P - 1, 3, 3);
     });
