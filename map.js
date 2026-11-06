@@ -670,6 +670,7 @@ function viewMap() {
           ${dlg}
           ${bn ? `<div class="mapbanner"><div class="mbt">${esc(bn.text)}</div>${bn.sub ? `<div class="mbs">${esc(bn.sub)}</div>` : ""}</div>` : ""}
         </div>
+        ${typeof stoneCard === "function" ? stoneCard() : ""}
         <div class="hud tex maphud">
           <div class="hudcol">
             <div class="hudlabel"><span>HP</span><b style="color:${hpColor(hpFrac)}">${s.hp} / ${mx}</b></div>
@@ -918,6 +919,7 @@ function mapLoop(now) {
     g.fillStyle = "#000"; g.fillRect(X - 1, Y - 1, 6, 8);
     g.fillStyle = near.type === "foe" ? "#ef4444" : "#fde047"; g.fillRect(X + 1, Y, 2, 4); g.fillRect(X + 1, Y + 5, 2, 1);
   }
+  if (typeof mapTick === "function") mapTick(dt);
   // ---------- weather (low-key, logical pixels) ----------
   mapWeather(g, dt, F.scene, amb);
   // ---------- darkness with torch + hero light ----------

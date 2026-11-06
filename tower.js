@@ -513,6 +513,8 @@ function genGraphFloor(run, seed) {
     if (tr) tr.trial = R() < 0.5 ? "fight" : "torch";
     // sometimes the trial is a dark labyrinth instead (its own dice, so older floors keep their layout)
     if (tr && mazeAllowed(run)) { const R2 = rng32((seed ^ 0x2545f491) >>> 0); if (R2() < 0.4) mazeRoom(R2, tr); }
+    // or the Answer Stones (again its own dice, and only on floors started after it shipped)
+    if (tr && tr.trial !== "maze" && stonesAllowed(run)) { const R3 = rng32((seed ^ 0x6c8e9cf5) >>> 0); if (R3() < 0.4) stoneRoom(R3, tr); }
   }
   // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
   const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
@@ -604,6 +606,7 @@ function doorPass(s, rm, d) {
 function bumpG(d) {
   const s = S.battle.s, ms = s.map, rm = curRoom();
   sfx.bBlock && sfx.bBlock();
+  if (trialOn(s, rm.idx) && rm.trial === "stones") return say(`The doors are sealed shut. Answer ${STONE_NEED} questions on the stones to break the seal (${s.map.stn || 0} so far).`);
   if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : rm.trial === "maze" ? "The doors are sealed shut. Find the glowing rune somewhere in this labyrinth to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
   if (d.boss) {
     const left = foesLeft(s), q = chapterLeft(s), bits = [];
@@ -677,6 +680,7 @@ function trialEnter(rm) {
   if (rm.trial === "fight" && !roomFoesLeft(s, rm.idx)) { ms.trials[rm.idx] = "done"; return; }
   ms.trials[rm.idx] = "on";
   sfx.bBoss && sfx.bBoss();
+  if (rm.trial === "stones") { S.stoneQ = null; setTimeout(() => { say("The doors slam shut! Four stones are set into the floor, each carved with a letter. Read the question below the map, then walk onto the stone with your answer and stand still. Get " + STONE_NEED + " right to break the seal.", null, "The Answer Stones"); }, 240); return; }
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
     : rm.trial === "maze" ? "A flash of light, then the doors slam shut and everything goes black. You're in a labyrinth! Feel your way to the glowing rune to break the seal. Riddle gates block the way: answer one to pass. Somewhere in a dead end, a key can light the torches."
@@ -686,7 +690,8 @@ function trialCheck() {
   const b = S.battle; if (!b || !b.s.map) return;
   const s = b.s, ms = s.map, rm = curRoom();
   if (!trialOn(s, rm.idx)) return;
-  const done = rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
+  const done = rm.trial === "stones" ? (ms.stn || 0) >= STONE_NEED
+    : rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
     : rm.trial === "maze" ? rm.objs.some(o => o.type === "rune" && (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
   if (!done) return;
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
@@ -1021,6 +1026,188 @@ function drawMazeObj(g, o, ms) {
   if (!done) { g.globalAlpha = 0.25 + 0.15 * ph; g.fillRect(X - 2, Y - 2, T + 4, T + 4); g.globalAlpha = 1; }
 }
 
+/* ---------- the Answer Stones: walk onto the stone with the right answer ----------
+   Four lettered stones in the floor. The question shows under the map and you can
+   keep walking while you read it. Stand still on a stone to answer. Only on floor
+   visits that started after this shipped (map.st), so older floors keep their layout. */
+const STONE_NEED = 3, STONE_HOLD = 0.5;
+function stonesAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.st; }
+const _twEnsureMap2 = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _twEnsureMap2(run);
+  if (fresh && ms) ms.st = true;
+  return ms;
+};
+function stoneRoom(R, rm) {
+  const inner = rm.doors.map(d => doorInner(d)), fl = (x, y) => x > 0 && y > 0 && x < RW - 1 && y < RH - 1 && !rm.g[y][x];
+  const spots = [];
+  for (let y = 3; y < RH - 3; y++) for (let x0 = 2; x0 + 6 < RW - 2; x0++) {
+    let ok = true;
+    for (let x = x0 - 1; x <= x0 + 7 && ok; x++) for (let yy = y - 1; yy <= y + 1; yy++) if (!fl(x, yy)) { ok = false; break; }
+    if (ok && inner.some(i => i.x >= x0 - 2 && i.x <= x0 + 8 && Math.abs(i.y - y) <= 2)) ok = false;
+    if (ok) spots.push({ x0, y });
+  }
+  if (!spots.length) return;
+  // prefer the middle of the room
+  spots.sort((a, b) => (Math.abs(a.x0 + 3 - RW / 2) + Math.abs(a.y - RH / 2)) - (Math.abs(b.x0 + 3 - RW / 2) + Math.abs(b.y - RH / 2)));
+  const p = spots[Math.floor(R() * Math.min(4, spots.length))];
+  rm.trial = "stones";
+  rm.stones = [0, 1, 2, 3].map(i => ({ i, x: p.x0 + 2 * i, y: p.y }));
+  rm.plaza = { x0: p.x0 - 1, x1: p.x0 + 7, y0: p.y - 1, y1: p.y + 1 };
+}
+// nothing else gets placed on the plaza around the stones
+const _twFree = freeTiles;
+freeTiles = function (rm) {
+  const out = _twFree(rm), p = rm.plaza;
+  return p ? out.filter(t => t.x < p.x0 || t.x > p.x1 || t.y < p.y0 || t.y > p.y1) : out;
+};
+// and the stones have to be reachable
+const _twRoomOk2 = roomOk;
+roomOk = function (rm) {
+  if (!_twRoomOk2(rm)) return false;
+  if (!rm.stones) return true;
+  const reach = flood(rm.g, rm.start.x, rm.start.y, roomBlocked(rm));
+  return rm.stones.every(t => reach[t.y][t.x]);
+};
+function stoneRoomNow() {
+  const b = S.battle; if (!b || !b.s.map || S.screen !== "map") return null;
+  const rm = curRoom();
+  return rm && rm.trial === "stones" && trialOn(b.s, rm.idx) ? rm : null;
+}
+function stoneStart() {
+  const b = S.battle, s = b.s, rm = curRoom(), saved = b.enemy;
+  b.enemy = { boss: false };
+  pickQuestion();
+  b.enemy = saved;
+  resetQ(); freshOrder(b.cur);
+  S.stoneQ = { at: s.created + ":" + s.floor + ":" + rm.idx, q: b.cur, res: null, armed: !(rm.stones || []).some(t => t.x === MS.tx && t.y === MS.ty), hold: 0, on: -1, pick: -1 };
+}
+function stoneQ() {
+  const rm = stoneRoomNow(); if (!rm) return null;
+  const s = S.battle.s, at = s.created + ":" + s.floor + ":" + rm.idx;
+  if (!S.stoneQ || S.stoneQ.at !== at) stoneStart();
+  return S.stoneQ;
+}
+const _twMapQuestion = mapQuestion;
+mapQuestion = function () { const q = _twMapQuestion(); return q || (S.stoneQ && stoneRoomNow() ? S.stoneQ.q : null); };
+function stoneOpts(q) { return q && q.type === "mc" && q.options.length <= 4 ? q.options.length : 0; }
+// runs every frame from the map loop: standing still on a stone answers with it
+function mapTick(dt) {
+  const rm = stoneRoomNow(); if (!rm) return;
+  const Q = stoneQ(); if (!Q || Q.res || mapBusy()) { if (Q) Q.hold = 0; return; }
+  const still = MS.t >= 1 && !MS.path.length && !MS.keyDir;
+  const st = rm.stones.find(t => t.x === MS.tx && t.y === MS.ty);
+  const mark = i => { if (Q.on === i) return; Q.on = i; Q.hold = 0; document.querySelectorAll(".stonecard .stopt").forEach((el, k) => el.classList.toggle("on", k === i)); };
+  if (!st) { Q.armed = true; return mark(-1); }
+  if (!Q.armed || st.i >= stoneOpts(Q.q)) { Q.hold = 0; return; }
+  if (Q.on !== st.i) { mark(st.i); sfx.tick && sfx.tick(); }
+  if (!still) return;
+  Q.hold += dt;
+  if (Q.hold >= STONE_HOLD) stoneAnswer([st.i]);
+}
+function stoneAnswer(sel) {
+  const b = S.battle, s = b.s, ms = s.map, Q = S.stoneQ, q = Q.q;
+  S.selected = sel.slice();
+  const ok = sel.length > 0 && grade(q, sel);
+  recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
+  if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  S.feedback = ok ? "correct" : "incorrect";
+  if (!ok) S.showAnswer = true;
+  Q.pick = sel.length === 1 ? sel[0] : -1; Q.hold = 0; Q.armed = false;
+  if (ok) {
+    ms.stn = (ms.stn || 0) + 1; grantXp(5); sfx.bArm && sfx.bArm();
+    Q.res = { ok, text: ms.stn >= STONE_NEED ? "The last stone sinks into the floor with a boom! +5 XP" : `The stone glows and sinks. ${ms.stn} of ${STONE_NEED}. +5 XP` };
+  } else {
+    const d = Math.max(0, Math.min(S.idk ? 3 : 6, s.hp - 1)); s.hp -= d;
+    Q.res = { ok, text: `${Q.pick >= 0 ? "The stone cracks under your feet!" : "Not quite."}${d > 0 ? " -" + d + " HP." : ""}` };
+    sfx.bFizzle && sfx.bFizzle();
+  }
+  persistMap(); render();
+}
+function stoneNext() {
+  const ms = S.battle.s.map;
+  sfx.tick && sfx.tick();
+  if ((ms.stn || 0) >= STONE_NEED) { S.stoneQ = null; resetQ(); trialCheck(); return render(); }
+  stoneStart(); render();
+}
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("[data-act]"); if (!t) return;
+  const a = t.dataset.act;
+  if (a === "stoneNext") return stoneNext();
+  if (a === "stoneSubmit" && S.stoneQ && !S.stoneQ.res && S.selected.length) return stoneAnswer(S.selected);
+  if (a === "stoneIdk" && S.stoneQ && !S.stoneQ.res) { S.idk = true; return stoneAnswer([]); }
+});
+const LETTERS = "ABCD";
+// the question card that sits right under the map (so you can read it and walk)
+function stoneCard() {
+  const Q = stoneQ(); if (!Q || !Q.q) return "";
+  const q = Q.q, ms = S.battle.s.map, n = stoneOpts(q), order = optionOrder(q), done = ms.stn || 0;
+  const rows = order.map((orig, pos) => {
+    const right = q.type === "mc" ? q.answer === orig : (q.answers || []).includes(orig);
+    const sel = S.selected.includes(pos);
+    let cls = "";
+    if (Q.res && right) cls = "ok"; else if (Q.res && sel) cls = "bad"; else if (!Q.res && Q.on === pos) cls = "on";
+    if (n) return `<div class="stopt ${cls}"><b>${LETTERS[pos]}</b><span>${esc(q.options[orig])}</span></div>`;
+    return `<button class="stopt ${cls} ${sel && !Q.res ? "on" : ""}" data-act="pick" data-pos="${pos}"><b>${sel ? "✓" : "·"}</b><span>${esc(q.options[orig])}</span></button>`;
+  }).join("");
+  let foot;
+  if (Q.res) {
+    foot = `<div class="stfb ${Q.res.ok ? "ok" : "bad"}"><b>${S.idk ? "Logged as \"don't know\". " : ""}${esc(Q.res.text)}</b>${q.explanation ? `<div>${esc(q.explanation)}</div>` : ""}</div>
+      <button class="primary" data-act="stoneNext" style="background:var(--accent);margin-top:8px">${done >= STONE_NEED ? "Break the seal →" : "Next question →"}</button>`;
+  } else if (n) {
+    foot = `<div class="sthint">${Q.armed ? "Walk onto the stone with your answer and stand still." : "Step off the stone, then onto your next answer."}</div>
+      <button class="ghost idk" data-act="stoneIdk" style="margin-top:6px">I don't know</button>`;
+  } else {
+    foot = `<div class="sthint">This one has more than one answer, so tap them here instead.</div>
+      <div style="display:flex;gap:10px;margin-top:6px"><button class="ghost idk" data-act="stoneIdk">I don't know</button><button class="primary" data-act="stoneSubmit" style="flex:1;background:${S.selected.length ? "var(--accent)" : "var(--border)"}" ${S.selected.length ? "" : "disabled"}>Answer</button></div>`;
+  }
+  return `<div class="stonecard tex">
+    <div class="eyebrow" style="color:var(--star)">The Answer Stones · ${Math.min(done + (Q.res && Q.res.ok ? 0 : 1), STONE_NEED)} of ${STONE_NEED}</div>
+    <div class="sttext">${esc(q.question)}</div>
+    <div class="stopts">${rows}</div>${foot}</div>`;
+}
+(function () {
+  const css = document.createElement("style");
+  css.textContent = `.stonecard{margin:10px 0;padding:12px 14px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.stonecard .sttext{font-weight:bold;margin:6px 0 8px;line-height:1.45}
+.stonecard .stopts{display:grid;gap:6px}
+.stonecard .stopt{display:flex;gap:10px;align-items:flex-start;text-align:left;width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:10px;background:transparent;color:var(--text);font:inherit;font-size:14px;line-height:1.35}
+.stonecard .stopt b{flex:0 0 22px;height:22px;border-radius:6px;display:grid;place-items:center;background:#57534e;color:#a5f3fc;font-family:monospace}
+.stonecard .stopt.on{border-color:var(--accent);background:var(--accBg)}
+.stonecard .stopt.ok{border-color:var(--ok);background:var(--okBg)}
+.stonecard .stopt.bad{border-color:var(--bad);background:var(--badBg)}
+.stonecard .sthint{margin-top:8px;font-size:13px;color:var(--muted)}
+.stonecard .stfb{margin-top:8px;padding:8px 10px;border-radius:10px;font-size:14px;line-height:1.5}
+.stonecard .stfb.ok{background:var(--okBg);border:1px solid var(--ok)}.stonecard .stfb.bad{background:var(--badBg);border:1px solid var(--bad)}
+.stonecard .stfb div{color:var(--muted);margin-top:4px}`;
+  document.head.appendChild(css);
+})();
+// 3x5 pixel letters for the stones
+const STONE_GLYPH = { A: ["0110", "1001", "1111", "1001", "1001"], B: ["1110", "1001", "1110", "1001", "1110"], C: ["0111", "1000", "1000", "1000", "0111"], D: ["1110", "1001", "1001", "1001", "1110"] };
+function drawStones(g, rm, s) {
+  const ms = s.map, on = trialOn(s, rm.idx), Q = on ? S.stoneQ : null, n = Q ? stoneOpts(Q.q) : 0;
+  const ph = Math.sin(MS.time * 3);
+  rm.stones.forEach(t => {
+    const X = t.x * T, Y = t.y * T, live = on && t.i < n;
+    let edge = "#78716c", face = "#57534e", ink = on ? (t.i < 4 && n ? "#a5f3fc" : "#44403c") : "#a8a29e", sink = 0;
+    if (Q && Q.res && Q.pick === t.i) { face = Q.res.ok ? "#166534" : "#7f1d1d"; ink = Q.res.ok ? "#bbf7d0" : "#fecaca"; sink = Q.res.ok ? 2 : 0; }
+    else if (Q && Q.on === t.i && !Q.res) sink = Math.min(2, Math.round(Q.hold / STONE_HOLD * 2));
+    if (!live && on) { face = "#3f3a36"; edge = "#57534e"; ink = "#57534e"; }
+    if (live && !(Q && Q.res)) { g.globalAlpha = 0.18 + 0.1 * ph; g.fillStyle = "#22d3ee"; g.fillRect(X - 1, Y - 1, T + 2, T + 2); g.globalAlpha = 1; }
+    g.fillStyle = "rgba(0,0,0,.35)"; g.fillRect(X + 1, Y + 2, T - 2, T - 2);
+    g.fillStyle = edge; g.fillRect(X + 1, Y + sink, T - 2, T - 2);
+    g.fillStyle = face; g.fillRect(X + 2, Y + 1 + sink, T - 4, T - 4);
+    const L = STONE_GLYPH[LETTERS[t.i]];
+    g.fillStyle = ink;
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 4; c++) if (L[r][c] === "1") g.fillRect(X + 4 + c * 2, Y + 2 + r * 2 + sink, 2, 2);
+    if (Q && Q.res && !Q.res.ok && Q.pick === t.i) { g.fillStyle = "#1c1917"; g.fillRect(X + 3, Y + 6, 4, 1); g.fillRect(X + 7, Y + 7, 3, 1); g.fillRect(X + 10, Y + 9, 3, 1); }
+    // hold ring: fills as you stand on it
+    if (Q && Q.on === t.i && !Q.res && Q.hold > 0) { g.fillStyle = "#fde047"; g.fillRect(X + 1, Y + T - 2, Math.round((T - 2) * Math.min(1, Q.hold / STONE_HOLD)), 2); }
+  });
+}
+
 /* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
 function drawDoorG(g, d, open, kind, L) {
   const X = d.x * T, Y = d.y * T;
@@ -1050,6 +1237,7 @@ drawDoor = function (g, rm, side, open, kind) {
     if (d.lock && !(ms.ul || []).includes(d.id)) return drawDoorG(g, d, false, "lock");
     drawDoorG(g, d, true, "open", floorData(s).look);
   });
+  if (rm.stones) drawStones(g, rm, s);
   rm.objs.forEach(o => {
     if (o.type === "gate" || o.type === "rune" || o.type === "mkey") return drawMazeObj(g, o, ms);
     if (o.type !== "brazier") return;
