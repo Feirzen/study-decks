@@ -515,6 +515,8 @@ function genGraphFloor(run, seed) {
     if (tr && mazeAllowed(run)) { const R2 = rng32((seed ^ 0x2545f491) >>> 0); if (R2() < 0.4) mazeRoom(R2, tr); }
     // or the Answer Stones (again its own dice, and only on floors started after it shipped)
     if (tr && tr.trial !== "maze" && stonesAllowed(run)) { const R3 = rng32((seed ^ 0x6c8e9cf5) >>> 0); if (R3() < 0.4) stoneRoom(R3, tr); }
+    // or the Chasm (its own dice too, and only on floors started after it shipped)
+    if (tr && tr.trial !== "maze" && tr.trial !== "stones" && chasmAllowed(run)) { const R4 = rng32((seed ^ 0x1b873593) >>> 0); if (R4() < 0.4) chasmRoom(R4, tr); }
   }
   // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
   const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
@@ -544,8 +546,8 @@ function genGraphFloor(run, seed) {
     if (R() < 0.5 && !opts.some(o => o.type === "shrine")) opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * n) });
   }
   opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
-  rooms.forEach(rm => { if (rm.trial !== "maze") placeProps(R, rm, look); });
-  rooms.forEach(rm => rm.trial !== "maze" && placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
+  rooms.forEach(rm => { if (rm.trial !== "maze" && rm.trial !== "chasm") placeProps(R, rm, look); });
+  rooms.forEach(rm => rm.trial !== "maze" && rm.trial !== "chasm" && placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
   // foes that showed up later in this visit come back after a reload
   const ms = run.map;
   if (ms && ms.floor === run.floor && Array.isArray(ms.extra)) ms.extra.forEach(x => { if (rooms[x.room]) rooms[x.room].objs.push({ id: x.id, type: "foe", foe: x.foe, key: x.key, name: x.name, x: x.x, y: x.y }); });
@@ -568,7 +570,7 @@ genFloor = function (run, seed) {
 const _twRoomOk = roomOk;
 roomOk = function (rm) {
   if (!rm.graph) return _twRoomOk(rm);
-  const bl = roomBlocked(rm); rm.objs.forEach(o => { if (o.type === "gate") delete bl[o.y + "," + o.x]; });
+  const bl = roomBlocked(rm); rm.objs.forEach(o => { if (o.type === "gate" || o.type === "plank") delete bl[o.y + "," + o.x]; });
   const reach = flood(rm.g, rm.start.x, rm.start.y, bl);
   if (rm.doors.some(d => { const i = doorInner(d); return !reach[i.y][i.x]; })) return false;
   return rm.objs.every(o => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => {
@@ -607,6 +609,7 @@ function bumpG(d) {
   const s = S.battle.s, ms = s.map, rm = curRoom();
   sfx.bBlock && sfx.bBlock();
   if (trialOn(s, rm.idx) && rm.trial === "stones") return say(`The doors are sealed shut. Answer ${STONE_NEED} questions on the stones to break the seal (${s.map.stn || 0} so far).`);
+  if (trialOn(s, rm.idx) && rm.trial === "chasm") return say("The doors are sealed shut. Cross the bridges and pull the lever on the island to break the seal.");
   if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : rm.trial === "maze" ? "The doors are sealed shut. Find the glowing rune somewhere in this labyrinth to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
   if (d.boss) {
     const left = foesLeft(s), q = chapterLeft(s), bits = [];
@@ -681,6 +684,7 @@ function trialEnter(rm) {
   ms.trials[rm.idx] = "on";
   sfx.bBoss && sfx.bBoss();
   if (rm.trial === "stones") { S.stoneQ = null; setTimeout(() => { say("The doors slam shut! Four stones are set into the floor, each carved with a letter. Read the question below the map, then walk onto the stone with your answer and stand still. Get " + STONE_NEED + " right to break the seal.", null, "The Answer Stones"); }, 240); return; }
+  if (rm.trial === "chasm") { setTimeout(() => say("The doors slam shut, and the floor falls away into the dark! Narrow bridges lead to an island with a lever. Cracked planks block the way: answer to brace one. Miss, and it snaps and drops you back by the door.", null, "The Chasm"), 240); return; }
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
     : rm.trial === "maze" ? "A flash of light, then the doors slam shut and everything goes black. You're in a labyrinth! Feel your way to the glowing rune to break the seal. Riddle gates block the way: answer one to pass. Somewhere in a dead end, a key can light the torches."
@@ -692,6 +696,7 @@ function trialCheck() {
   if (!trialOn(s, rm.idx)) return;
   const done = rm.trial === "stones" ? (ms.stn || 0) >= STONE_NEED
     : rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
+    : rm.trial === "chasm" ? rm.objs.some(o => o.type === "lever" && (ms.lit || []).includes(o.id))
     : rm.trial === "maze" ? rm.objs.some(o => o.type === "rune" && (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
   if (!done) return;
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
@@ -1208,6 +1213,157 @@ function drawStones(g, rm, s) {
   });
 }
 
+/* ---------- the Chasm: a broken bridge over a bottomless drop ----------
+   The room is one big pit. Narrow bridges run from each door to an island in the
+   middle, where a lever breaks the seal. Cracked planks block the bridges: answer
+   to brace one, miss and it snaps, dropping you back to the ledge by the door.
+   Only on floor visits that started after this shipped (map.ch). */
+function chasmAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.ch; }
+const _twEnsureMap3 = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _twEnsureMap3(run);
+  if (fresh && ms) ms.ch = true;
+  return ms;
+};
+function chasmRoom(R, rm) {
+  const g = [];
+  for (let y = 0; y < RH; y++) { g.push([]); for (let x = 0; x < RW; x++) g[y].push(1); }
+  const cx = Math.floor(RW / 2), cy = Math.floor(RH / 2), isle = { x0: cx - 2, x1: cx + 2, y0: cy - 1, y1: cy + 1 };
+  const inside = (x, y) => x > 0 && y > 0 && x < RW - 1 && y < RH - 1;
+  const set = (x, y) => { if (inside(x, y)) g[y][x] = 0; };
+  for (let y = isle.y0; y <= isle.y1; y++) for (let x = isle.x0; x <= isle.x1; x++) set(x, y);
+  const bridge = {}, planks = [], ledges = [];
+  rm.doors.forEach(d => {
+    g[d.y][d.x] = 0;
+    const i = doorInner(d), ew = d.side === "e" || d.side === "w";
+    const inw = { e: [-1, 0], w: [1, 0], n: [0, 1], s: [0, -1] }[d.side];
+    // a small ledge by the door
+    set(i.x, i.y); set(i.x + (ew ? 0 : 1), i.y + (ew ? 1 : 0)); set(i.x - (ew ? 0 : 1), i.y - (ew ? 1 : 0));
+    let x = i.x + inw[0], y = i.y + inw[1]; set(x, y);
+    ledges.push({ x: i.x, y: i.y }, { x, y });
+    // then a bridge with one bend that wanders toward the island
+    const tx = Math.max(isle.x0, Math.min(isle.x1, x)), ty = Math.max(isle.y0, Math.min(isle.y1, y));
+    const path = [], walk = (nx, ny) => { x = nx; y = ny; if (g[y][x]) { g[y][x] = 0; path.push({ x, y }); bridge[x + "," + y] = 1; } };
+    if (ew) { const mx = x + Math.round((tx - x) * (0.3 + R() * 0.4)); while (x !== mx) walk(x + Math.sign(mx - x), y); while (y !== ty) walk(x, y + Math.sign(ty - y)); while (x !== tx) walk(x + Math.sign(tx - x), y); }
+    else { const my = y + Math.round((ty - y) * (0.3 + R() * 0.4)); while (y !== my) walk(x, y + Math.sign(my - y)); while (x !== tx) walk(x + Math.sign(tx - x), y); while (y !== ty) walk(x, y + Math.sign(ty - y)); }
+    const L = path.length, at = L >= 7 ? [Math.floor(L / 3), Math.floor(2 * L / 3)] : L >= 3 ? [Math.floor(L / 2)] : [];
+    at.forEach(k => { const t = path[k]; if (!planks.some(p => Math.abs(p.x - t.x) + Math.abs(p.y - t.y) < 2)) planks.push({ x: t.x, y: t.y }); });
+  });
+  // check it before keeping it: every door reaches the island, but never without crossing a plank
+  const pb = {}; planks.forEach(p => { pb[p.y + "," + p.x] = 1; });
+  const open = flood(g, cx, cy), shut = flood(g, cx, cy, pb);
+  const ins = rm.doors.map(d => doorInner(d));
+  if (!planks.length || ins.some(i => !open[i.y][i.x] || shut[i.y][i.x])) return;
+  rm.g = g; rm.trial = "chasm"; rm.props = []; rm.start = { x: cx, y: cy };
+  rm.isle = isle; rm.bridge = bridge;
+  rm.pit = {}; for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) if (g[y][x]) rm.pit[x + "," + y] = 1;
+  rm.objs.push({ id: "lv", type: "lever", x: cx, y: cy });
+  planks.forEach((p, i) => rm.objs.push({ id: "p" + i, type: "plank", x: p.x, y: p.y }));
+}
+// in the chasm, things only get set down on the island
+const _twFree3 = freeTiles;
+freeTiles = function (rm) {
+  const out = _twFree3(rm), I = rm.trial === "chasm" && rm.isle;
+  return I ? out.filter(t => t.x >= I.x0 && t.x <= I.x1 && t.y >= I.y0 && t.y <= I.y1) : out;
+};
+function chasmDone(s, rm) { return s.map.trials && s.map.trials[rm.idx] === "done"; }
+// a braced plank (or any plank once the seal breaks) is just floor
+const _twObjAt2 = objAt;
+objAt = function (rm, x, y) {
+  const o = _twObjAt2(rm, x, y);
+  if (o && o.type === "plank" && ((S.battle.s.map.lit || []).includes(o.id) || chasmDone(S.battle.s, rm))) return null;
+  return o;
+};
+const CH = { bits: [] };
+// the question card says what you're answering for
+const _twViewMapQ = viewMapQ;
+viewMapQ = function () { const h = _twViewMapQ.apply(this, arguments); return S.mapQ && S.mapQ.kind === "plank" && typeof h === "string" ? h.replace(">Chest riddle<", ">Cracked plank<") : h; };
+const _twInteract4 = interact;
+interact = function (o) {
+  const s = S.battle.s, ms = s.map;
+  if (o && o.type === "plank") return say("A cracked plank hangs over the drop. Answer to brace it. Miss, and it snaps.", [{ label: "Brace it (1 question)", act: "mapQStart", arg: o.id }], "Cracked plank");
+  if (o && o.type === "lever") {
+    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The lever is already down. The bridges hold steady.");
+    (ms.lit = ms.lit || []).push(o.id);
+    MS.burst = { x: o.x, y: o.y, t: 0 };
+    return trialCheck();
+  }
+  return _twInteract4(o);
+};
+const _twMapSubmit3 = mapSubmit;
+mapSubmit = function () {
+  const Q = S.mapQ;
+  if (!Q || Q.kind !== "plank") return _twMapSubmit3();
+  const b = S.battle, s = b.s, ms = s.map, q = Q.q, ok = grade(q, S.selected), rm = curRoom();
+  recordAnswer(q, ok);
+  if (b.curOrder) s.qpos = (s.qpos || 0) + 1;
+  if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  S.feedback = ok ? "correct" : "incorrect";
+  if (!ok) S.showAnswer = true;
+  const o = rm.objs.find(x => x.id === Q.obj);
+  if (ok) { (ms.lit = ms.lit || []).push(Q.obj); grantXp(6); Q.result = { ok, text: "You brace the plank. It holds! +6 XP" }; sfx.bArm(); }
+  else {
+    const d = Math.max(0, Math.min(S.idk ? 3 : 6, s.hp - 1)); s.hp -= d;
+    // the plank snaps: you drop, then climb back up at the ledge by the nearest door
+    if (o) for (let k = 0; k < 9; k++) CH.bits.push({ x: o.x * T + 2 + Math.random() * 12, y: o.y * T + 4 + Math.random() * 8, vy: -20 + Math.random() * 20, t: 0 });
+    const back = rm.doors.map(dd => doorInner(dd)).sort((a, c) => (Math.abs(a.x - MS.tx) + Math.abs(a.y - MS.ty)) - (Math.abs(c.x - MS.tx) + Math.abs(c.y - MS.ty)))[0];
+    if (back) { MS.tx = back.x; MS.ty = back.y; MS.x = back.x; MS.y = back.y; MS.t = 1; MS.path = []; MS.goal = null; }
+    Q.result = { ok, text: `The plank snaps and you fall!${d > 0 ? " -" + d + " HP." : ""} You climb back up by the door. A new plank creaks into place.` };
+    sfx.bFizzle();
+  }
+  persistMap(); render();
+};
+// the drop: drawn over the pit tiles each frame, with a cliff lip and drifting dust
+function drawChasm(g, rm, s) {
+  const ms = s.map, done = chasmDone(s, rm), t = MS.time;
+  for (const k in rm.pit) {
+    const [x, y] = k.split(",").map(Number), X = x * T, Y = y * T;
+    g.fillStyle = "#050409"; g.fillRect(X, Y, T, T);
+    if (!rm.pit[x + "," + (y - 1)] && y > 1) { g.fillStyle = "#3f3a36"; g.fillRect(X, Y, T, 3); g.fillStyle = "#1c1917"; g.fillRect(X, Y + 3, T, 3); }
+    const h = (x * 73 + y * 151) % 97;
+    if (h < 9) { const yy = (Y + 14 - ((t * 6 + h * 3) % 14)) | 0; g.globalAlpha = 0.35; g.fillStyle = h < 4 ? "#a78bfa" : "#e7e5e4"; g.fillRect(X + (h % 13) + 1, yy, 1, 1); g.globalAlpha = 1; }
+  }
+  // bridges: wooden boards with rope edges
+  for (const k in rm.bridge) {
+    const [x, y] = k.split(",").map(Number), X = x * T, Y = y * T;
+    g.fillStyle = "#050409"; g.fillRect(X, Y, T, T);
+    const ew = !!(rm.bridge[(x - 1) + "," + y] || rm.bridge[(x + 1) + "," + y]);
+    g.fillStyle = "#5b3a1e"; g.fillRect(X + (ew ? 0 : 2), Y + (ew ? 2 : 0), ew ? T : T - 4, ew ? T - 4 : T);
+    g.fillStyle = "#7c4f27"; for (let i = 0; i < T; i += 4) { if (ew) g.fillRect(X + i, Y + 3, 3, T - 6); else g.fillRect(X + 3, Y + i, T - 6, 3); }
+    g.fillStyle = "#a8a29e"; if (ew) { g.fillRect(X, Y + 2, T, 1); g.fillRect(X, Y + T - 3, T, 1); } else { g.fillRect(X + 2, Y, 1, T); g.fillRect(X + T - 3, Y, 1, T); }
+  }
+  // planks and the lever
+  const ph = Math.floor(t * 4) % 2;
+  rm.objs.forEach(o => {
+    const X = o.x * T, Y = o.y * T;
+    if (o.type === "plank") {
+      const lit = (ms.lit || []).includes(o.id);
+      g.fillStyle = "#050409"; g.fillRect(X, Y, T, T);
+      g.fillStyle = lit ? "#7c4f27" : "#4a2f18"; g.fillRect(X + 2, Y + 2, T - 4, T - 4);
+      if (lit) { g.fillStyle = "#facc15"; g.fillRect(X + 2, Y + 4, T - 4, 1); g.fillRect(X + 2, Y + T - 5, T - 4, 1); return; }
+      if (done) return;
+      g.fillStyle = "#050409"; g.fillRect(X + 5, Y + 2, 1, 4); g.fillRect(X + 6, Y + 6, 1, 3); g.fillRect(X + 9, Y + 8, 1, 4); g.fillRect(X + 10, Y + 12, 1, 2);
+      g.globalAlpha = 0.18 + 0.1 * Math.sin(t * 3 + o.x); g.fillStyle = "#c084fc"; g.fillRect(X - 1, Y - 1, T + 2, T + 2); g.globalAlpha = 1;
+      g.fillStyle = ph ? "#c084fc" : "#e9d5ff"; g.fillRect(X + 11, Y + 3, 2, 2);
+    }
+    if (o.type === "lever") {
+      const down = (ms.lit || []).includes(o.id) || done;
+      g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
+      g.fillStyle = "#44403c"; g.fillRect(X + 3, Y + 10, T - 6, 4); g.fillStyle = "#78716c"; g.fillRect(X + 3, Y + 10, T - 6, 1);
+      g.fillStyle = "#a8a29e";
+      if (down) { g.fillRect(X + 8, Y + 8, 5, 2); g.fillStyle = "#fde047"; g.fillRect(X + 12, Y + 7, 3, 3); }
+      else { g.fillRect(X + 7, Y + 3, 2, 7); g.fillStyle = ph ? "#22d3ee" : "#a5f3fc"; g.fillRect(X + 6, Y + 1, 4, 3); g.globalAlpha = 0.2 + 0.1 * ph; g.fillRect(X - 2, Y - 2, T + 4, T + 4); g.globalAlpha = 1; }
+    }
+  });
+  // bits of a snapped plank tumbling into the dark
+  if (CH.bits.length) {
+    const dt = 1 / 60;
+    CH.bits.forEach(p => { p.t += dt; p.vy += 260 * dt; p.y += p.vy * dt; g.globalAlpha = Math.max(0, 1 - p.t / 0.9); g.fillStyle = "#7c4f27"; g.fillRect(p.x | 0, p.y | 0, 2, 2); });
+    g.globalAlpha = 1; CH.bits = CH.bits.filter(p => p.t < 0.9);
+  }
+}
+
 /* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
 function drawDoorG(g, d, open, kind, L) {
   const X = d.x * T, Y = d.y * T;
@@ -1238,6 +1394,7 @@ drawDoor = function (g, rm, side, open, kind) {
     drawDoorG(g, d, true, "open", floorData(s).look);
   });
   if (rm.stones) drawStones(g, rm, s);
+  if (rm.pit) drawChasm(g, rm, s);
   rm.objs.forEach(o => {
     if (o.type === "gate" || o.type === "rune" || o.type === "mkey") return drawMazeObj(g, o, ms);
     if (o.type !== "brazier") return;
