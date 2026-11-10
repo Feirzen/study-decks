@@ -505,6 +505,9 @@ function viewShuffle() {
   const col = q._cat ? ck(q._cat.color) : "var(--accent)";
   const order = optionOrder(q);
   const starred = !!progress.starred[q.id];
+  // the streak number gives one soft pop on the render right after it goes up
+  const bump = S.streak > (S._shownStreak || 0);
+  S._shownStreak = S.streak;
 
   const opts = order.map((origIdx, pos) => {
     const isSel = S.selected.includes(pos);
@@ -535,12 +538,10 @@ function viewShuffle() {
     : `<button class="primary" data-act="nextShuffle" style="background:var(--accent)">Next →</button>`;
 
   return `<div class="wrap">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:22px 0 18px">
-      <div style="display:flex;align-items:center;gap:8px"><button class="backbtn" data-act="backToSet">${I.chevL}</button>${filterTags()}</div>
-      <span class="eyebrow" style="color:var(--accent)">Shuffle</span>
-      <div style="display:flex;gap:16px;align-items:center">
-        <div style="text-align:center"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Streak</div><div style="font-size:20px;font-weight:bold;color:${S.streak ? "var(--star)" : "var(--muted)"}">${S.streak}</div></div>
-        ${S.high ? `<div style="text-align:center"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Best</div><div style="font-size:20px;font-weight:bold;color:var(--accent)">${S.high}</div></div>` : ""}
+    <div class="shufhead">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0"><button class="backbtn" data-act="backToSet">${I.chevL}</button><span class="eyebrow" style="color:var(--accent)">Shuffle</span>${filterTags()}</div>
+      <div class="streakpill${S.streak ? " on" : ""}" title="Streak${S.high ? " · best " + S.high : ""}">
+        <span class="sp-l">Streak</span><span class="sp-n${bump ? " bump" : ""}">${S.streak}</span>${S.high ? `<span class="sp-sep"></span><span class="sp-l">Best</span><span class="sp-n best">${S.high}</span>` : ""}
       </div>
     </div>
     <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px;margin-bottom:10px">
@@ -548,7 +549,7 @@ function viewShuffle() {
       <button class="star" data-act="star" data-id="${q.id}" style="color:${starred ? "var(--star)" : "var(--muted)"}">${I.star(starred, 20)}</button>
     </div>
     <div class="card" style="cursor:default;margin-bottom:18px">
-      <div class="eyebrow" style="color:${col};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
+      <div class="eyebrow qline" style="color:${col};margin-bottom:10px"><span>${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}</span>${q._cat ? `<span class="qt-cat">${esc(q._cat.category)}</span>` : ""}</div>
       <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>
     </div>
     <div style="display:grid;gap:10px;margin-bottom:18px">${opts}</div>
@@ -844,6 +845,30 @@ function kitSync() {
 }
 function lookChanged() { _flushColorCache(); render(); }
 const SX_ICON = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v14"/><path d="m3 7 4-4 4 4"/><path d="M17 21V7"/><path d="m21 17-4 4-4-4"/></svg>';
+/* Shuffle header (night shift polish): streak and best share one small pill,
+   and the chapter name gets its own line on the question card. */
+(function () {
+  const st = document.createElement("style");
+  st.id = "shuffle-head-css";
+  st.textContent = `
+.shufhead { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 22px 0 16px; }
+.streakpill { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 11px; border-radius: 999px;
+  border: 1.5px solid var(--border); background: var(--surface); white-space: nowrap; transition: border-color .4s ease, background-color .4s ease; }
+.streakpill.on { border-color: color-mix(in srgb, var(--star) 45%, var(--border)); background: color-mix(in srgb, var(--star) 8%, var(--surface)); }
+.streakpill .sp-l { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.streakpill .sp-n { font-size: 15px; font-weight: bold; color: var(--muted); font-variant-numeric: tabular-nums; display: inline-block; }
+.streakpill.on .sp-n { color: var(--star); }
+.streakpill .sp-n.best { color: var(--accent); }
+.streakpill .sp-sep { width: 1px; height: 12px; background: var(--border2); align-self: center; margin: 0 2px; }
+.streakpill .sp-n.bump { animation: spBump .55s cubic-bezier(.22,.8,.3,1); }
+@keyframes spBump { 0% { transform: scale(1); } 35% { transform: scale(1.28); } 100% { transform: scale(1); } }
+.qline > span { display: block; }
+.qline .qt-cat { margin-top: 3px; opacity: .75; letter-spacing: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (prefers-reduced-motion: reduce) { .streakpill .sp-n.bump { animation: none; } }
+`;
+  document.head.appendChild(st);
+})();
+
 window.KitConfig = {
   gear: "#sdGear",
   look: {
