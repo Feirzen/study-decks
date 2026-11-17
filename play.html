@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f0f13">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<link rel="stylesheet" href="styles.css?v=31">
+<title>Study Decks · Party</title>
+<style>
+  body { min-height: 100dvh; margin: 0; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
+  body::before { content: ""; position: fixed; inset: -20% -30% auto; height: 70%; pointer-events: none; z-index: 0;
+    background: radial-gradient(closest-side, color-mix(in srgb, var(--pc, #a78bfa) 22%, transparent), transparent); animation: glow 7s ease-in-out infinite; }
+  @keyframes glow { 50% { opacity: .6; transform: translateY(4%) scale(1.08); } }
+  #pp { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); display: grid; gap: 14px; }
+  .top { display: flex; align-items: center; gap: 10px; min-height: 52px; }
+  .top canvas { image-rendering: pixelated; flex: 0 0 auto; }
+  .top .who { flex: 1; min-width: 0; } .top .who b { display: block; font-size: 17px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hearts { display: inline-flex; gap: 4px; }
+  .hearts i { width: 15px; height: 15px; background: rgba(255,255,255,.16); clip-path: polygon(50% 100%, 0 38%, 0 14%, 20% 0, 50% 22%, 80% 0, 100% 14%, 100% 38%); transition: background .3s, transform .3s var(--ease-pop); }
+  .hearts i.on { background: #f87171; } .hearts i.pop { transform: scale(1.5); }
+  .glass { border-radius: 18px; padding: 18px; border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+    background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 82%, transparent), color-mix(in srgb, var(--surface2) 70%, transparent));
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 18px 50px -30px #000; animation: rise .4s var(--ease-out) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  h1 { font-size: 24px; margin: 0 0 6px; } p { margin: 0 0 10px; line-height: 1.55; }
+  .eyebrow { margin-bottom: 8px; }
+  input.f { width: 100%; box-sizing: border-box; padding: 14px; border-radius: 12px; border: 1.5px solid var(--border2); background: var(--surface2); color: var(--text); font: inherit; font-size: 18px; }
+  input.code { text-align: center; letter-spacing: 12px; text-transform: uppercase; font: 900 28px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .clsrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0 14px; }
+  .cls { display: grid; justify-items: center; gap: 4px; padding: 10px 4px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-weight: bold; transition: transform .2s var(--ease-out), border-color .2s, background .2s; }
+  .cls canvas { image-rendering: pixelated; } .cls.on { border-color: var(--cc); background: color-mix(in srgb, var(--cc) 14%, var(--surface)); transform: translateY(-2px); }
+  .big { width: 100%; padding: 16px; border: 0; border-radius: 14px; font: inherit; font-size: 18px; font-weight: bold; color: #14121c; background: var(--pc, #a78bfa); transition: transform .12s, opacity .2s; }
+  .big:active { transform: scale(.98); } .big:disabled { opacity: .4; }
+  .qtext { font-size: 19px; line-height: 1.4; font-weight: bold; }
+  .timer { height: 6px; border-radius: 6px; background: var(--surface2); overflow: hidden; margin-top: 12px; }
+  .timer div { height: 100%; width: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, #a78bfa, #60a5fa); }
+  .opts { display: grid; gap: 10px; }
+  .o { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 14px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: 17px; line-height: 1.35;
+    transition: transform .12s, border-color .2s, background .2s, opacity .3s; animation: rise .35s var(--ease-out) both; }
+  .o:nth-child(2) { animation-delay: .04s; } .o:nth-child(3) { animation-delay: .08s; } .o:nth-child(4) { animation-delay: .12s; } .o:nth-child(n+5) { animation-delay: .16s; }
+  .o:active { transform: scale(.985); }
+  .o .l { flex: 0 0 36px; height: 36px; display: grid; place-items: center; border-radius: 10px; background: var(--oc); color: #14121c; font: 900 18px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  .o.sel { border-color: var(--oc); background: color-mix(in srgb, var(--oc) 16%, var(--surface)); }
+  .o.good { border-color: var(--ok); background: var(--okBg); } .o.bad { border-color: var(--bad); background: var(--badBg); } .o.dim { opacity: .45; }
+  .o[disabled] { pointer-events: none; }
+  .verdict { text-align: center; } .verdict .mark { font: 900 56px/1 ui-monospace, monospace; animation: pop .5s var(--ease-pop) both; }
+  @keyframes pop { from { opacity: 0; transform: scale(.4); } }
+  .verdict b { display: block; font-size: 19px; margin: 8px 0 4px; }
+  .wait { text-align: center; color: var(--muted); } .dots i { display: inline-block; width: 6px; height: 6px; margin: 0 3px; border-radius: 50%; background: currentColor; animation: blink 1.2s ease-in-out infinite; }
+  .dots i:nth-child(2) { animation-delay: .2s; } .dots i:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 50% { opacity: .25; transform: scale(.7); } }
+  .bossbar { display: grid; gap: 6px; font: 800 11px ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: 1.2px; text-transform: uppercase; }
+  .bossbar .bar { height: 8px; border-radius: 6px; background: var(--surface2); overflow: hidden; } .bossbar .bar div { height: 100%; background: var(--bad); transition: width .5s var(--ease-out); }
+  .rank { font: 900 64px/1 ui-monospace, monospace; color: var(--pc); text-shadow: 0 0 30px color-mix(in srgb, var(--pc) 60%, transparent); animation: pop .6s var(--ease-pop) both; }
+  @media (prefers-reduced-motion: reduce) { body::before, .glass, .o { animation: none; } }
+</style>
+</head>
+<body>
+<div id="pp"></div>
+<script src="grim.js?v=1"></script>
+<script>
+(function () {
+  try { const st = JSON.parse(localStorage.getItem("fc:settings")); if (st && st.theme && st.theme !== "chameleon") document.documentElement.dataset.theme = st.theme; } catch (e) { }
+  const CLS = { knight: { name: "Knight", sprite: "hero_knight", color: "#60a5fa" }, wizard: { name: "Wizard", sprite: "hero_wizard", color: "#a78bfa" }, ranger: { name: "Ranger", sprite: "hero_ranger", color: "#34d399" } };
+  const LET = "ABCDEFGH", COL = ["#60a5fa", "#f59e0b", "#34d399", "#f472b6", "#a78bfa", "#f87171", "#22d3ee", "#facc15"];
+  const qs = new URLSearchParams(location.search);
+  const get = k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, put = (k, v) => { try { localStorage.setItem(k, v); } catch (e) { } };
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let pid = get("sd:pid"); if (!pid) { pid = "p" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); put("sd:pid", pid); }
+  const V = { code: (qs.get("r") || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4), server: qs.get("s") || get("sd:server") || "",
+    name: get("sd:name") || "", cls: CLS[get("sd:cls")] ? get("sd:cls") : "knight", joined: false, conn: "idle", err: "", st: null, sel: [], sent: false, tEnd: 0 };
+  if (qs.get("s")) put("sd:server", qs.get("s"));
+  let ws = null, tries = 0, raf = 0, lastKey = "", wake = null;
+
+  function sprite(name, k) {
+    const G = GRIM[name], rows = G.a, n = rows.length, m = rows[0].length;
+    const c = document.createElement("canvas"); c.width = (m + 2) * k; c.height = (n + 2) * k; c.style.width = c.width + "px"; c.style.height = c.height + "px";
+    const g = c.getContext("2d"), at = (y, x) => (y >= 0 && y < n && x >= 0 && x < m && G.pal[rows[y][x]]) || null;
+    for (let y = -1; y <= n; y++) for (let x = -1; x <= m; x++) {
+      const col = at(y, x) || ((at(y - 1, x) || at(y + 1, x) || at(y, x - 1) || at(y, x + 1)) ? "#0f0d16" : null);
+      if (col) { g.fillStyle = col; g.fillRect((x + 1) * k, (y + 1) * k, k, k); }
+    }
+    return c;
+  }
+  function mountSprites(root) { root.querySelectorAll("[data-sp]").forEach(el => el.replaceWith(sprite(el.dataset.sp, +el.dataset.k || 1))); }
+  const sp = (name, k) => `<i data-sp="${name}" data-k="${k}"></i>`;
+
+  /* ---------- connection ---------- */
+  function connect() {
+    if (!V.code || !V.server) return;
+    const local = /^(localhost|127\.|192\.168\.|10\.)/.test(V.server);
+    V.conn = "connecting"; V.err = ""; draw();
+    try { ws = new WebSocket(`${local ? "ws" : "wss"}://${V.server}/r/${V.code}?role=player&id=${pid}`); } catch (e) { V.conn = "down"; return draw(); }
+    const me = ws;
+    me.onopen = () => { if (ws !== me) return; V.conn = "open"; tries = 0; me.send(JSON.stringify({ t: "hello", name: V.name, cls: V.cls })); draw(); };
+    me.onmessage = ev => { if (ws === me) onMsg(ev.data); };
+    me.onclose = () => {
+      if (ws !== me) return;
+      if (V.err) { V.conn = "idle"; return draw(); }
+      V.conn = "down"; draw();
+      tries++; setTimeout(() => { if (ws === me && V.joined) connect(); }, Math.min(6000, 700 * tries));
+    };
+  }
+  setInterval(() => { if (ws && ws.readyState === 1) ws.send("ping"); }, 25000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && V.joined && (!ws || ws.readyState > 1)) connect(); if (!document.hidden) keepAwake(); });
+  function keepAwake() { try { if (navigator.wakeLock && V.joined) navigator.wakeLock.request("screen").then(w => { wake = w; }).catch(() => { }); } catch (e) { } }
+  function onMsg(raw) {
+    if (raw === "pong") return;
+    let m; try { m = JSON.parse(raw); } catch (e) { return; }
+    if (m.sys === "noroom") { V.err = "No room with that code is open right now. Check the big screen."; V.joined = false; return draw(); }
+    if (m.sys === "full") { V.err = "That room is full."; V.joined = false; return draw(); }
+    if (m.sys === "hostgone") { V.hostGone = true; return draw(); }
+    if (m.sys === "hostback") { V.hostGone = false; if (ws && ws.readyState === 1) ws.send(JSON.stringify({ t: "hello", name: V.name, cls: V.cls })); return draw(); }
+    const d = m.d; if (!d) return;
+    if (d.t === "closed") { V.err = "The host closed the room. Thanks for playing!"; V.joined = false; V.st = null; try { ws.close(); } catch (e) { } return draw(); }
+    if (d.t === "full") { V.err = "That room is full."; V.joined = false; return draw(); }
+    if (d.t !== "state") return;
+    const prev = V.st; V.st = d; V.hostGone = false;
+    const round = d.q ? d.q.round : 0;
+    if (!prev || !prev.q || prev.q.round !== round || prev.phase !== d.phase) {
+      if (d.phase === "q") { V.sel = d.answered || []; V.sent = !!d.answered; V.tEnd = Date.now() + d.q.left; V.tTotal = d.q.total; }
+      if (d.phase === "reveal" && navigator.vibrate) { try { navigator.vibrate(d.reveal.ok ? 40 : [60, 50, 60]); } catch (e) { } }
+    } else if (d.phase === "q" && d.answered) { V.sent = true; V.sel = d.answered; }
+    draw();
+  }
+  function answer() {
+    if (V.sent || !V.sel.length || !ws || ws.readyState !== 1) return;
+    V.sent = true; ws.send(JSON.stringify({ t: "ans", round: V.st.q.round, sel: V.sel })); draw();
+  }
+
+  /* ---------- views ---------- */
+  const heartsHtml = (n, max) => `<span class="hearts">${Array.from({ length: max }, (_, i) => `<i class="${i < n ? "on" : ""}"></i>`).join("")}</span>`;
+  function head() {
+    const y = V.st && V.st.you, C = CLS[y ? y.cls : V.cls];
+    return `<div class="top">${sp(C.sprite, 1)}<div class="who"><b>${esc(y ? y.name : V.name)}</b><span class="muted" style="font-size:12.5px">${V.st ? (V.st.mode === "raid" ? "Raid" : "Duel") + " · room " + esc(V.code) : "Room " + esc(V.code)}</span></div>${y && V.st.phase !== "lobby" ? heartsHtml(y.hearts, y.max) : ""}</div>`;
+  }
+  function view() {
+    document.body.style.setProperty("--pc", CLS[V.cls].color);
+    if (!V.joined) {
+      const classes = Object.keys(CLS).map(k => `<button class="cls ${V.cls === k ? "on" : ""}" data-a="cls" data-k="${k}" style="--cc:${CLS[k].color}">${sp(CLS[k].sprite, 2)}${CLS[k].name}</button>`).join("");
+      return `<div class="glass"><div class="eyebrow" style="color:var(--pc)">Study Decks · Party</div><h1>Join the party</h1>
+        ${V.err ? `<p style="color:var(--bad)">${esc(V.err)}</p>` : `<p class="muted">Pick a name and a fighter. The questions show up here and on the big screen.</p>`}
+        ${qs.get("r") && V.server ? "" : `<input class="f code" id="code" maxlength="4" placeholder="CODE" value="${esc(V.code)}" autocapitalize="characters" autocomplete="off" style="margin-bottom:10px">`}
+        <input class="f" id="name" maxlength="14" placeholder="Your name" value="${esc(V.name)}" autocomplete="off">
+        <div class="clsrow">${classes}</div>
+        <button class="big" data-a="join">Join</button>
+        ${V.server ? "" : `<p class="muted" style="margin-top:12px;font-size:13px">Tip: scan the QR code on the big screen so this page knows where the game is.</p>`}</div>`;
+    }
+    const s = V.st, banner = V.hostGone ? `<div class="glass wait" style="border-color:var(--bad)">The big screen lost its connection. Hang tight<span class="dots"><i></i><i></i><i></i></span></div>` : V.conn !== "open" ? `<div class="glass wait">Connecting<span class="dots"><i></i><i></i><i></i></span></div>` : "";
+    if (!s) return head() + (banner || `<div class="glass wait">Joining<span class="dots"><i></i><i></i><i></i></span></div>`);
+    if (s.phase === "lobby") return head() + banner + `<div class="glass" style="text-align:center"><div style="display:grid;place-items:center;margin:6px 0 10px">${sp(CLS[s.you.cls].sprite, 3)}</div><h1>You're in, ${esc(s.you.name)}!</h1><p class="muted">${s.n} in the party. Watch the big screen. The game starts when the host is ready.</p><button class="big" data-a="edit" style="background:var(--surface2);color:var(--text);border:1.5px solid var(--border2)">Change name or fighter</button></div>`;
+    if (s.phase === "end") {
+      const e = s.end, raid = s.mode === "raid";
+      return head() + `<div class="glass" style="text-align:center"><div class="eyebrow" style="color:var(--pc)">${raid ? (e.won ? "Raid won" : "The party fell") : "Duel over"}</div><div class="rank">#${e.rank}</div><p class="muted" style="margin-top:6px">of ${e.total}</p>
+        <h1 style="margin-top:10px">${e.rank === 1 ? (raid ? "MVP!" : "You win!") : raid && e.won ? "Victory!" : "Good fight"}</h1>
+        <p class="muted">${s.you.right} right, ${s.you.wrong} missed${raid ? " · " + s.you.score + " damage" : ""}. Stay here for the next game.</p></div>`;
+    }
+    const q = s.q, rev = s.phase === "reveal", multi = q.type !== "mc", you = s.you;
+    const boss = s.boss ? `<div class="bossbar"><span>${esc(s.boss.name)} · ${s.boss.hp} / ${s.boss.max}</span><div class="bar"><div style="width:${s.boss.hp / s.boss.max * 100}%"></div></div></div>` : "";
+    const opts = q.opts.map((t, i) => {
+      const sel = V.sel.includes(i), good = rev && s.reveal.good.includes(i);
+      const cls = rev ? (good ? "good" : sel ? "bad" : "dim") : sel ? "sel" : V.sent ? "dim" : "";
+      return `<button class="o ${cls}" data-a="opt" data-i="${i}" style="--oc:${COL[i % 8]}" ${rev || V.sent ? "disabled" : ""}><span class="l">${LET[i]}</span><span>${esc(t)}</span></button>`;
+    }).join("");
+    let foot = "";
+    if (rev) {
+      const r = s.reveal;
+      foot = `<div class="glass verdict" style="border-color:${r.ok ? "var(--ok)" : "var(--bad)"}"><div class="mark" style="color:${r.ok ? "var(--ok)" : "var(--bad)"}">${r.ok ? "✓" : "✕"}</div><b>${esc(r.note || (r.ok ? "Right!" : "Wrong"))}</b>${r.why ? `<p class="muted" style="font-size:14px;margin:6px 0 0">${esc(r.why)}</p>` : ""}</div>`;
+    } else if (V.sent) foot = `<div class="glass wait">Locked in. Waiting for the others<span class="dots"><i></i><i></i><i></i></span></div>`;
+    else if (multi) foot = `<button class="big" data-a="lock" ${V.sel.length ? "" : "disabled"}>Lock in</button>`;
+    const note = you.down && !rev ? `<div class="glass wait" style="padding:10px 14px">${s.mode === "raid" ? "You're down. A right answer gets you back up." : "You're out, but you can keep answering."}</div>` : "";
+    return head() + banner + boss + note + `<div class="glass"><div class="eyebrow">${multi ? "Select all that apply" : "Pick one"} · question ${q.round}</div><div class="qtext">${esc(q.text)}</div>${rev ? "" : `<div class="timer"><div id="tbar"></div></div>`}</div><div class="opts">${opts}</div>${foot}`;
+  }
+  function draw() {
+    const html = view(), key = html;
+    if (key === lastKey) return; lastKey = key;
+    const root = document.getElementById("pp");
+    const focusId = document.activeElement && document.activeElement.id, val = focusId && document.activeElement.value;
+    root.innerHTML = html; mountSprites(root);
+    if (focusId && document.getElementById(focusId)) { const el = document.getElementById(focusId); el.value = val; el.focus(); }
+    cancelAnimationFrame(raf);
+    const bar = document.getElementById("tbar");
+    if (bar) { const step = () => { const f = Math.max(0, (V.tEnd - Date.now()) / (V.tTotal || 1)); bar.style.transform = `scaleX(${f})`; if (f > 0 && bar.isConnected) raf = requestAnimationFrame(step); }; step(); }
+  }
+  document.addEventListener("click", ev => {
+    const t = ev.target.closest("[data-a]"); if (!t) return;
+    const a = t.dataset.a;
+    const keep = () => { const n = document.getElementById("name"), c = document.getElementById("code"); if (n) V.name = n.value.trim().slice(0, 14); if (c) V.code = c.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 4); };
+    if (a === "cls") { keep(); V.cls = t.dataset.k; return draw(); }
+    if (a === "join") {
+      keep();
+      if (!V.name) { V.err = "Type a name first."; return draw(); }
+      if (V.code.length !== 4) { V.err = "The room code is the 4 letters on the big screen."; return draw(); }
+      if (!V.server) { V.err = "Scan the QR code on the big screen to join."; return draw(); }
+      put("sd:name", V.name); put("sd:cls", V.cls);
+      V.err = ""; V.joined = true; V.st = null; keepAwake(); return connect();
+    }
+    if (a === "edit") { V.joined = false; V.st = null; const old = ws; ws = null; try { old && old.close(); } catch (e) { } return draw(); }
+    if (a === "opt") {
+      if (V.sent || !V.st || V.st.phase !== "q") return;
+      const i = +t.dataset.i;
+      if (V.st.q.type === "mc") { V.sel = [i]; return answer(); }
+      V.sel = V.sel.includes(i) ? V.sel.filter(x => x !== i) : V.sel.concat(i); return draw();
+    }
+    if (a === "lock") return answer();
+  });
+  draw();
+})();
+</script>
+</body>
+</html>
