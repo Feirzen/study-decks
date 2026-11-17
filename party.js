@@ -460,7 +460,9 @@
 
   const css = document.createElement("style");
   css.textContent = `
-  .pt-tileart canvas:first-child { margin-right: -14px; filter: brightness(.8); }
+  .arc-art.pt-tileart { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+  .pt-tileart canvas { max-width: 34px !important; }
+  .pt-tileart canvas:first-child { margin-right: -8px; filter: brightness(.8); }
   .pt-wrap { max-width: 1240px; }
   .pt-live { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--ok); }
   .pt-live i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; animation: arcpulse 2s ease-in-out infinite; }
