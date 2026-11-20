@@ -8,11 +8,13 @@
      material here remembers which old letters it stands in for and the
      recolor is rebuilt as a five-tone ramp.
    - Sprites have a second idle frame; a slow ticker swaps between them.
-   Loaded last, so its overrides win. Remove this file and grim.js from
-   index.html to get the old art back.
+   Loaded after tower.js, so its overrides win. Options has a "New battle
+   graphics" switch (settings.oldArt) that hands everything back to the
+   old art without a reload.
    =================================================================== */
 (function () {
   if (typeof GRIM === "undefined") return;
+  const on = () => !settings.oldArt;
   const ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   /* old stand-alone recolors that were copies of another sprite */
   const ALIAS = { slime_ice: "slime", slime_magma: "slime", bat_blood: "bat", ghost_violet: "ghost" };
@@ -75,6 +77,7 @@
   }
   getSprite = function (name) {
     name = String(name);
+    if (!on()) return _oldGet(name);
     if (_cache[name]) return _cache[name];
     const hm = /^(.*)~h(-?\d+)$/.exec(name), core = hm ? hm[1] : name, base = core.split("~")[0];
     const gname = ALIAS[base] || base, G = GRIM[gname];
@@ -137,7 +140,7 @@
 
   /* idle animation: swap to the second frame and back */
   setInterval(() => {
-    if (document.hidden) return;
+    if (document.hidden || !on()) return;
     FRAME ^= 1;
     document.querySelectorAll('canvas[data-sprite][data-two="1"]').forEach(cv => {
       if (cv.hasAttribute("data-ghost") || cv.closest(".frozen, .fallen, .sil")) return;
@@ -184,6 +187,26 @@
   .slotart.sm canvas { max-height: 50px; }
   `;
   document.head.appendChild(css);
+  css.disabled = !on();
+
+  /* ---------- the switch in Options ---------- */
+  if (typeof optionsHtml === "function") {
+    const _opts = optionsHtml;
+    optionsHtml = function () {
+      const html = _opts(), at = html.lastIndexOf('<button class="primary" data-act="closeModal"');
+      const sw = `<button class="fx-opt" data-act="artOpt">
+      <span><b>New battle graphics</b><span class="muted">The 2026 redraw of every hero, foe and boss. Turn off to go back to the original chibi sprites.</span></span>${fxToggle(on())}</button>`;
+      return at < 0 ? html : html.slice(0, at) + sw + html.slice(at);
+    };
+  }
+  document.addEventListener("click", ev => {
+    const t = ev.target.closest('[data-act="artOpt"]'); if (!t) return;
+    settings.oldArt = !settings.oldArt; saveSettings(); sfx.select();
+    css.disabled = !on();
+    if (typeof MS !== "undefined" && MS.cache) Object.keys(MS.cache).forEach(k => delete MS.cache[k]);
+    render();
+    if (typeof fxShow === "function") fxShow(optionsHtml());
+  });
 
   window.GRIM_ART = { getSprite, grimOf, plan, rampFrom };
   if (typeof render === "function" && document.getElementById("app") && document.getElementById("app").children.length) { try { render(); } catch (e) { } }
