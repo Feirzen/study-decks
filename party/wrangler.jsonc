@@ -1,0 +1,11 @@
+{
+  // Study Decks party server: relays messages between the big screen and the phones.
+  // Deployed by Cloudflare (Workers Builds) from this folder. See party/README.md.
+  "name": "study-decks-party",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-01",
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "Room" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
+}
