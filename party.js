@@ -217,7 +217,7 @@
     const s = { t: "state", phase: P.phase, mode: P.mode, code: P.code, n: active().length,
       you: { name: p.name, cls: p.cls, hearts: p.hearts, max: HEARTS[P.mode], down: p.down || (P.mode === "duel" && p.hearts <= 0 && P.phase !== "lobby"), score: p.score, streak: p.streak, right: p.right, wrong: p.wrong } };
     if (P.phase === "q" || P.phase === "reveal") {
-      s.q = { round: P.round, text: P.q.question, type: P.q.type, opts: P.order.map(i => P.q.options[i]), left: Math.max(0, P.tEnd - Date.now()), total: P.secs * 1000 };
+      s.q = { round: P.round, img: P.q.img ? (typeof P.q.img === "string" ? P.q.img : P.q.img.src) : "", text: P.q.question, type: P.q.type, opts: P.order.map(i => P.q.options[i]), left: Math.max(0, P.tEnd - Date.now()), total: P.secs * 1000 };
       s.answered = p.ans ? p.ans.sel : null;
       if (P.boss) s.boss = { name: P.boss.name, hp: P.boss.hits, max: P.boss.max };
     }
@@ -381,7 +381,7 @@
         <div class="eyebrow" style="color:#a78bfa;flex:1;text-align:center">${raid ? "Raid" : "Duel"} · ${esc(S.set.title || "")}</div><span style="width:36px"></span>
       </div>
       ${arena}${bossBar}
-      <div class="card qcard tex pt-q"><div class="eyebrow" style="margin-bottom:8px">${q.type === "mc" ? "Pick one" : "Select all that apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div><div class="qtext">${esc(q.question)}</div></div>
+      <div class="card qcard tex pt-q"><div class="eyebrow" style="margin-bottom:8px">${q.type === "mc" ? "Pick one" : "Select all that apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div><div class="qtext">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}</div>
       <div class="pt-opts">${opts}</div>
       ${foot}
     </div>`;

@@ -172,7 +172,7 @@
     } else if (V.sent) foot = `<div class="glass wait">Locked in. Waiting for the others<span class="dots"><i></i><i></i><i></i></span></div>`;
     else if (multi) foot = `<button class="big" data-a="lock" ${V.sel.length ? "" : "disabled"}>Lock in</button>`;
     const note = you.down && !rev ? `<div class="glass wait" style="padding:10px 14px">${s.mode === "raid" ? "You're down. A right answer gets you back up." : "You're out, but you can keep answering."}</div>` : "";
-    return head() + banner + boss + note + `<div class="glass"><div class="eyebrow">${multi ? "Select all that apply" : "Pick one"} · question ${q.round}</div><div class="qtext">${esc(q.text)}</div>${rev ? "" : `<div class="timer"><div id="tbar"></div></div>`}</div><div class="opts">${opts}</div>${foot}`;
+    return head() + banner + boss + note + `<div class="glass"><div class="eyebrow">${multi ? "Select all that apply" : "Pick one"} · question ${q.round}</div><div class="qtext">${esc(q.text)}</div>${q.img ? `<img src="${esc(q.img)}" alt="Diagram" style="display:block;max-width:100%;max-height:240px;margin:12px auto 0;padding:8px;border-radius:12px;background:#fff">` : ""}${rev ? "" : `<div class="timer"><div id="tbar"></div></div>`}</div><div class="opts">${opts}</div>${foot}`;
   }
   function draw() {
     const html = view(), key = html;

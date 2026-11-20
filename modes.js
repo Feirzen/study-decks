@@ -345,7 +345,7 @@ const ARC = (function () {
         <div class="bright">
           <div class="card qcard tex">
             <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
-            <div class="qtext">${esc(q.question)}</div>
+            <div class="qtext">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
           </div>
           <div class="bopts">${opts}</div>${fb}<div>${btn}</div>
         </div>
