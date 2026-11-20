@@ -146,7 +146,7 @@
       if (cv.hasAttribute("data-ghost") || cv.closest(".frozen, .fallen, .sil")) return;
       drawSprite(cv, cv.dataset.sprite, +(cv.dataset.scale || 4), cv.hasAttribute("data-flip"));
     });
-  }, 520);
+  }, 950);
 
   /* death shatter: the new sprites have four times the pixels, so thin the burst */
   const _oldBurst = spriteBurst;

@@ -413,7 +413,7 @@ body.kbd .kbfocus {
 .nameplate.boss { background: rgba(127,29,29,.85); }
 
 /* idle loops */
-.idle-breathe { animation: breathe 2.2s ease-in-out infinite; }
+.idle-breathe { animation: breathe 3.6s ease-in-out infinite; }
 @keyframes breathe { 0%,100% { transform: scale(1, 1); } 50% { transform: scale(1.025, .97); } }
 .idle-squish { animation: squish 1.1s ease-in-out infinite; }
 @keyframes squish { 0%,100% { transform: scale(1, 1); } 50% { transform: scale(1.08, .9); } }
