@@ -67,6 +67,13 @@
           "subtitle": "Kinetics, Chymotrypsin, Lipids & Membranes, Signaling, Thermo & Redox",
           "color": "#8B5CF6",
           "file": "sets/chem-481/exam-2.json"
+        },
+        {
+          "id": "chem-481-exam-3",
+          "title": "Exam 3",
+          "subtitle": "Fat breakdown & synthesis, sugars, glycolysis, gluconeogenesis, regulation, PPP, glycogen",
+          "color": "#0EA5E9",
+          "file": "sets/chem-481/exam-3.json"
         }
       ]
     },

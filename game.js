@@ -1507,7 +1507,7 @@ function viewBattle() {
         ${b.lvl ? viewLevelUp() : `<div class="card qcard tex" style="cursor:default">
           <div class="eyebrow" style="color:${cc};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}${q._cat ? " · " + esc(q._cat.category) : ""}</div>
           ${tag}
-          <div class="qtext">${esc(q.question)}</div>
+          <div class="qtext">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
           <div class="qleft">${b.curReview ? "Review question" : b.curOrder ? `In order${s.passDone ? " (pass 2+)" : ""} · question ${deckOrder().findIndex(x => x.id === q.id) + 1} of ${deckOrder().length}` : `${left} new question${left === 1 ? "" : "s"} left before repeats`}</div>
         </div>
         <div class="bopts">${opts}</div>

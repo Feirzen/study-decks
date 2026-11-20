@@ -3,7 +3,7 @@
    Optional per-set data. A set file may include:
      categories[i].lessons: [{ id, title, at, blocks, videos, search }]
        at     = question index the lesson sits in front of (0 = first)
-       blocks = [{p}|{h}|{list:[]}|{steps:[]}|{tip}|{key}|{table:{head,rows}}|{example:{q,a}}]
+       blocks = [{img,cap}|{p}|{h}|{list:[]}|{steps:[]}|{tip}|{key}|{table:{head,rows}}|{example:{q,a}}]
        videos = [{ title, channel, url }]
      readiness: [{ group, items: [{ id, text, lesson? }] }]
    Lessons live outside Quiz/Shuffle/Battle, so they never touch streaks,
@@ -81,6 +81,7 @@ function fmt(s) {
 }
 function renderBlocks(blocks) {
   return (blocks || []).map(b => {
+    if (b.img) return typeof figHTML === "function" ? figHTML(b.img, "lfig", b.cap) : "";
     if (b.h) return `<h3 class="ls-h">${fmt(b.h)}</h3>`;
     if (b.p) return `<p class="ls-p">${fmt(b.p)}</p>`;
     if (b.list) return `<ul class="ls-list">${b.list.map(x => `<li>${fmt(x)}</li>`).join("")}</ul>`;

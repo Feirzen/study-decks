@@ -168,7 +168,7 @@ function viewExam() {
     <div class="ex-dots">${dots}</div>
     <div class="card ex-q" style="cursor:default;margin-bottom:16px">
       <div class="eyebrow" style="color:var(--star);margin-bottom:10px">Question ${i + 1} of ${qs.length} · ${q.type === "mc" ? "Multiple choice" : "Select all that apply"}</div>
-      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>
+      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
     </div>
     <div style="display:grid;gap:10px;margin-bottom:18px">${opts}</div>
     <div style="display:flex;gap:10px">

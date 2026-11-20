@@ -479,7 +479,7 @@ function viewQuiz() {
     <div class="progressbar" style="margin-bottom:22px"><div style="width:${((S.qi + 1) / c.questions.length) * 100}%;background:${col}"></div></div>
     <div class="card" style="cursor:default;margin-bottom:18px">
       <div class="eyebrow" style="color:${col};margin-bottom:10px">${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}</div>
-      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>
+      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
     </div>
     <div style="display:grid;gap:10px;margin-bottom:18px">${opts}</div>
     ${fb}
@@ -550,7 +550,7 @@ function viewShuffle() {
     </div>
     <div class="card" style="cursor:default;margin-bottom:18px">
       <div class="eyebrow qline" style="color:${col};margin-bottom:10px"><span>${q.type === "mc" ? "Multiple Choice" : "Select All That Apply"}</span>${q._cat ? `<span class="qt-cat">${esc(q._cat.category)}</span>` : ""}</div>
-      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>
+      <div style="font-size:18px;line-height:1.55">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
     </div>
     <div style="display:grid;gap:10px;margin-bottom:18px">${opts}</div>
     ${fb}

@@ -1170,7 +1170,7 @@ function stoneCard() {
   }
   return `<div class="stonecard tex">
     <div class="eyebrow" style="color:var(--star)">The Answer Stones · ${Math.min(done + (Q.res && Q.res.ok ? 0 : 1), STONE_NEED)} of ${STONE_NEED}</div>
-    <div class="sttext">${esc(q.question)}</div>
+    <div class="sttext">${esc(q.question)}</div>${typeof qFig === "function" ? qFig(q) : ""}
     <div class="stopts">${rows}</div>${foot}</div>`;
 }
 (function () {
