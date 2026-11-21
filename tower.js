@@ -517,6 +517,8 @@ function genGraphFloor(run, seed) {
     if (tr && tr.trial !== "maze" && stonesAllowed(run)) { const R3 = rng32((seed ^ 0x6c8e9cf5) >>> 0); if (R3() < 0.4) stoneRoom(R3, tr); }
     // or the Chasm (its own dice too, and only on floors started after it shipped)
     if (tr && tr.trial !== "maze" && tr.trial !== "stones" && chasmAllowed(run)) { const R4 = rng32((seed ^ 0x1b873593) >>> 0); if (R4() < 0.4) chasmRoom(R4, tr); }
+    // or the Echo Hall, built from questions you've missed (its own dice, only once you have a few misses)
+    if (tr && (tr.trial === "fight" || tr.trial === "torch") && echoAllowed(run)) { const R5 = rng32((seed ^ 0x5bd1e995) >>> 0); if (R5() < 0.35) tr.trial = "echo"; }
   }
   // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
   const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
@@ -537,6 +539,8 @@ function genGraphFloor(run, seed) {
   shuffled(["shrine", "npc"], R).slice(0, 1 + (R() < 0.6 ? 1 : 0)).forEach(k => opts.push({ id: k === "shrine" ? "s0" : "n0", type: k, room: Math.floor(R() * n) }));
   const tt = rooms.find(r => r.trial === "torch");
   if (tt) for (let i = 0; i < 3; i++) opts.push({ id: "b" + i, type: "brazier", room: tt.idx });
+  const et = rooms.find(r => r.trial === "echo");
+  if (et) for (let i = 0; i < ECHO_N; i++) opts.push({ id: "m" + i, type: "echo", room: et.idx });
   const eggs = 2 + Math.floor(R() * 2);
   for (let i = 0; i < eggs; i++) opts.push({ id: "e" + i, type: "egg", room: Math.floor(R() * n), line: Math.floor(R() * EGG_LINES.length) });
   const revisit = run.visits && run.visits[run.floor] && (run.cf || []).includes(run.floor);
@@ -547,7 +551,7 @@ function genGraphFloor(run, seed) {
   }
   opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
   rooms.forEach(rm => { if (rm.trial !== "maze" && rm.trial !== "chasm") placeProps(R, rm, look); });
-  rooms.forEach(rm => rm.trial !== "maze" && rm.trial !== "chasm" && placeTorches(R, rm, F.dark ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
+  rooms.forEach(rm => rm.trial !== "maze" && rm.trial !== "chasm" && placeTorches(R, rm, F.dark || rm.trial === "echo" ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
   // foes that showed up later in this visit come back after a reload
   const ms = run.map;
   if (ms && ms.floor === run.floor && Array.isArray(ms.extra)) ms.extra.forEach(x => { if (rooms[x.room]) rooms[x.room].objs.push({ id: x.id, type: "foe", foe: x.foe, key: x.key, name: x.name, x: x.x, y: x.y }); });
@@ -610,6 +614,7 @@ function bumpG(d) {
   sfx.bBlock && sfx.bBlock();
   if (trialOn(s, rm.idx) && rm.trial === "stones") return say(`The doors are sealed shut. Answer ${STONE_NEED} questions on the stones to break the seal (${s.map.stn || 0} so far).`);
   if (trialOn(s, rm.idx) && rm.trial === "chasm") return say("The doors are sealed shut. Cross the bridges and pull the lever on the island to break the seal.");
+  if (trialOn(s, rm.idx) && rm.trial === "echo") return say(`The doors are sealed shut. Answer the echo mirrors to break the seal (${echoLit(s.map, rm)}/${ECHO_N} cleared).`);
   if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : rm.trial === "maze" ? "The doors are sealed shut. Find the glowing rune somewhere in this labyrinth to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
   if (d.boss) {
     const left = foesLeft(s), q = chapterLeft(s), bits = [];
@@ -684,6 +689,7 @@ function trialEnter(rm) {
   ms.trials[rm.idx] = "on";
   sfx.bBoss && sfx.bBoss();
   if (rm.trial === "stones") { S.stoneQ = null; setTimeout(() => { say("The doors slam shut! Four stones are set into the floor, each carved with a letter. Read the question below the map, then walk onto the stone with your answer and stand still. Get " + STONE_NEED + " right to break the seal.", null, "The Answer Stones"); }, 240); return; }
+  if (rm.trial === "echo") { setTimeout(() => say("The doors slam shut, and the torches gutter low. Three dark mirrors line the hall. Each one whispers back a question you've missed before. Answer them to break the seal.", null, "The Echo Hall"), 240); return; }
   if (rm.trial === "chasm") { setTimeout(() => say("The doors slam shut, and the floor falls away into the dark! Narrow bridges lead to an island with a lever. Cracked planks block the way: answer to brace one. Miss, and it snaps and drops you back by the door.", null, "The Chasm"), 240); return; }
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
@@ -697,6 +703,7 @@ function trialCheck() {
   const done = rm.trial === "stones" ? (ms.stn || 0) >= STONE_NEED
     : rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
     : rm.trial === "chasm" ? rm.objs.some(o => o.type === "lever" && (ms.lit || []).includes(o.id))
+    : rm.trial === "echo" ? echoLit(ms, rm) >= rm.objs.filter(o => o.type === "echo").length
     : rm.trial === "maze" ? rm.objs.some(o => o.type === "rune" && (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
   if (!done) return;
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
@@ -1364,6 +1371,89 @@ function drawChasm(g, rm, s) {
   }
 }
 
+/* ---------- the Echo Hall: a dim trial room whose mirrors ask questions you've missed ----------
+   Three mirrors, each one question drawn from your misses (this chapter first, then the
+   whole deck). A right answer clears a mirror; a miss stings a little and you try again.
+   It only shows up once you have a few misses, and only on floors started after it shipped. */
+const ECHO_N = 3, ECHO_MIN = 3;
+function echoHas() { try { return typeof missedPool === "function" && missedPool().length >= ECHO_MIN; } catch (e) { return false; } }
+function echoAllowed(run) { const ms = run.map; return ms && ms.floor === run.floor ? !!ms.ec : echoHas(); }
+const _twEnsureMap4 = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _twEnsureMap4(run);
+  if (fresh && ms) ms.ec = echoHas();
+  return ms;
+};
+function echoLit(ms, rm) { return rm.objs.filter(o => o.type === "echo" && (ms.lit || []).includes(o.id)).length; }
+// your misses, this chapter's first, skipping what this mirror just asked
+function echoPick(avoid) {
+  const all = missedPool().filter(q => q.id !== avoid);
+  const k = chapterFloor(), ids = k ? new Set(towerChaps()[k - 1].questions.map(q => q.id)) : null;
+  const here = ids ? all.filter(q => ids.has(q.id)) : [];
+  const pool = here.length ? here : all;
+  return pool.length ? weightedOrder(pool)[0] : null;
+}
+const _twInteract5 = interact;
+interact = function (o) {
+  const s = S.battle.s, ms = s.map;
+  if (o && o.type === "echo") {
+    if ((ms.lit || []).includes(o.id)) return say("The mirror glows softly. This echo is answered.");
+    return say("A dark mirror. A question you've missed before drifts up through the glass.", [{ label: "Answer the echo (1 question)", act: "mapQStart", arg: o.id }], "Echo mirror");
+  }
+  return _twInteract5(o);
+};
+const _twNextQ5 = mapNextQ;
+mapNextQ = function () {
+  const Q = S.mapQ;
+  if (!Q || Q.kind !== "echo") return _twNextQ5();
+  const b = S.battle, q = echoPick(Q.last || (b.cur && b.cur.id));
+  if (!q) return _twNextQ5();                             // misses all cleared: any question will do
+  b.cur = q; b.curMiss = true; Q.q = q; Q.last = q.id;
+  resetQ(); freshOrder(q);
+  sfx.tick();
+  render();
+};
+const _twViewMapQ5 = viewMapQ;
+viewMapQ = function () { const h = _twViewMapQ5.apply(this, arguments); return S.mapQ && S.mapQ.kind === "echo" && typeof h === "string" ? h.replace(">Chest riddle<", ">Echo mirror<") : h; };
+const _twMapSubmit5 = mapSubmit;
+mapSubmit = function () {
+  const Q = S.mapQ;
+  if (!Q || Q.kind !== "echo") return _twMapSubmit5();
+  const b = S.battle, s = b.s, ms = s.map, q = Q.q, ok = grade(q, S.selected), rm = curRoom();
+  recordAnswer(q, ok);
+  if (!s.seen.includes(q.id)) s.seen.push(q.id);
+  S.feedback = ok ? "correct" : "incorrect";
+  if (!ok) S.showAnswer = true;
+  if (ok) {
+    (ms.lit = ms.lit || []).push(Q.obj); grantXp(8);
+    const o = rm.objs.find(x => x.id === Q.obj); if (o) MS.burst = { x: o.x, y: o.y, t: 0 };
+    Q.result = { ok, text: `The echo fades into light. (${echoLit(ms, rm)}/${ECHO_N}) +8 XP` };
+    sfx.bArm();
+  } else {
+    const d = Math.max(0, Math.min(S.idk ? 2 : 4, s.hp - 1)); s.hp -= d;
+    Q.result = { ok, text: `The glass stays dark.${d > 0 ? " -" + d + " HP." : ""} Look at the answer, then try again.` };
+    sfx.bFizzle();
+  }
+  persistMap(); render();
+};
+// a dim, cool hall while the seal holds; mirrors glow violet until answered, then gold
+function drawEchoHall(g, rm, s) {
+  const ms = s.map, on = trialOn(s, rm.idx);
+  if (on) { g.fillStyle = "rgba(12,10,32,.42)"; g.fillRect(0, 0, RW * T, RH * T); }
+  rm.objs.forEach(o => {
+    if (o.type !== "echo") return;
+    const X = o.x * T, Y = o.y * T, lit = (ms.lit || []).includes(o.id), ph = Math.sin(MS.time * 1.6 + o.x) * 0.5 + 0.5;
+    g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 3, Y + T - 3, T - 6, 3);
+    g.fillStyle = "#44403c"; g.fillRect(X + 3, Y + 1, 10, 14); g.fillStyle = "#78716c"; g.fillRect(X + 4, Y + 2, 8, 12);
+    g.fillStyle = lit ? "#fde68a" : "#1e1b4b"; g.fillRect(X + 5, Y + 3, 6, 10);
+    g.globalAlpha = lit ? 0.5 : 0.35 + ph * 0.4;
+    g.fillStyle = lit ? "#fbbf24" : "#a78bfa"; g.fillRect(X + 6, Y + 4, 2, 6);
+    if (!lit) { g.fillRect(X + 8, Y + 6 + Math.round(ph * 3), 2, 2); }
+    g.globalAlpha = 1;
+  });
+}
+
 /* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
 function drawDoorG(g, d, open, kind, L) {
   const X = d.x * T, Y = d.y * T;
@@ -1393,6 +1483,7 @@ drawDoor = function (g, rm, side, open, kind) {
     if (d.lock && !(ms.ul || []).includes(d.id)) return drawDoorG(g, d, false, "lock");
     drawDoorG(g, d, true, "open", floorData(s).look);
   });
+  if (rm.trial === "echo") drawEchoHall(g, rm, s);
   if (rm.stones) drawStones(g, rm, s);
   if (rm.pit) drawChasm(g, rm, s);
   rm.objs.forEach(o => {
