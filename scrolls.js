@@ -124,7 +124,7 @@ render = function () {
     else { const wrap = document.createElement("div"); wrap.style.cssText = "display:flex;align-items:center;gap:10px"; head.appendChild(wrap); wrap.appendChild(btn); if (last) wrap.appendChild(last); }
   }
   const ready = b.scrollPending && b.scrollPending.length && !modalOpen() && !S.feedback &&
-    ((S.screen === "battle" && !b.lvl && !b.over) || (S.screen === "map" && S.mapQ));
+    ((S.screen === "battle" && !b.lvl && !b.over) || (S.screen === "map" && (S.mapQ || S.stoneQ)));   // stoneQ: the Answer Stones room asks too
   if (ready) {
     const ids = b.scrollPending; b.scrollPending = null;
     b.s.scrolls = (b.s.scrolls || []).concat(ids.filter(id => !(b.s.scrolls || []).includes(id)));
