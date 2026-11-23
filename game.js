@@ -77,7 +77,9 @@ function spriteBurst(canvas, name, scale, flip, delay) {
 
 /* ===================== CLASSES & TECHNIQUES =====================
    Techniques are learned one level-up pick at a time. Once all four
-   are known, the pick becomes Hone (+1 hit on every technique).      */
+   are known, the pick becomes Hone (+1 hit on every technique, +2 on
+   the top one). The top technique (ult) is the one worth saving for:
+   best damage per charge point plus a signature effect.               */
 const CLASSES = {
   knight: {
     name: "Knight", sprite: "hero_knight", color: "#60a5fa", charge: "#fbbf24", hp: 20, maxCharge: 9, gain: 1, basic: "slash", crit: 0.05,
@@ -87,7 +89,7 @@ const CLASSES = {
       { id: "bash", name: "Shield Bash", cost: 3, hits: 2, guard: 1, text: "2 hits, then blocks the next attack." },
       { id: "whirl", name: "Whirlwind", cost: 4, hits: 3, carry: 1, text: "3 hits. Extra damage carries into the next foe." },
       { id: "holy", name: "Holy Strike", cost: 6, hits: 4, heal: 0.35, text: "4 hits and heals 35% of your HP." },
-      { id: "judgment", name: "Judgment", cost: 9, hits: 8, text: "8 hits of falling light." },
+      { id: "judgment", name: "Judgment", cost: 8, hits: 9, carry: 1, guard: 1, ult: 1, text: "9 hits of falling light. Extra damage carries over, and your guard goes up." },
     ],
   },
   wizard: {
@@ -98,7 +100,7 @@ const CLASSES = {
       { id: "frost", name: "Frost Lance", cost: 3, hits: 2, freeze: 1, text: "2 hits and freezes the foe. Its next attack does nothing." },
       { id: "fire", name: "Fireball", cost: 4, hits: 3, text: "3 hits." },
       { id: "chain", name: "Chain Lightning", cost: 5, hits: 4, carry: 1, text: "4 hits. Extra damage jumps to the next foe." },
-      { id: "meteor", name: "Meteor", cost: 8, hits: 7, text: "7 hits. Flattens almost anything." },
+      { id: "meteor", name: "Meteor", cost: 7, hits: 7, carry: 1, stun: 1, ult: 1, text: "7 hits. Extra damage carries over, and whatever's left standing is stunned for a turn." },
     ],
   },
   ranger: {
@@ -109,7 +111,7 @@ const CLASSES = {
       { id: "volley", name: "Volley", cost: 2, hits: 2, text: "Two quick arrows." },
       { id: "pierce", name: "Piercing Shot", cost: 3, hits: 3, carry: 1, text: "3 hits. Extra damage carries into the next foe." },
       { id: "snipe", name: "Snipe", cost: 5, hits: 3, sure: 1, text: "Always crits, for 6 damage." },
-      { id: "rain", name: "Arrow Rain", cost: 6, hits: 5, carry: 1, text: "5 hits. Extra damage carries over." },
+      { id: "rain", name: "Arrow Rain", cost: 5, hits: 7, carry: 1, refund: 2, ult: 1, text: "7 hits. Extra damage carries over, and a kill gives you 2 charge back." },
     ],
   },
 };
@@ -125,6 +127,16 @@ const AURA = { bash: "#93c5fd", whirl: "#e0f2fe", holy: "#fde047", judgment: "#f
 const SP_SOUND = { bash: "bash", whirl: "bash", holy: "holy", judgment: "holy", frost: "frost", fire: "fire", chain: "chain",
   meteor: "meteor", volley: "volley", pierce: "pierce", snipe: "pierce", rain: "rain" };
 function specialOf(cls, id) { return CLASSES[cls].specials.find(x => x.id === id); }
+/* a technique's damage before boons. Hone adds +1 (+2 on the top one);
+   Snipe's crit doubles the base hits only. */
+function techHits(sp, run) {
+  return sp.hits * (sp.sure ? 2 : 1) + (run.hone || 0) * (sp.ult ? 2 : 1);
+}
+/* max charge: class base, +1 per mana crystal found this run (up to 3), +1 from Deep Well */
+const MANA_CAP = 3;
+function maxChargeOf(run, hero) {
+  return CLASSES[hero.cls].maxCharge + Math.min(MANA_CAP, run.mana || 0) + (mods(run, hero).maxCharge || 0);
+}
 
 /* ===================== BOONS =====================
    Two slots per hero (three with the Ringmaster's Top Hat). Rolled by
@@ -144,6 +156,7 @@ const BOONS = [
   { id: "tough",    r: "common",    name: "Thick Skin",       text: "Take 12% less damage.", m: { armor: 0.12 } },
   { id: "bookworm", r: "common",    name: "Bookworm",         text: "+15% XP. (XP boons don't stack.)", m: { xp: 0.15 } },
   { id: "steady",   r: "common",    name: "Steady Hands",     text: "Start every fight with 2 charge.", m: { fightCharge: 2 } },
+  { id: "well",     r: "uncommon",  name: "Deep Well",        text: "+1 max charge.", m: { maxCharge: 1 } },
   { id: "surge",    r: "uncommon",  name: "Mana Surge",       text: "10% chance a correct answer refills your charge completely.", m: { refill: 0.10 } },
   { id: "vamp",     r: "uncommon",  name: "Vampiric",         text: "Defeating a foe heals 10% of your max HP.", m: { killHeal: 0.10 } },
   { id: "bulwark",  r: "uncommon",  name: "Bulwark",          text: "Start every fight with your guard up.", m: { fightGuard: 1 } },
@@ -194,7 +207,7 @@ function perksOf(hero) {
 function mods(run, hero) {
   const C = CLASSES[hero.cls], p = perksOf(hero), bs = heroBoons(hero).map(boonById).filter(Boolean);
   const m = { crit: C.crit, dodge: 0, dmg: 0, flat: 0, xp: 0, plusCharge: 0, refill: 0, killHeal: 0, armor: 0,
-              fightGuard: 0, fightCharge: 0, phoenix: 0, costCut: 0, thorns: 0, fx: null, fxs: [] };
+              fightGuard: 0, fightCharge: 0, phoenix: 0, costCut: 0, thorns: 0, maxCharge: 0, fx: null, fxs: [] };
   let bestXp = 0;
   bs.forEach(b => {
     for (const k in b.m) { if (k === "xp") bestXp = Math.max(bestXp, b.m.xp); else m[k] += b.m[k]; }
@@ -267,14 +280,21 @@ function deckScale(run) {
   const n = allQuestions(S.set).length;
   return Math.max(0.6, Math.min(4, n / 55));
 }
+/* Foes toughen as your hero grows during the run (levels gained this
+   run, not floor number), so time-to-kill stays steady: soft at the
+   start when you only have basic hits, tougher once techniques, Hone
+   and boons stack up. 0.6x at the start, +6% per level, up to 2x.
+   Bosses follow at half the slope (0.8x to 1.5x). */
+function foeScale(run) { return Math.min(2, 0.6 + 0.06 * ((run && run.xpRun) || 0) / XPL); }
+function bossScale(run) { return 0.5 + foeScale(run) / 2; }
 function makeEnemy(run) {
-  const f = floorInfo(run, run.floor), k = deckScale(run);
+  const f = floorInfo(run, run.floor), k = deckScale(run) * foeScale(run), kb = deckScale(run) * bossScale(run);
   if (run.idx >= f.foes.length) {
-    const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp * k));
+    const bh = Math.max(3, Math.round(f.boss.hits * diffOf(run).hp * kb));
     return { key: f.boss.key, name: f.boss.name, boss: true, final: run.floor === SL(run),
              hits: bh, maxHits: bh, scale: f.boss.scale || 5 };
   }
-  const foe = f.foes[run.idx], h = Math.max(1, Math.min(12, Math.round(foeHits(run.floor) * diffOf(run).hp * k)));
+  const foe = f.foes[run.idx], h = Math.max(1, Math.min(16, Math.round(foeHits(run.floor) * diffOf(run).hp * k)));
   return { key: foe.key, name: foe.name, boss: false, hits: h, maxHits: h, scale: 4 };
 }
 
@@ -311,7 +331,7 @@ function floorStart(run, hero) {
 function fightStart(run, hero) {
   const m = mods(run, hero);
   if (m.fightGuard) run.guard = true;
-  if (m.fightCharge) run.charge = Math.max(run.charge, Math.min(CLASSES[hero.cls].maxCharge, m.fightCharge));
+  if (m.fightCharge) run.charge = Math.max(run.charge, Math.min(maxChargeOf(run, hero), m.fightCharge));
 }
 /* write the live run (and its hero) back to storage */
 function persist() {
@@ -632,37 +652,41 @@ function submitBattle() {
 
   const sp = b.armed ? specialOf(h.cls, b.armed) : null;
   b.armed = null;
-  if (sp) s.charge = Math.max(0, s.charge - costOf(sp, m));
+  const spCost = sp ? costOf(sp, m) : 0;
+  if (sp) s.charge = Math.max(0, s.charge - spCost);
   const mx = () => maxHpOf(s, h);
   b.note = null;
 
   if (ok) {
     let dmg = 1, crit = false;
-    if (sp) { dmg = sp.hits + (s.hone || 0); if (sp.sure) { crit = true; dmg *= 2; } }
+    const maxC = maxChargeOf(s, h);
+    if (sp) { dmg = techHits(sp, s); if (sp.sure) crit = true; }
     else {
       if (Math.random() < m.crit) { crit = true; dmg = 2; }
-      s.charge = Math.min(C.maxCharge, s.charge + C.gain + m.plusCharge);
-      if (m.refill && Math.random() < m.refill) { s.charge = C.maxCharge; b.surged = true; } else b.surged = false;
+      s.charge = Math.min(maxC, s.charge + C.gain + m.plusCharge);
+      if (m.refill && Math.random() < m.refill) { s.charge = maxC; b.surged = true; } else b.surged = false;
     }
     dmg += m.flat;
     if (m.dmg) dmg = Math.max(1, Math.round(dmg * (1 + m.dmg)));
     const warded = (b.enemy.final || b.enemy.ward) && wardBefore > 0;
     if (warded) dmg = 0;                     // the hit breaks a ward rune instead
+    const wardKept = warded && sp ? spCost : 0;  // a technique can't hurt a ward, so it doesn't eat your charge
+    if (wardKept) s.charge = Math.min(maxC, s.charge + wardKept);
     const before = b.enemy.hits;
     b.enemy.hits = Math.max(0, before - dmg);
     const overkill = Math.max(0, dmg - before);
     const hp0 = s.hp;
     if (sp && sp.guard) s.guard = true;
-    if (sp && sp.freeze) s.frozen = true;
+    if (sp && (sp.freeze || sp.stun)) s.frozen = true;
     if (sp && sp.heal) s.hp = Math.min(mx(), s.hp + Math.round(mx() * sp.heal));
     let healed = s.hp - hp0;
     const special = sp ? sp.id : null;
     const style = special || C.basic;
     let xpGot = Math.round(5 * (1 + m.xp));
     let leveled = gainXp(xpGot);
-    const wasFrozen = s.frozen && !(sp && sp.freeze);
+    const wasFrozen = s.frozen && !(sp && (sp.freeze || sp.stun));
     b.fx = { type: "heroAttack", special, style, crit, dmg, healed, popFrom: b.enemy.hits, popTo: before, max: b.enemy.maxHits, leveled, kazoo: m.fxs.includes("kazoo"), frozenHit: wasFrozen };
-    b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged, ward: warded ? wardLeft(s) : null };
+    b.lastHit = { special, crit, dmg, name: sp ? sp.name : null, surged: b.surged, ward: warded ? wardLeft(s) : null, wardKept };
 
     if (b.enemy.hits <= 0) {
       const dead = b.enemy, hpBefore = s.hp - healed, oldFloor = s.floor, oldIdx = s.idx;
@@ -674,6 +698,8 @@ function submitBattle() {
       // the only healing between fights: Vampiric, and a full heal when the floor is cleared
       s.hp = dead.boss ? mx() : Math.min(mx(), s.hp + Math.round(mx() * m.killHeal));
       const carry = sp && sp.carry ? overkill : 0;
+      if (sp && sp.stun) s.frozen = true;      // Meteor: the next foe is still reeling
+      if (sp && sp.refund) { s.charge = Math.min(maxC, s.charge + sp.refund); b.lastHit.refund = sp.refund; }
       s.idx++;
       let newFloor = false;
       if (dead.boss) {
@@ -1234,7 +1260,7 @@ function viewLevelUp() {
   const capNote = `Maxed for now (${cap}/${cap}). The cap rises in Endless.`;
   const learnCard = allKnown
     ? `<button class="card lvlopt" data-act="lvlPick" data-k="hone" ${honeMax ? "disabled" : ""}><div class="lvloptname">⚔ Hone your techniques</div>
-        <div class="muted" style="font-size:13px">${honeMax ? capNote : `Every technique hits +1 harder (${s.hone || 0}/${cap}).`}</div></button>`
+        <div class="muted" style="font-size:13px">${honeMax ? capNote : `Every technique hits +1 harder, your top one +2 (${s.hone || 0}/${cap}).`}</div></button>`
     : `<button class="card lvlopt" data-act="lvlPick" data-k="learnMenu"><div class="lvloptname">✦ Learn a technique</div>
         <div class="muted" style="font-size:13px">${nLeft} left to learn: ${C.specials.filter(x => !s.learned.includes(x.id)).map(x => esc(x.name)).join(", ")}.</div></button>`;
   const full = !slots.includes(null);
@@ -1421,18 +1447,19 @@ function viewBattle() {
 
   /* ---- technique bar (only what this run has learned) ---- */
   let seg = "";
-  for (let i = 0; i < C.maxCharge; i++) seg += `<i class="${i < s.charge ? "on" : ""}" style="${i < s.charge ? `background:${C.charge || C.color}` : ""}"></i>`;
+  const maxC = maxChargeOf(s, h);
+  for (let i = 0; i < maxC; i++) seg += `<i class="${i < s.charge ? "on" : ""}" style="${i < s.charge ? `background:${C.charge || C.color}` : ""}"></i>`;
   const known = C.specials.filter(x => s.learned.includes(x.id));
   const specs = known.map(x => {
     const cost = costOf(x, m), ready = s.charge >= cost, armed = b.armed === x.id;
     return `<button class="spec ${ready ? "ready" : ""} ${armed ? "armed" : ""}" data-act="armSpecial" data-id="${x.id}"
       ${ready && !S.feedback && !b.lvl ? "" : "disabled"} style="--cc:${C.color}">
-      <span class="spn">${esc(x.name)}${s.hone ? ` <small>+${s.hone}</small>` : ""}</span><span class="spc">${BOLT}${cost}</span>
+      <span class="spn">${esc(x.name)}${s.hone ? ` <small>+${s.hone * (x.ult ? 2 : 1)}</small>` : ""}</span><span class="spc">${BOLT}${cost}</span>
     </button>`;
   }).join("");
   const armedSp = b.armed ? specialOf(h.cls, b.armed) : null;
-  const specbar = `<div class="specbar tex ${s.charge >= C.maxCharge && known.length ? "full" : ""}">
-    <div class="chargewrap"><span class="chargelbl" style="color:${C.charge || C.color}">${BOLT}${s.charge}/${C.maxCharge}</span><div class="charge">${seg}</div></div>
+  const specbar = `<div class="specbar tex ${s.charge >= maxC && known.length ? "full" : ""}">
+    <div class="chargewrap"><span class="chargelbl" style="color:${C.charge || C.color}">${BOLT}${s.charge}/${maxC}</span><div class="charge">${seg}</div></div>
     ${known.length ? `<div class="specbtns">${specs}</div>` : `<div class="armnote">No techniques yet. Level up to learn your first one.</div>`}
     ${armedSp ? `<div class="armnote"><b style="color:${C.color}">${esc(armedSp.name)} armed.</b> ${esc(armedSp.text)} Miss and it fizzles.</div>` : ""}
   </div>`;
@@ -1456,8 +1483,8 @@ function viewBattle() {
   if (S.feedback) {
     const ok = S.feedback === "correct", lh = b.lastHit || {};
     let head;
-    if (ok && lh.ward != null) head = lh.ward > 0 ? "A ward rune shatters! " + lh.ward + " more shield " + esc(b.enemy.name) + "." : "The last ward rune shatters. " + esc(b.enemy.name) + " is exposed!";
-    else if (ok) head = (lh.name ? lh.name + " hit for " + lh.dmg + "!" : lh.crit ? "Critical hit! " + lh.dmg + " damage" : lh.dmg > 1 ? "Hit for " + lh.dmg + "!" : "Hit!") + (lh.surged ? " Mana Surge refilled your charge." : "");
+    if (ok && lh.ward != null) head = (lh.ward > 0 ? "A ward rune shatters! " + lh.ward + " more shield " + esc(b.enemy.name) + "." : "The last ward rune shatters. " + esc(b.enemy.name) + " is exposed!") + (lh.wardKept ? " Techniques can't hurt a ward, so your charge is back." : "");
+    else if (ok) head = (lh.name ? lh.name + " hit for " + lh.dmg + "!" : lh.crit ? "Critical hit! " + lh.dmg + " damage" : lh.dmg > 1 ? "Hit for " + lh.dmg + "!" : "Hit!") + (lh.surged ? " Mana Surge refilled your charge." : "") + (lh.refund ? " +" + lh.refund + " charge back." : "");
     else if (b.dying) head = "Knocked out" + (lh.fizzle ? ". " + lh.fizzle + " fizzled" : "");
     else if (lh.frozen) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "The") + " frozen foe couldn't swing";
     else if (lh.missed) head = (lh.fizzle ? lh.fizzle + " fizzled, but the" : "Wrong, but the") + " attack missed you";
@@ -1816,7 +1843,7 @@ function ambientLoop(now) {
   /* --- guard: shimmer around the hero --- */
   if (s.guard && hero) ambEmit("grd", 9, dt, () => { const t = R() * Math.PI * 2; return { x: hero.x + hero.w / 2 + Math.cos(t) * hero.w * 0.7, y: hero.y + hero.h / 2 + Math.sin(t) * hero.h * 0.6, vx: 0, vy: -2, life: 0.5, c: pick(["#ffffff", "#93c5fd"]) }; });
   /* --- full charge: sparks in the class color --- */
-  if (s.charge >= CLASSES[b.h.cls].maxCharge && s.learned.length && hero && !armed) ambEmit("chg", 5, dt, () => ({ x: hero.x + rnd(0, hero.w), y: hero.y + rnd(0, hero.h), vx: 0, vy: -rnd(4, 10), life: 0.6, c: pick([CLASSES[b.h.cls].color, "#ffffff"]), blink: 1 }));
+  if (s.charge >= maxChargeOf(s, b.h) && s.learned.length && hero && !armed) ambEmit("chg", 5, dt, () => ({ x: hero.x + rnd(0, hero.w), y: hero.y + rnd(0, hero.h), vx: 0, vy: -rnd(4, 10), life: 0.6, c: pick([CLASSES[b.h.cls].color, "#ffffff"]), blink: 1 }));
   /* --- boss: dark motes rising around it --- */
   if (b.enemy && b.enemy.boss && foe) ambEmit("boss", 10, dt, () => ({ x: foe.x + rnd(-4, foe.w + 4), y: foe.y + foe.h - rnd(0, 4), vx: rnd(-2, 2), vy: -rnd(6, 14), life: rnd(0.8, 1.5), c: pick(["#7f1d1d", "#4c1d95", "#1c1917", "#991b1b"]) }));
 
