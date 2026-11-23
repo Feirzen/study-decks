@@ -121,6 +121,26 @@ function gmJump(k) {
   gmToast("Jumped to " + (k === N + 1 ? "the Throne" : "floor " + k));
 }
 
+/* unlock the throne room without skipping or clearing any floors */
+function gmUnlockThrone(stay) {
+  const b = S.battle; if (!b || !b.s || !b.s.v3) return;
+  const s = b.s, k = SL() + 1;
+  s.godOpen = s.godOpen || [];
+  if (!s.godOpen.includes(k)) s.godOpen.push(k);
+  gmSave();
+  if (!stay) gmClose(true);
+  render();
+  gmToast("Throne room unlocked");
+}
+// on the Floors screen, tapping the sealed throne with God mode on opens it
+document.addEventListener("click", ev => {
+  const t = ev.target.closest && ev.target.closest('[data-act="twLocked"]');
+  if (!t || !gmOn() || !S.battle || !S.battle.s.v3) return;
+  if (+t.dataset.f !== SL() + 1) return;
+  ev.preventDefault(); ev.stopPropagation();
+  gmUnlockThrone(true);
+}, true);
+
 /* ===================== HERO ===================== */
 function gmHero(what, d) {
   const b = S.battle, s = b.s, h = b.h, C = CLASSES[h.cls], mx = maxHpOf(s, h);
@@ -245,7 +265,9 @@ function gmBody() {
       const fi = floorInfo(s, k);
       chips.push(`<button class="gm-fl ${k === s.floor ? "cur" : ""} ${(s.cf || []).includes(k) ? "done" : ""}" data-gm="jump" data-a="${k}" title="${esc(fi.name)}">${k === N + 1 ? "👑" : k}</button>`);
     }
-    return `<div class="gm-sec"><div class="gm-h">Jump to floor <span class="muted">· floors below count as cleared</span></div><div class="gm-fls">${chips.join("")}</div></div>`;
+    const tOpen = floorOpen(s, N + 1);
+    const tBtn = gmBtn("throne", tOpen ? "👑 Throne room open" : "👑 Unlock the throne room", { off: tOpen, title: "Opens the throne without clearing any floors" });
+    return `<div class="gm-sec"><div class="gm-h">Jump to floor <span class="muted">· floors below count as cleared</span></div><div class="gm-fls">${chips.join("")}</div><div class="gm-row" style="margin-top:8px">${tBtn}</div></div>`;
   })() : "";
   return `
     <div class="gm-sec"><div class="gm-h">Last answer</div>${last}</div>
@@ -314,6 +336,7 @@ document.addEventListener("click", ev => {
   if (a === "right") return gmUndo(true);
   if (a === "undo") return gmUndo(false);
   if (a === "jump") return gmJump(+arg);
+  if (a === "throne") { gmUnlockThrone(true); return gmPanel(); }
   if (a === "lvl" || a === "hp" || a === "charge") return gmHero(a, arg === "full" ? "full" : +arg);
   if (a === "foe") return gmFoeLow();
   if (a === "room") return gmClearRoom();
