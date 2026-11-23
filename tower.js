@@ -565,6 +565,8 @@ function genGraphFloor(run, seed) {
   opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
   rooms.forEach(rm => { if (rm.trial !== "maze" && rm.trial !== "chasm" && rm.trial !== "arena") placeProps(R, rm, look); });
   rooms.forEach(rm => rm.trial !== "maze" && rm.trial !== "chasm" && placeTorches(R, rm, F.dark || rm.trial === "echo" ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
+  // a captive tied up somewhere (own dice, placed last, only on floors started after it shipped)
+  if (captiveAllowed(run)) { const R6 = rng32((seed ^ 0x27d4eb2f) >>> 0); captivePlace(R6, F, fi); }
   // foes that showed up later in this visit come back after a reload
   const ms = run.map;
   if (ms && ms.floor === run.floor && Array.isArray(ms.extra)) ms.extra.forEach(x => { if (rooms[x.room]) rooms[x.room].objs.push({ id: x.id, type: "foe", foe: x.foe, key: x.key, name: x.name, x: x.x, y: x.y }); });
@@ -1481,6 +1483,142 @@ function drawEchoHall(g, rm, s) {
   });
 }
 
+/* ---------- the captive: someone tied up on the floor ----------
+   Untie them (sometimes it's a trap and a foe jumps out first), and they
+   follow you around. Beat the boss with them still at your side and they
+   thank you with a gift. State lives in map.cap: unset (tied), "ambush"
+   (the trap sprang), "follow", or "home". Only on floors started after
+   this shipped (map.cp), so a floor you're halfway through never shifts. */
+const CAP_NAME = { classic: "Lost Traveler", shrunk: "Lab Intern", volcano: "Young Miner", princess: "Palace Cook", sunken: "Pearl Diver",
+  clockwork: "Clock Apprentice", frost: "Snowed-in Courier", desert: "Caravan Kid", carnival: "Juggler", halloween: "Trick-or-Treater", christmas: "Lost Elf" };
+const CAP_CHANCE = 0.45, CAP_TRAP = 0.4, CAP_LAG = 2;
+function capName(s) { return CAP_NAME[s.story] || "Lost Traveler"; }
+function captiveAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.cp; }
+const _capEnsureMap = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _capEnsureMap(run);
+  if (fresh && ms) ms.cp = true;
+  return ms;
+};
+function captivePlace(R, F, fi) {
+  if (R() >= CAP_CHANCE) return;
+  const rooms = F.rooms.filter(r => r.idx !== 0 && !r.trial);
+  if (!rooms.length) return;
+  const trap = R() < CAP_TRAP, foes = fi.foes.map((f, i) => i).filter(i => !fi.foes[i].gold);
+  const o = { id: "cap", type: "captive", trap, foe: foes.length ? foes[Math.floor(R() * foes.length)] : 0 };
+  for (const rm of shuffled(rooms, R)) if (placeObj(R, rm, o, {})) return;
+}
+function capObj(s) { for (const rm of floorData(s).rooms) { const o = rm.objs.find(x => x.type === "captive"); if (o) return o; } return null; }
+// a freed captive is no longer standing in the way
+const _twObjAt3 = objAt;
+objAt = function (rm, x, y) {
+  const o = _twObjAt3(rm, x, y);
+  if (o && o.type === "captive") { const c = S.battle.s.map.cap; if (c === "follow" || c === "home") return null; }
+  return o;
+};
+function capFree(text) {
+  const s = S.battle.s, ms = s.map, o = capObj(s);
+  ms.cap = "follow";
+  CAP.room = ms.room; CAP.path = [[MS.tx, MS.ty]];
+  if (o) { CAP.x = o.x; CAP.y = o.y; CAP.path.unshift([o.x, o.y]); MS.burst = { x: o.x, y: o.y, t: 0 }; }
+  sfx.bArm && sfx.bArm();
+  persistMap();
+  say(text + ` "Thank you! I'll stay right behind you. Get us past the boss and I'll make it worth your while."`, null, capName(s));
+}
+const _capInteract = interact;
+interact = function (o) {
+  if (!o || o.type !== "captive") return _capInteract(o);
+  const s = S.battle.s, ms = s.map, who = capName(s);
+  if (ms.cap === "ambush") return say(`The ${floorInfo(s, s.floor).foes[o.foe].name} is still guarding the ropes.`, [{ label: "Fight it", act: "capFight" }], "Ambush!");
+  return say(`Someone is tied up here, ropes from shoulders to ankles. "Please! Get me out of these!"`, [{ label: "Untie them", act: "capUntie" }], who);
+};
+function capUntie() {
+  const s = S.battle.s, ms = s.map, o = capObj(s);
+  if (!o || ms.cap) return closeDlg();
+  if (o.trap) {
+    ms.cap = "ambush"; persistMap();
+    sfx.bBoss && sfx.bBoss();
+    const f = floorInfo(s, s.floor).foes[o.foe] || { name: "monster" };
+    return say(`You kneel to cut the ropes and something lunges out of the shadows! It's a trap! A ${f.name} was lying in wait.`, [{ label: "Fight it", act: "capFight" }], "Ambush!");
+  }
+  capFree("You saw through the ropes and they fall away.");
+}
+function capFight() {
+  const s = S.battle.s, o = capObj(s);
+  S.mapDlg = null;
+  if (!o) return render();
+  startMapFight({ id: "capfoe", foe: o.foe });
+}
+// back on the map after beating the ambusher: the captive is free
+const _twEnterMap6 = enterMap;
+enterMap = function (banner) {
+  const r = _twEnterMap6(banner);
+  const b = S.battle, s = b && b.s, ms = s && s.map;
+  if (ms && ms.cap === "ambush" && ms.cleared.includes("capfoe")) capFree("With the ambusher down, you cut the ropes.");
+  if (s && s.capGift) capThanks();
+  return r;
+};
+// beating the boss with the captive still in tow earns their gift (shown back on the map)
+const _twSubmit6 = submitBattle;
+submitBattle = function () {
+  const b = S.battle, s = b && b.s, f0 = s && s.floor;
+  const tow = s && b.enemy && b.enemy.boss && s.map && s.map.floor === s.floor && s.map.cap === "follow";
+  const r = _twSubmit6();
+  if (tow && !b.over && s.floor > f0) { s.map.cap = "home"; s.capGift = { who: capName(s) }; saveAdv(); }
+  return r;
+};
+function capThanks() {
+  const b = S.battle, s = b.s, g = s.capGift;
+  s.capGift = null;
+  grantXp(30);
+  s.hp = maxHpOf(s, b.h);
+  sfx.bVictory && sfx.bVictory();
+  persistMap();
+  say(`"We made it out! I really thought I was done for back there. Please, take this." (+30 XP, full HP, and a free boon roll)`, null, g.who || "Rescued friend", "gift");
+}
+// the follower walks your trail a couple of tiles behind, gliding tile to tile
+const CAP = { x: 0, y: 0, room: -1, path: [], dir: 1, walk: 0 };
+function mapThings(g, things, dt) {
+  const s = S.battle.s, ms = s.map;
+  if (!ms || ms.cap !== "follow") return;
+  const head = CAP.path[CAP.path.length - 1];
+  if (CAP.room !== ms.room || !head) {            // new room (or a reload): they step in through the doorway behind you
+    const rm = curRoom(), d = (rm.doors || []).find(d => Math.abs(d.x - MS.tx) + Math.abs(d.y - MS.ty) === 1);
+    CAP.room = ms.room; CAP.x = d ? d.x : MS.tx; CAP.y = d ? d.y : MS.ty;
+    CAP.path = d ? [[d.x, d.y], [MS.tx, MS.ty]] : [[MS.tx, MS.ty]];
+  }
+  else if (head[0] !== MS.tx || head[1] !== MS.ty) {
+    if (Math.abs(head[0] - MS.tx) + Math.abs(head[1] - MS.ty) > 1) { CAP.x = MS.tx; CAP.y = MS.ty; CAP.path = [[MS.tx, MS.ty]]; }
+    else {
+      const j = CAP.path.findIndex(p => p[0] === MS.tx && p[1] === MS.ty);
+      if (j >= 0) CAP.path = CAP.path.slice(0, j);           // you doubled back: drop the loop from the trail
+      CAP.path.push([MS.tx, MS.ty]);
+      if (Math.round(CAP.x) === MS.tx && Math.round(CAP.y) === MS.ty) CAP.path = [head, head, [MS.tx, MS.ty]];   // walked into them: they step aside
+    }
+  }
+  let moving = false;
+  if (CAP.path.length > CAP_LAG) {
+    const [nx, ny] = CAP.path[0], dx = nx - CAP.x, dy = ny - CAP.y, d = Math.hypot(dx, dy);
+    const sp = 7.5 * (1 + 0.35 * Math.max(0, CAP.path.length - CAP_LAG - 1)) * dt;
+    if (d <= sp) { CAP.x = nx; CAP.y = ny; CAP.path.shift(); }
+    else { CAP.x += dx / d * sp; CAP.y += dy / d * sp; }
+    if (Math.abs(dx) > 0.01) CAP.dir = dx > 0 ? 1 : -1;
+    moving = d > 0.01;
+  }
+  CAP.walk = moving ? CAP.walk + dt : 0;
+  things.push({ y: CAP.y, draw: () => {
+    const im = spriteImg("m_rescued", CAP.dir < 0); if (!im) return;
+    const X = Math.round(CAP.x * T + (T - im.width) / 2), Y = Math.round(CAP.y * T + T - im.height) - (moving && Math.floor(CAP.walk * 8) % 2 ? 1 : 0);
+    g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(Math.round(CAP.x * T) + 3, Math.round(CAP.y * T) + T - 3, T - 6, 3);
+    g.drawImage(im, X, Y);
+  } });
+}
+document.addEventListener("click", ev => {
+  const t = ev.target.closest("[data-act]"); if (!t) return;
+  if (t.dataset.act === "capUntie") return capUntie();
+  if (t.dataset.act === "capFight") return capFight();
+});
 /* ---------- the Arena: a colosseum where challengers walk out at you ----------
    Sand floor, stands full of a cheering crowd, a few pillars. The gates slam shut,
    then one foe at a time walks out from the far side and comes after you. Touch
@@ -1958,6 +2096,7 @@ function goalsHtml(s) {
       <li class="${left === 0 ? "done" : ""}">${left === 0 ? "✓" : "⚔"} Guardians defeated: ${total - left}/${total}</li>
       ${ms.quest === 1 ? `<li>📜 Bring ${ms.need} ${item}: ${ms.items}/${ms.need}</li>` : ""}
       ${ms.keys ? `<li>🗝 Keys: ${ms.keys}</li>` : ""}
+      ${ms.cap === "follow" ? `<li>🤝 ${esc(capName(s))} is following you. Beat the boss to get them out.</li>` : ""}
     </ul>`;
 }
 
@@ -2053,10 +2192,11 @@ document.addEventListener("click", ev => {
 });
 
 /* ===================== MINIMAP ===================== */
-function drawMini() {
-  const cv = document.getElementById("twMini"), b = S.battle;
+function drawMini(cv, P) {
+  cv = cv || document.getElementById("twMini"); P = P || 1.5;
+  const b = S.battle;
   if (!cv || !b || !b.s.map) return;
-  const s = b.s, ms = s.map, F = floorData(s), P = 1.5, rw = RW * P, rh = RH * P, gap = 10;
+  const s = b.s, ms = s.map, F = floorData(s), rw = RW * P, rh = RH * P, k = P / 1.5, gap = Math.round(10 * k), pad = Math.round(4 * k);
   const blink = Math.floor(Date.now() / 400) % 2, seen = ms.seen || [ms.room];
   const rooms = F.rooms.map((rm, i) => ({ rm, i, gx: rm.graph ? rm.gx : i, gy: rm.graph ? rm.gy : 0 }));
   const near = new Set(seen);
@@ -2064,22 +2204,24 @@ function drawMini() {
   const vis = rooms.filter(r => near.has(r.i));
   const minX = Math.min(...vis.map(r => r.gx)), minY = Math.min(...vis.map(r => r.gy));
   const maxX = Math.max(...vis.map(r => r.gx)), maxY = Math.max(...vis.map(r => r.gy));
-  cv.width = Math.ceil((maxX - minX + 1) * (rw + gap) - gap + 8); cv.height = Math.ceil((maxY - minY + 1) * (rh + gap) - gap + 8);
+  cv.width = Math.ceil((maxX - minX + 1) * (rw + gap) - gap + pad * 2); cv.height = Math.ceil((maxY - minY + 1) * (rh + gap) - gap + pad * 2);
   const g = cv.getContext("2d"); g.clearRect(0, 0, cv.width, cv.height);
-  const ox = r => 4 + (r.gx - minX) * (rw + gap), oy = r => 4 + (r.gy - minY) * (rh + gap);
+  const ox = r => pad + (r.gx - minX) * (rw + gap), oy = r => pad + (r.gy - minY) * (rh + gap);
+  const dot = (x, y, n, col) => { g.fillStyle = col; const w = Math.round(n * k); g.fillRect(Math.round(x - w / 2), Math.round(y - w / 2), w, w); };
   // links
   if (F.graph) vis.forEach(r => r.rm.doors.forEach(d => {
     const t = rooms[d.to]; if (d.to == null || !near.has(d.to) || d.to < r.i) return;
     const locked = d.lock && !(ms.ul || []).includes(d.id);
     g.fillStyle = locked ? "#facc15" : "rgba(255,255,255,.4)";
     const x1 = ox(r) + rw / 2, y1 = oy(r) + rh / 2, x2 = ox(t) + rw / 2, y2 = oy(t) + rh / 2;
-    if (y1 === y2) g.fillRect(Math.min(x1, x2), y1 - 1, Math.abs(x2 - x1), 2); else g.fillRect(x1 - 1, Math.min(y1, y2), 2, Math.abs(y2 - y1));
+    const lw = Math.max(2, Math.round(2 * k));
+    if (y1 === y2) g.fillRect(Math.min(x1, x2), y1 - lw / 2, Math.abs(x2 - x1), lw); else g.fillRect(x1 - lw / 2, Math.min(y1, y2), lw, Math.abs(y2 - y1));
   }));
   vis.forEach(r => {
     const X = ox(r), Y = oy(r), rm = r.rm;
     if (!seen.includes(r.i)) {
       g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh); g.strokeStyle = "rgba(255,255,255,.3)"; g.strokeRect(X + .5, Y + .5, rw - 1, rh - 1);
-      g.fillStyle = "rgba(255,255,255,.55)"; g.font = "bold 13px sans-serif"; g.textAlign = "center"; g.fillText("?", X + rw / 2, Y + rh / 2 + 5);
+      g.fillStyle = "rgba(255,255,255,.55)"; g.font = "bold " + Math.round(13 * k) + "px sans-serif"; g.textAlign = "center"; g.fillText("?", X + rw / 2, Y + rh / 2 + 5 * k);
       return;
     }
     g.fillStyle = "rgba(20,16,30,.95)"; g.fillRect(X, Y, rw, rh);
@@ -2091,22 +2233,84 @@ function drawMini() {
       g.fillStyle = r.i === ms.room ? "rgba(255,255,255,.5)" : "rgba(255,255,255,.25)";
       g.fillRect(X + x * P, Y + y * P, P, P);
     }
-    if (rm.trial) { g.strokeStyle = trialOn(s, r.i) ? "#c084fc" : "rgba(192,132,252,.45)"; g.lineWidth = 1.5; g.strokeRect(X + .5, Y + .5, rw - 1, rh - 1); }
+    if (rm.trial) { g.strokeStyle = trialOn(s, r.i) ? "#c084fc" : "rgba(192,132,252,.45)"; g.lineWidth = 1.5 * k; g.strokeRect(X + .5, Y + .5, rw - 1, rh - 1); }
     rm.objs.forEach(o => {
       if (o.type === "foe" && ms.cleared.includes(o.id)) return;
       if (o.type === "chest" && (ms.opened || []).includes(o.id)) return;
       if (o.type === "egg" || (o.type === "brazier" && (ms.lit || []).includes(o.id))) return;
       if ((o.type === "gate" || o.type === "rune" || o.type === "mkey") && (hideMaze || (ms.lit || []).includes(o.id))) return;
       if (hideMaze && !(mSee && mSee.has(o.x + "," + o.y))) return;
-      g.fillStyle = o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : o.type === "brazier" ? "#f97316" : "#a78bfa";
-      g.fillRect(X + o.x * P - 1, Y + o.y * P - 1, 3, 3);
+      if (o.type === "captive" && (ms.cap === "follow" || ms.cap === "home")) return;
+      dot(X + o.x * P + P / 2, Y + o.y * P + P / 2, 3, o.type === "foe" ? "#ef4444" : o.type === "chest" ? "#facc15" : o.type === "shrine" ? "#22d3ee" : o.type === "brazier" ? "#f97316" : o.type === "captive" ? "#f472b6" : "#a78bfa");
     });
-    (rm.doors || []).forEach(d => { if (!d.boss) return; const ready = bossReady(s); g.fillStyle = ready ? (blink ? "#f97316" : "#fde047") : "#b91c1c"; g.fillRect(X + d.x * P - 2, Y + d.y * P - 2, 5, 5); });
-    if (!rm.graph && rm.last) { g.fillStyle = foesLeft(s) === 0 ? "#f97316" : "#7f1d1d"; g.fillRect(X + (RW - 1) * P - 2, Y + rm.east.y * P - 2, 5, 5); }
-    if (r.i === ms.room) { g.fillStyle = "#ffffff"; g.fillRect(X + MS.tx * P - 1, Y + MS.ty * P - 1, 4, 4); }
+    (rm.doors || []).forEach(d => { if (!d.boss) return; const ready = bossReady(s); dot(X + d.x * P + P / 2, Y + d.y * P + P / 2, 5, ready ? (blink ? "#f97316" : "#fde047") : "#b91c1c"); });
+    if (!rm.graph && rm.last) dot(X + (RW - 1) * P + P / 2, Y + rm.east.y * P + P / 2, 5, foesLeft(s) === 0 ? "#f97316" : "#7f1d1d");
+    if (r.i === ms.room && ms.cap === "follow") dot(X + (CAP.x + .5) * P, Y + (CAP.y + .5) * P, 3, "#f472b6");
+    if (r.i === ms.room) dot(X + (MS.x + .5) * P, Y + (MS.y + .5) * P, 4, "#ffffff");
   });
 }
 setInterval(() => { if (S.screen === "map") drawMini(); }, 400);
+
+/* ===================== BIG MAP =====================
+   Hold Tab to spread the whole floor map over the screen; let go and it
+   tucks back into the corner. On a phone, tap the corner map to open it,
+   and tap again (anywhere) to close.                                      */
+const BIG = { on: false, raf: 0, last: 0, via: "" };
+function bigEl() {
+  let el = document.getElementById("twBig");
+  if (el) return el;
+  el = document.createElement("div");
+  el.id = "twBig"; el.className = "tw-big"; el.setAttribute("aria-hidden", "true");
+  const key = (c, t) => `<span><i style="background:${c}"></i>${t}</span>`;
+  el.innerHTML = `<div class="tw-bigcard"><div class="tw-bighead"><span class="eyebrow" id="twBigTitle"></span><span class="tw-bighint" id="twBigHint"></span></div>
+    <div class="tw-bigcv"><canvas id="twBigCv"></canvas></div>
+    <div class="tw-bigkey">${key("#ffffff", "You")}${key("#ef4444", "Foe")}${key("#facc15", "Chest")}${key("#22d3ee", "Shrine")}${key("#f472b6", "Captive")}${key("#b91c1c", "Boss door")}</div></div>`;
+  el.addEventListener("click", () => bigMap(false));
+  document.body.appendChild(el);
+  return el;
+}
+function bigDraw() {
+  const cv = document.getElementById("twBigCv"), box = cv && cv.parentElement;
+  if (!cv) return;
+  drawMini(cv, 4);
+  // fit the pixel map into the card without blurring it
+  const aw = box.clientWidth - 24, ah = box.clientHeight - 24;
+  if (!aw || !ah) return;
+  const sc = Math.min(aw / cv.width, ah / cv.height, 3);
+  cv.style.width = Math.floor(cv.width * sc) + "px"; cv.style.height = Math.floor(cv.height * sc) + "px";
+}
+function bigLoop(now) {
+  if (!BIG.on || S.screen !== "map") { BIG.raf = 0; if (BIG.on) bigMap(false); return; }
+  if (now - BIG.last > 90) { BIG.last = now; bigDraw(); }
+  BIG.raf = requestAnimationFrame(bigLoop);
+}
+function bigMap(on, via) {
+  if (on && (S.screen !== "map" || !S.battle || !S.battle.s.v3 || !S.battle.s.map)) return;
+  if (!!on === BIG.on) return;
+  BIG.on = !!on; BIG.via = via || "";
+  const el = bigEl(), s = S.battle && S.battle.s;
+  if (on) {
+    document.getElementById("twBigTitle").textContent = floorTitle(s, s.floor);
+    document.getElementById("twBigHint").textContent = via === "key" ? "Let go of Tab to close" : "Tap anywhere to close";
+    bigDraw();
+    requestAnimationFrame(() => { el.classList.add("on"); bigDraw(); });
+    if (!BIG.raf) BIG.raf = requestAnimationFrame(bigLoop);
+    sfx.tick && sfx.tick();
+  } else el.classList.remove("on");
+}
+document.addEventListener("keydown", ev => {
+  if (ev.key !== "Tab" || S.screen !== "map" || modalOpen() || S.picker) return;
+  const tg = ev.target; if (tg && (tg.tagName === "INPUT" || tg.tagName === "TEXTAREA")) return;
+  ev.preventDefault(); ev.stopImmediatePropagation();
+  if (!ev.repeat) bigMap(true, "key");
+}, true);
+document.addEventListener("keyup", ev => { if (ev.key === "Tab" && BIG.via === "key") bigMap(false); }, true);
+window.addEventListener("blur", () => { if (BIG.via === "key") bigMap(false); });
+document.addEventListener("click", ev => {
+  if (!ev.target.closest || !ev.target.closest("#twMini")) return;
+  if (S.picker) return;
+  bigMap(!BIG.on, "tap");
+});
 
 /* ===================== RENDER HOOK: boss effects + minimap ===================== */
 const _twRender = render;
@@ -2115,6 +2319,7 @@ render = function () {
   const b = S.battle;
   document.body.classList.remove("bfx-fog", "bfx-quake", "bfx-shadow", "bfx-heal", "bfx-fury");
   if (S.screen === "map") drawMini();
+  else if (BIG.on) bigMap(false);
   if (S.screen === "battle" && b && b.bossFx && !S.feedback && b.enemy && b.enemy.boss) {
     document.body.classList.add("bfx-" + b.bossFx);
     const ar = document.getElementById("arena");
@@ -2132,8 +2337,29 @@ render = function () {
   .tw-stairs:hover { background: rgba(10,8,16,.75); transform: translateY(-1px); }
   .tw-stairs:active { transform: scale(.94); }
   .tw-qstairs { opacity: .85; }
-  .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; max-height: 40%; width: auto; height: auto; opacity: .88; image-rendering: pixelated; pointer-events: none;
-    padding: 5px; border-radius: 9px; background: rgba(10,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .tw-mini { position: absolute; top: 8px; right: 8px; z-index: 3; max-width: 46%; max-height: 40%; width: auto; height: auto; opacity: .88; image-rendering: pixelated; cursor: zoom-in;
+    padding: 5px; border-radius: 9px; background: rgba(10,8,16,.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); transition: opacity .2s ease, transform .2s ease; }
+  .tw-mini:hover { opacity: 1; }
+  .tw-mini:active { transform: scale(.96); }
+  .tw-big { position: fixed; inset: 0; z-index: 62; display: grid; place-items: center; padding: 18px 12px; cursor: zoom-out;
+    background: rgba(6,4,12,.42); backdrop-filter: blur(10px) saturate(1.2); -webkit-backdrop-filter: blur(10px) saturate(1.2);
+    opacity: 0; visibility: hidden; transition: opacity .28s ease, visibility 0s linear .28s; }
+  .tw-big.on { opacity: 1; visibility: visible; transition: opacity .28s ease, visibility 0s; }
+  .tw-bigcard { width: min(94vw, 980px); height: min(84vh, 720px); display: flex; flex-direction: column; gap: 10px; padding: 14px 14px 12px; border-radius: 20px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--surface) 78%, transparent), color-mix(in srgb, var(--surface) 52%, transparent));
+    border: 1px solid color-mix(in srgb, var(--text) 18%, transparent); color: var(--text);
+    box-shadow: 0 24px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.22);
+    transform: scale(.9) translateY(10px); opacity: 0; transition: transform .34s cubic-bezier(.2,.9,.3,1.12), opacity .26s ease; }
+  .tw-big.on .tw-bigcard { transform: none; opacity: 1; }
+  .tw-bighead { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 0 4px; }
+  .tw-bighead .eyebrow { color: var(--star); }
+  .tw-bighint { font-size: 12px; opacity: .7; }
+  .tw-bigcv { flex: 1; min-height: 0; display: grid; place-items: center; border-radius: 14px; background: rgba(12,9,20,.88); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+  .tw-bigcv canvas { image-rendering: pixelated; }
+  .tw-bigkey { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 14px; font-size: 12px; opacity: .85; }
+  .tw-bigkey span { display: inline-flex; align-items: center; gap: 5px; }
+  .tw-bigkey i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; box-shadow: 0 0 0 1px rgba(0,0,0,.35); }
+  @media (prefers-reduced-motion: reduce) { .tw-bigcard { transition: opacity .2s ease; transform: none; } }
   .tw-prog { margin: 2px 0 8px; }
   .tw-proghead { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
   .tw-proghead b { color: var(--star); }

@@ -69,6 +69,14 @@ Object.assign(SPRITES, {
   m_npc: { pal: { o: "#1c1410", h: "#7c2d12", s: "#f5c9a5", e: "#1c1917", c: "#4d7c0f", C: "#65a30d", b: "#422006", g: "#c49b44", w: "#8a5a2b", y: "#fde68a" }, rows: [
     "....oooo...y", "...ohhhho..y", "..ohhhhhho.w", "..ohssssho.w", "..ohesseho.w", "..ohssssho.w", "..ohhcchho.w",
     "..occCCcco.w", ".occCCCCccow", ".osggggggsss", ".occCCCCccow", "..occCCcco.w", "..obboobbo.w", "..oooooooo.w"] },
+  // a captive waiting to be rescued: same build as the traveler, bound in rope
+  m_captive: { pal: { o: "#1c1410", h: "#6b3e1f", s: "#f5c9a5", e: "#1c1917", c: "#2563eb", C: "#60a5fa", b: "#334155", r: "#e2c27a", R: "#9a7434" }, rows: [
+    "....oooo....", "...ohhhho...", "..ohhhhhho..", "..ohssssho..", "..osesseso..", "..osssssso..", "...osssso...",
+    "..occcccco..", ".oRrRrrRrRo.", ".occCCCCcco.", ".orRrRRrRro.", "..obboobbo..", "..oRrRRrRo..", "..oooooooo.."] },
+  // ...and once freed, arms loose and ready to walk
+  m_rescued: { pal: { o: "#1c1410", h: "#6b3e1f", s: "#f5c9a5", e: "#1c1917", c: "#2563eb", C: "#60a5fa", b: "#334155" }, rows: [
+    "....oooo....", "...ohhhho...", "..ohhhhhho..", "..ohssssho..", "..osesseso..", "..osssssso..", "...osssso...",
+    "..occcccco..", ".occCCCCcco.", ".oscCCCCcso.", "..occCCcco..", "..obboobbo..", "..obboobbo..", "..oooooooo.."] },
 });
 Object.assign(VARIANTS, {
   "m_rock~lava":   { a: "#3b2a26", A: "#57403a", b: "#1c1412" },
@@ -681,7 +689,7 @@ function viewMap() {
   } else if (b.lvl) panel = viewLevelUp();
   const help = S.mapHelpOpen ? `<div class="maphelpwrap"><div class="maphelp tex fbpop">
       <div class="eyebrow" style="margin-bottom:6px;color:var(--star)">Exploring</div>
-      <div class="dim" style="font-size:14px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Doors lead every direction: some need a key, and some rooms seal you in until you clear them. The <b>boss door</b> opens once every guardian is down and you've seen every question in the chapter (the meter below tracks it). Chests, shrines and strangers are optional, and secrets can sparkle anywhere. The stairs button (top left) lets you jump between floors.</div>
+      <div class="dim" style="font-size:14px;line-height:1.6">Walk with the <b>arrow keys</b> or <b>tap/click</b> where you want to go (hold to keep following). Walk into foes to fight. Press <b>Enter</b> or tap things to interact. Doors lead every direction: some need a key, and some rooms seal you in until you clear them. The <b>boss door</b> opens once every guardian is down and you've seen every question in the chapter (the meter below tracks it). Chests, shrines and strangers are optional, and secrets can sparkle anywhere. The stairs button (top left) lets you jump between floors. Hold <b>Tab</b> (or tap the little map in the corner) to see the whole floor big.</div>
       <label class="nohelp"><input type="checkbox" id="mapHelpNo"> Don't show this again</label>
       <button class="primary" data-act="mapHelpOk" style="background:var(--accent);margin-top:10px">Got it</button>
     </div></div>` : "";
@@ -923,6 +931,7 @@ function mapLoop(now) {
     else if (o.type === "chest") key = ms.opened.includes(o.id) ? "m_chestopen" : "m_chest";
     else if (o.type === "shrine") { key = ms.shrine === 0 ? "m_shrine" : "m_shrine~off"; bob = 0; }
     else if (o.type === "npc") { key = getSprite("m_npc~" + s.story) ? "m_npc~" + s.story : "m_npc"; flip = MS.x < o.x; }
+    else if (o.type === "captive") { if (ms.cap === "follow" || ms.cap === "home") return; key = "m_captive"; bob = Math.floor(MS.time * 1.5 + o.x) % 4 === 0 ? -1 : 0; }
     things.push({ y: o.y, draw: () => {
       const im = spriteImg(key, flip); if (!im) return;
       const ox = Math.round(o.ox || 0), oy = Math.round(o.oy || 0);     // a foe that walks around the room (the Arena) slides between tiles
@@ -932,6 +941,7 @@ function mapLoop(now) {
       if (o.type === "shrine" && ms.shrine === 0) { const ph = Math.floor(MS.time * 4) % 2; g.fillStyle = ph ? "#cffafe" : "#22d3ee"; g.fillRect(X + 5, Y - 3 - ph, 1, 1); g.fillRect(X + 7, Y - 2, 1, 1); }
       if (o.type === "npc" && (ms.quest === 0 || (ms.quest === 1 && ms.items >= ms.need))) { // ! only when he has something new for you
         const ph = Math.floor(MS.time * 2) % 2; g.fillStyle = "#facc15"; g.fillRect(X + 5, Y - 6 - ph, 2, 3); g.fillRect(X + 5, Y - 2 - ph, 2, 1); }
+      if (o.type === "captive" && !ms.cap) { const ph = Math.floor(MS.time * 2) % 2; g.fillStyle = "#f9a8d4"; g.fillRect(X + 5, Y - 6 - ph, 2, 3); g.fillRect(X + 5, Y - 2 - ph, 2, 1); }
       if (o.type === "chest" && !ms.opened.includes(o.id) && Math.floor(MS.time * 2) % 3 === 0) { g.fillStyle = "#fffbe6"; g.fillRect(X + 2 + Math.floor(MS.time * 7) % 6, Y + 1, 1, 1); }
     } });
   });
@@ -943,6 +953,7 @@ function mapLoop(now) {
     g.fillStyle = "rgba(0,0,0,.28)"; g.fillRect(Math.round(MS.x * T) + 3, Math.round(MS.y * T) + T - 3, T - 6, 3);
     g.drawImage(im, X, Y);
   } });
+  if (typeof mapThings === "function") mapThings(g, things, dt);      // extra walkers (a rescued captive)
   things.sort((a, c) => a.y - c.y).forEach(t => t.draw());
   // interaction hint over whatever you're next to
   const near = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => objAt(rm, MS.tx + dx, MS.ty + dy)).find(o => o && o.type !== "egg");
