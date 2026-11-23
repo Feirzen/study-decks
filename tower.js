@@ -1476,10 +1476,10 @@ const CAP_NAME = { classic: "Lost Traveler", shrunk: "Lab Intern", volcano: "You
 const CAP_CHANCE = 0.45, CAP_TRAP = 0.4, CAP_LAG = 2;
 function capName(s) { return CAP_NAME[s.story] || "Lost Traveler"; }
 function captiveAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.cp; }
-const _twEnsureMap5 = ensureMapState;
+const _capEnsureMap = ensureMapState;
 ensureMapState = function (run) {
   const fresh = !(run.map && run.map.floor === run.floor);
-  const ms = _twEnsureMap5(run);
+  const ms = _capEnsureMap(run);
   if (fresh && ms) ms.cp = true;
   return ms;
 };
@@ -1508,9 +1508,9 @@ function capFree(text) {
   persistMap();
   say(text + ` "Thank you! I'll stay right behind you. Get us past the boss and I'll make it worth your while."`, null, capName(s));
 }
-const _twInteract6 = interact;
+const _capInteract = interact;
 interact = function (o) {
-  if (!o || o.type !== "captive") return _twInteract6(o);
+  if (!o || o.type !== "captive") return _capInteract(o);
   const s = S.battle.s, ms = s.map, who = capName(s);
   if (ms.cap === "ambush") return say(`The ${floorInfo(s, s.floor).foes[o.foe].name} is still guarding the ropes.`, [{ label: "Fight it", act: "capFight" }], "Ambush!");
   return say(`Someone is tied up here, ropes from shoulders to ankles. "Please! Get me out of these!"`, [{ label: "Untie them", act: "capUntie" }], who);
