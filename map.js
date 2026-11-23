@@ -914,14 +914,15 @@ function mapLoop(now) {
       return;
     }
     let key = null, flip = false, bob = 0;
-    if (o.type === "foe") { key = o.key; flip = true; bob = Math.round(Math.sin(MS.time * 3 + o.x) * 1); }
+    if (o.type === "foe") { key = o.key; flip = o.flip != null ? o.flip : true; bob = Math.round(Math.sin(MS.time * 3 + o.x) * 1); }
     else if (o.type === "chest") key = ms.opened.includes(o.id) ? "m_chestopen" : "m_chest";
     else if (o.type === "shrine") { key = ms.shrine === 0 ? "m_shrine" : "m_shrine~off"; bob = 0; }
     else if (o.type === "npc") { key = getSprite("m_npc~" + s.story) ? "m_npc~" + s.story : "m_npc"; flip = MS.x < o.x; }
     things.push({ y: o.y, draw: () => {
       const im = spriteImg(key, flip); if (!im) return;
-      const X = o.x * T + Math.round((T - im.width) / 2), Y = o.y * T + T - im.height + bob;
-      g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(o.x * T + 3, o.y * T + T - 3, T - 6, 3);
+      const ox = Math.round(o.ox || 0), oy = Math.round(o.oy || 0);     // a foe that walks around the room (the Arena) slides between tiles
+      const X = o.x * T + ox + Math.round((T - im.width) / 2), Y = o.y * T + oy + T - im.height + bob;
+      g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(o.x * T + ox + 3, o.y * T + oy + T - 3, T - 6, 3);
       g.drawImage(im, X, Y);
       if (o.type === "shrine" && ms.shrine === 0) { const ph = Math.floor(MS.time * 4) % 2; g.fillStyle = ph ? "#cffafe" : "#22d3ee"; g.fillRect(X + 5, Y - 3 - ph, 1, 1); g.fillRect(X + 7, Y - 2, 1, 1); }
       if (o.type === "npc" && (ms.quest === 0 || (ms.quest === 1 && ms.items >= ms.need))) { // ! only when he has something new for you

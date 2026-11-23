@@ -520,9 +520,22 @@ function genGraphFloor(run, seed) {
     // or the Echo Hall, built from questions you've missed (its own dice, only once you have a few misses)
     if (tr && (tr.trial === "fight" || tr.trial === "torch") && echoAllowed(run)) { const R5 = rng32((seed ^ 0x5bd1e995) >>> 0); if (R5() < 0.35) tr.trial = "echo"; }
   }
+  // the Arena: a second sealed room where foes walk out at you in waves (its own dice, only on floors started after it shipped)
+  if (arenaAllowed(run)) {
+    const R6 = rng32((seed ^ 0x27d4eb2f) >>> 0);
+    if (R6() < 0.3) { const ar = shuffled(rooms.filter(r => r.idx !== 0 && r.idx !== bc.i && !r.trial), R6)[0]; if (ar) arenaRoom(R6, ar); }
+  }
+  // the Winding Hall: a room whose doors loop back into itself until you follow the statue (same deal: own dice, newer floors only)
+  if (loopAllowed(run)) {
+    const R7 = rng32((seed ^ 0x165667b1) >>> 0);
+    if (R7() < 0.3) {
+      const lr = shuffled(rooms.filter(r => r.idx !== 0 && r.idx !== bc.i && !r.trial && r.doors.filter(d => !d.boss && !d.lock).length >= 2), R7)[0];
+      if (lr) loopRoom(R7, lr, at);
+    }
+  }
   // 7. foes: none in the start room, a pair in a fight trial, the rest spread out
   const foes = fi.foes.map((f, i) => ({ id: "f" + i, type: "foe", foe: i, key: f.key, name: f.name }));
-  const others = rooms.filter(r => r.idx !== 0);
+  const others = rooms.filter(r => r.idx !== 0 && r.trial !== "arena");
   foes.forEach((f, i) => {
     const fight = rooms.find(r => r.trial === "fight");
     let r = fight && i < 2 ? fight : others[(i + Math.floor(R() * others.length)) % others.length];
@@ -550,7 +563,7 @@ function genGraphFloor(run, seed) {
     if (R() < 0.5 && !opts.some(o => o.type === "shrine")) opts.push({ id: "s0", type: "shrine", room: Math.floor(R() * n) });
   }
   opts.forEach(o => placeObj(R, rooms[o.room], o, {}));          // anywhere in the room, not just along walls
-  rooms.forEach(rm => { if (rm.trial !== "maze" && rm.trial !== "chasm") placeProps(R, rm, look); });
+  rooms.forEach(rm => { if (rm.trial !== "maze" && rm.trial !== "chasm" && rm.trial !== "arena") placeProps(R, rm, look); });
   rooms.forEach(rm => rm.trial !== "maze" && rm.trial !== "chasm" && placeTorches(R, rm, F.dark || rm.trial === "echo" ? 7 : (st.scene === "castle" || st.scene === "mountains") ? 3 : 0));
   // foes that showed up later in this visit come back after a reload
   const ms = run.map;
@@ -614,6 +627,7 @@ function bumpG(d) {
   sfx.bBlock && sfx.bBlock();
   if (trialOn(s, rm.idx) && rm.trial === "stones") return say(`The doors are sealed shut. Answer ${STONE_NEED} questions on the stones to break the seal (${s.map.stn || 0} so far).`);
   if (trialOn(s, rm.idx) && rm.trial === "chasm") return say("The doors are sealed shut. Cross the bridges and pull the lever on the island to break the seal.");
+  if (trialOn(s, rm.idx) && rm.trial === "arena") return say(`The gates are barred. Beat all ${ARENA_WAVES} challengers to open them (${arenaBeaten(ms, rm)} down so far).`);
   if (trialOn(s, rm.idx) && rm.trial === "echo") return say(`The doors are sealed shut. Answer the echo mirrors to break the seal (${echoLit(s.map, rm)}/${ECHO_N} cleared).`);
   if (trialOn(s, rm.idx)) return say(rm.trial === "torch" ? "The doors are sealed shut. Light every brazier in this room to break the seal." : rm.trial === "maze" ? "The doors are sealed shut. Find the glowing rune somewhere in this labyrinth to break the seal." : "The doors are sealed shut. Defeat everything in this room to break the seal.");
   if (d.boss) {
@@ -684,12 +698,14 @@ function trialEnter(rm) {
   const s = S.battle.s, ms = s.map;
   if (!rm.trial) return;
   ms.trials = ms.trials || {};
+  if (rm.trial === "arena" && ms.trials[rm.idx] === "on") return arenaBack(rm);
   if (ms.trials[rm.idx]) return;
   if (rm.trial === "fight" && !roomFoesLeft(s, rm.idx)) { ms.trials[rm.idx] = "done"; return; }
   ms.trials[rm.idx] = "on";
   sfx.bBoss && sfx.bBoss();
   if (rm.trial === "stones") { S.stoneQ = null; setTimeout(() => { say("The doors slam shut! Four stones are set into the floor, each carved with a letter. Read the question below the map, then walk onto the stone with your answer and stand still. Get " + STONE_NEED + " right to break the seal.", null, "The Answer Stones"); }, 240); return; }
   if (rm.trial === "echo") { setTimeout(() => say("The doors slam shut, and the torches gutter low. Three dark mirrors line the hall. Each one whispers back a question you've missed before. Answer them to break the seal.", null, "The Echo Hall"), 240); return; }
+  if (rm.trial === "arena") { AR.wait = 0.9; setTimeout(() => say(`The gates slam shut and a crowd roars from the stands! You're in the arena. Challengers will walk out from the far side and come right at you, one at a time. Beat all ${ARENA_WAVES} to open the gates.`, null, "The Arena"), 240); return; }
   if (rm.trial === "chasm") { setTimeout(() => say("The doors slam shut, and the floor falls away into the dark! Narrow bridges lead to an island with a lever. Cracked planks block the way: answer to brace one. Miss, and it snaps and drops you back by the door.", null, "The Chasm"), 240); return; }
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
@@ -700,12 +716,14 @@ function trialCheck() {
   const b = S.battle; if (!b || !b.s.map) return;
   const s = b.s, ms = s.map, rm = curRoom();
   if (!trialOn(s, rm.idx)) return;
-  const done = rm.trial === "stones" ? (ms.stn || 0) >= STONE_NEED
+  const done = rm.trial === "arena" ? arenaBeaten(ms, rm) >= ARENA_WAVES
+    : rm.trial === "stones" ? (ms.stn || 0) >= STONE_NEED
     : rm.trial === "torch" ? rm.objs.filter(o => o.type === "brazier").every(o => (ms.lit || []).includes(o.id))
     : rm.trial === "chasm" ? rm.objs.some(o => o.type === "lever" && (ms.lit || []).includes(o.id))
     : rm.trial === "echo" ? echoLit(ms, rm) >= rm.objs.filter(o => o.type === "echo").length
     : rm.trial === "maze" ? rm.objs.some(o => o.type === "rune" && (ms.lit || []).includes(o.id)) : !roomFoesLeft(s, rm.idx);
   if (!done) return;
+  if (rm.trial === "arena") return arenaWin(s, rm);
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
   sfx.bVictory && sfx.bVictory();
   say("The seal breaks and the doors grind open. (+15 XP)", null, "Trial cleared");
@@ -1461,6 +1479,424 @@ function drawEchoHall(g, rm, s) {
   });
 }
 
+/* ---------- the Arena: a colosseum where challengers walk out at you ----------
+   Sand floor, stands full of a cheering crowd, a few pillars. The gates slam shut,
+   then one foe at a time walks out from the far side and comes after you. Touch
+   it (or let it reach you) for a normal question fight. Beat all three and the
+   gates open, with a little reward. Only on floor visits started after it shipped (map.ar). */
+const ARENA_WAVES = 3;
+function arenaAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.ar; }
+/* the Winding Hall shares the same rule (map.lw) */
+function loopAllowed(run) { const ms = run.map; return !(ms && ms.floor === run.floor) || !!ms.lw; }
+const _twEnsureMap5 = ensureMapState;
+ensureMapState = function (run) {
+  const fresh = !(run.map && run.map.floor === run.floor);
+  const ms = _twEnsureMap5(run);
+  if (fresh && ms) { ms.ar = true; ms.lw = true; }
+  return ms;
+};
+function arenaRoom(R, rm) {
+  const g = [];
+  for (let y = 0; y < RH; y++) { g.push([]); for (let x = 0; x < RW; x++) g[y].push(1); }
+  const cx = Math.floor(RW / 2), cy = Math.floor(RH / 2);
+  // an oval of sand with room for the stands all around it
+  for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) if (((x - cx) / 10) ** 2 + ((y - cy) / 5.6) ** 2 <= 1) g[y][x] = 0;
+  // a tunnel from every door straight through the stands
+  const inw = { e: [-1, 0], w: [1, 0], n: [0, 1], s: [0, -1] };
+  rm.doors.forEach(d => {
+    g[d.y][d.x] = 0;
+    let { x, y } = doorInner(d), k = 0;
+    while (g[y][x] && k++ < 30) { g[y][x] = 0; x += inw[d.side][0]; y += inw[d.side][1]; }
+  });
+  // four pillars to dodge around (sometimes two)
+  const pil = [[-6, -3], [6, 3], [6, -3], [-6, 3]].slice(0, R() < 0.3 ? 2 : 4).map(([dx, dy]) => ({ x: cx + dx, y: cy + dy }));
+  pil.forEach(p => { g[p.y][p.x] = 1; });
+  const reach = flood(g, cx, cy);
+  if (rm.doors.some(d => { const i = doorInner(d); return !reach[i.y][i.x]; })) return;
+  rm.g = g; rm.trial = "arena"; rm.shape = "colosseum"; rm.props = []; rm.start = { x: cx, y: cy }; rm.pillars = pil;
+}
+const AR = { at: "", wait: 0, step: 0, anim: null, engage: 0, cheer: 0 };
+function arenaId(rm, n) { return "a" + rm.idx + "w" + n; }
+function arenaBeaten(ms, rm) { let n = 0; for (let i = 0; i < ARENA_WAVES; i++) if (ms.cleared.includes(arenaId(rm, i))) n++; return n; }
+function arenaLive(ms, rm) { return rm.objs.find(o => o.type === "foe" && /^a\d+w\d$/.test(o.id) && !ms.cleared.includes(o.id)) || null; }
+// the open sand tile farthest from you (by walking distance)
+function arenaFar(rm) {
+  const bl = roomBlocked(rm), dist = {}, q = [[MS.tx, MS.ty]]; dist[MS.tx + "," + MS.ty] = 0;
+  const ins = rm.doors.map(d => doorInner(d));
+  let best = null, bd = -1;
+  while (q.length) {
+    const [x, y] = q.shift(), dd = dist[x + "," + y];
+    if (dd > bd && !bl[y + "," + x] && !ins.some(i => Math.abs(i.x - x) + Math.abs(i.y - y) < 3)) { bd = dd; best = { x, y }; }
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, ny = y + dy, k = nx + "," + ny;
+      if (nx < 1 || ny < 1 || nx > RW - 2 || ny > RH - 2 || rm.g[ny][nx] || k in dist || bl[ny + "," + nx]) continue;
+      dist[k] = dd + 1; q.push([nx, ny]);
+    }
+  }
+  return best || { x: rm.start.x, y: rm.start.y };
+}
+function arenaPlace(ms, rm, o) {
+  const t = arenaFar(rm);
+  o.x = t.x; o.y = t.y; o.ox = 0; o.oy = 0; o.flip = MS.x < o.x;
+  const ex = (ms.extra || []).find(x => x.id === o.id); if (ex) { ex.x = o.x; ex.y = o.y; }
+  AR.anim = null; AR.step = 0.9; AR.engage = 0;
+  MS.burst = { x: o.x, y: o.y, t: 0 };
+}
+function arenaSpawn(s, rm) {
+  const ms = s.map, n = arenaBeaten(ms, rm), fi = floorInfo(s, s.floor), id = arenaId(rm, n);
+  const pool = fi.foes.map((f, i) => ({ f, i })).filter(x => !x.f.gold);
+  const pick = pool[(rm.idx * 3 + n * 5 + s.floor) % pool.length];
+  let o = rm.objs.find(x => x.id === id);
+  if (!o) {
+    o = { id, type: "foe", foe: pick.i, key: pick.f.key, name: pick.f.name };
+    rm.objs.push(o);
+    (ms.extra = ms.extra || []).push({ id, room: rm.idx, x: 0, y: 0, foe: o.foe, key: o.key, name: o.name });
+  }
+  arenaPlace(ms, rm, o);
+  AR.cheer = 1.8;
+  sfx.bStart && sfx.bStart();
+  twToast(`Challenger ${n + 1} of ${ARENA_WAVES}: ${o.name} steps into the arena!`);
+  persistMap();
+}
+// coming back in after a knockout: the challenger goes back to its corner
+function arenaBack(rm) {
+  const s = S.battle.s, ms = s.map, live = arenaLive(ms, rm);
+  if (live) arenaPlace(ms, rm, live); else AR.wait = 1;
+  setTimeout(() => say(`The crowd roars as you walk back in. ${arenaBeaten(ms, rm)} of ${ARENA_WAVES} challengers down.`, null, "The Arena"), 240);
+}
+function arenaWin(s, rm) {
+  const ms = s.map, mx = maxHpOf(s, S.battle.h), heal = Math.min(mx - s.hp, Math.round(mx * 0.3));
+  ms.trials[rm.idx] = "done"; grantXp(25);
+  if (heal > 0) s.hp += heal;
+  persistMap();
+  AR.cheer = 3;
+  sfx.bVictory && sfx.bVictory();
+  say(`The crowd goes wild and the gates grind open! Someone tosses you a flask from the stands. (+25 XP${heal > 0 ? ", +" + heal + " HP" : ""})`, null, "Arena cleared");
+}
+// runs every frame: send out the next challenger, and walk the current one toward you
+function arenaTick(dt) {
+  AR.cheer = Math.max(0, AR.cheer - dt);
+  const b = S.battle; if (!b || !b.s.map || S.screen !== "map") return;
+  const s = b.s, ms = s.map, rm = curRoom();
+  if (!rm || rm.trial !== "arena" || !trialOn(s, rm.idx)) return;
+  const at = s.created + ":" + s.floor + ":" + rm.idx;
+  if (AR.at !== at) { AR.at = at; AR.anim = null; AR.engage = 0; if (AR.wait <= 0) AR.wait = 0.9; }
+  if (AR.anim) {                                             // slide between tiles
+    const A = AR.anim; A.t = Math.min(1, A.t + dt / A.dur);
+    const k = 1 - (1 - A.t) * (1 - A.t);
+    A.o.ox = (A.fx - A.o.x) * T * (1 - k); A.o.oy = (A.fy - A.o.y) * T * (1 - k);
+    if (A.t >= 1) { A.o.ox = 0; A.o.oy = 0; AR.anim = null; }
+  }
+  if (mapBusy() || S.mapDlg || S.picker) return;
+  const live = arenaLive(ms, rm);
+  if (!live) {
+    if (arenaBeaten(ms, rm) >= ARENA_WAVES) return trialCheck();
+    AR.wait -= dt;
+    if (AR.wait <= 0) arenaSpawn(s, rm);
+    return;
+  }
+  // it reached you: a beat to see it coming, then the fight
+  if (adjacent(live.x, live.y, MS.tx, MS.ty) && MS.t >= 1 && !AR.anim) {
+    AR.engage += dt;
+    if (AR.engage > 0.35) { AR.engage = 0; AR.wait = 1.2; live.flip = MS.x < live.x; MS.path = []; MS.goal = null; MS.keyDir = null; startMapFight(live); }
+    return;
+  }
+  AR.engage = 0;
+  AR.step -= dt; if (AR.step > 0 || AR.anim) return;
+  const n = arenaBeaten(ms, rm), every = [0.62, 0.52, 0.44][Math.min(2, n)];
+  AR.step = every;
+  const p = bfs(rm, live.x, live.y, (x, y) => adjacent(x, y, MS.tx, MS.ty));
+  if (!p || !p.length) return;
+  const [nx, ny] = p[0];
+  if ((nx === MS.tx && ny === MS.ty) || (nx === Math.round(MS.x) && ny === Math.round(MS.y))) return;
+  AR.anim = { o: live, fx: live.x, fy: live.y, t: 0, dur: Math.min(0.34, every * 0.7) };
+  live.x = nx; live.y = ny; live.flip = MS.x < nx || (MS.x === nx && live.flip);
+  const ex = (ms.extra || []).find(x => x.id === live.id); if (ex) { ex.x = nx; ex.y = ny; }
+}
+// no swaying grass on the sand
+const _twRoomAmb = roomAmb;
+roomAmb = function (run, ri) { const a = _twRoomAmb(run, ri), rm = floorData(run).rooms[ri]; return a === "grass" && rm && rm.trial === "arena" ? "parts" : a; };
+const _twMapTick = mapTick;
+mapTick = function (dt) { arenaTick(dt); return _twMapTick(dt); };
+// no surprise extra foes in the arena while the gates are shut
+const _twSpawnCheck = spawnCheck;
+spawnCheck = function (ri, entering) {
+  const s = S.battle.s, rm = floorData(s).rooms[ri];
+  if (rm && rm.trial === "arena" && !(s.map.trials && s.map.trials[ri] === "done")) return;
+  return _twSpawnCheck(ri, entering);
+};
+/* the look: sand, a low wall, tiers of seats with a crowd that cheers, pillars, banners */
+function arenaLayer(rm) {
+  const key = "ar:" + mapSeed(S.battle.s) + ":" + rm.idx;
+  if (MS.cache[key]) return MS.cache[key];
+  const c = document.createElement("canvas"); c.width = RW * T; c.height = RH * T;
+  const g = c.getContext("2d"), R = rng32(hashStr(key)), px = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x, y, w, h); };
+  const pil = {}; (rm.pillars || []).forEach(p => { pil[p.x + "," + p.y] = 1; });
+  const near = (x, y) => {                                   // how far a wall tile is from the sand
+    let best = 9;
+    for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+      const X = x + dx, Y = y + dy;
+      if (X < 0 || Y < 0 || X >= RW || Y >= RH || rm.g[Y][X] || pil[X + "," + Y]) continue;
+      best = Math.min(best, Math.max(Math.abs(dx), Math.abs(dy)));
+    }
+    return best;
+  };
+  const crowd = [], CC = ["#b91c1c", "#1d4ed8", "#ca8a04", "#15803d", "#c2410c", "#7e22ce", "#e7e5e4"], SK = ["#f5c9a5", "#d39b78", "#8d5b3c", "#f1d3b3"];
+  for (let y = 0; y < RH; y++) for (let x = 0; x < RW; x++) {
+    const X = x * T, Y = y * T;
+    if (!rm.g[y][x]) {
+      px(X, Y, T, T, R() < 0.5 ? "#d8b77e" : "#d2ae72");
+      for (let i = 0; i < 6; i++) px(X + Math.floor(R() * T), Y + Math.floor(R() * T), 1, 1, R() < 0.5 ? "#b8935a" : "#e9d1a0");
+      if (R() < 0.12) { const a = X + 2 + Math.floor(R() * 8), b2 = Y + 3 + Math.floor(R() * 10); px(a, b2, 5, 1, "#c29d63"); }
+      continue;
+    }
+    if (pil[x + "," + y]) continue;
+    const d = near(x, y);
+    if (d === 1) {                                         // the low arena wall
+      px(X, Y, T, T, "#9c7c52");
+      for (let r = 0; r < 4; r++) { px(X, Y + r * 4, T, 1, "#7a5f3c"); px(X + (r % 2 ? 0 : 8), Y + r * 4, 1, 4, "#7a5f3c"); px(X + 1, Y + r * 4 + 1, T - 2, 1, "#b8986a"); }
+    } else if (d <= 3) {                                   // seats, with people on them
+      px(X, Y, T, T, d === 2 ? "#7a6243" : "#6a5439");
+      for (let r = 0; r < T; r += 8) { px(X, Y + r, T, 1, "#97805c"); px(X, Y + r + 7, T, 1, "#4f3e29"); }
+      for (let i = 0; i < 2; i++) if (R() < 0.55) crowd.push({ x: X + 2 + i * 7 + Math.floor(R() * 3), y: Y + 2 + Math.floor(R() * 2) * 8, c: CC[Math.floor(R() * CC.length)], s: SK[Math.floor(R() * SK.length)], ph: R() * 6.28 });
+    } else px(X, Y, T, T, "#2a2117");                      // the dark back rows
+  }
+  // banners hanging on the wall over the sand
+  for (let x = 3; x < RW - 3; x += 5) {
+    let y = 1; while (y < RH - 1 && rm.g[y + 1][x]) y++;
+    if (y >= RH - 2 || !rm.g[y][x] || near(x, y) !== 1 || rm.doors.some(d => Math.abs(d.x - x) <= 1)) continue;
+    const X = x * T + 4, Y = y * T + 1;
+    px(X - 1, Y, 10, 2, "#facc15"); px(X, Y + 2, 8, 10, "#b91c1c"); px(X, Y + 12, 3, 2, "#b91c1c"); px(X + 5, Y + 12, 3, 2, "#b91c1c");
+    px(X + 3, Y + 5, 2, 4, "#facc15"); px(X + 2, Y + 6, 4, 2, "#facc15");
+  }
+  // a ring painted on the sand
+  g.strokeStyle = "rgba(150,110,60,.35)"; g.lineWidth = 2;
+  g.beginPath(); g.ellipse(rm.start.x * T + 8, rm.start.y * T + 8, 40, 24, 0, 0, Math.PI * 2); g.stroke();
+  return (MS.cache[key] = { c, crowd });
+}
+function drawArena(g, rm, s) {
+  const L = arenaLayer(rm), t = MS.time, cheer = AR.cheer > 0;
+  g.drawImage(L.c, 0, 0);
+  for (const p of L.crowd) {
+    const j = cheer ? Math.max(0, Math.round(Math.sin(t * 9 + p.ph) * 1.6)) : (Math.sin(t * 1.3 + p.ph) > 0.92 ? 1 : 0);
+    g.fillStyle = p.c; g.fillRect(p.x, p.y + 3 - j, 4, 3);
+    g.fillStyle = p.s; g.fillRect(p.x + 1, p.y + 1 - j, 2, 2);
+    if (cheer && j > 0) { g.fillRect(p.x - 1, p.y - j, 1, 2); g.fillRect(p.x + 4, p.y - j, 1, 2); }
+  }
+  // the pillars
+  (rm.pillars || []).forEach(p => {
+    const X = p.x * T, Y = p.y * T;
+    g.fillStyle = "#d5b278"; g.fillRect(X, Y, T, T);
+    g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(X + 2, Y + T - 3, T - 3, 3);
+    g.fillStyle = "#cdb48a"; g.fillRect(X + 1, Y + T - 4, T - 2, 4);
+    g.fillStyle = "#ead9b5"; g.fillRect(X + 4, Y - 6, 8, T + 2);
+    g.fillStyle = "#c9b28a"; g.fillRect(X + 9, Y - 6, 3, T + 2); g.fillRect(X + 6, Y - 6, 1, T + 2);
+    g.fillStyle = "#f3e6c8"; g.fillRect(X + 2, Y - 9, 12, 3);
+    g.fillStyle = "#cdb48a"; g.fillRect(X + 2, Y - 7, 12, 1);
+  });
+}
+
+/* ---------- the Winding Hall: a Lost Woods style trick room ----------
+   It looks like a normal room, plus a grand arch that's hard to miss. Every way
+   out except the one you came in by loops you right back into the same room from
+   the other side. An old statue points at the real way out, and faint footprints
+   lead there too. Follow them once and the hall lets you go for good. The door
+   you came in by always works, so you can never get stuck. */
+const LOOP_LINES = [
+  "Huh? You walked through... and you're right back in the same hall.",
+  "This hall again! The statue's stone finger hasn't moved.",
+  "Same hall. Maybe follow where the statue is pointing?",
+];
+const SIDE_WORD = { n: "north", s: "south", e: "east", w: "west" };
+function loopRoom(R, rm, at) {
+  const cx = Math.floor(RW / 2), cy = Math.floor(RH / 2);
+  // the trick arch goes on a side with no neighbour (north first, like the old games), never right beside a real door
+  const free = ["n", "e", "w", "s"].filter(sd => at[(rm.gx + GDIR[sd][0]) + "," + (rm.gy + GDIR[sd][1])] == null);
+  const sides = free.concat(["n", "e", "w", "s"].filter(sd => !free.includes(sd)));
+  let arch = null;
+  for (const sd of sides) {
+    const ew = sd === "e" || sd === "w", mid = ew ? cy : cx;
+    for (const off of [0, -3, 3, -5, 5]) {
+      const t = doorTile(sd, mid + off);
+      if (rm.doors.some(d => Math.abs(d.x - t.x) + Math.abs(d.y - t.y) < 4)) continue;
+      arch = { id: "lp", side: sd, fake: true, x: t.x, y: t.y }; break;
+    }
+    if (arch) break;
+  }
+  if (!arch) return;
+  // carve a way from the arch to the middle
+  const g = rm.g; let { x, y } = doorInner(arch);
+  g[arch.y][arch.x] = 0; g[y][x] = 0;
+  const ew = arch.side === "e" || arch.side === "w";
+  const stepX = () => { while (x !== cx) { x += Math.sign(cx - x); g[y][x] = 0; } }, stepY = () => { while (y !== cy) { y += Math.sign(cy - y); g[y][x] = 0; } };
+  if (ew) { stepX(); stepY(); } else { stepY(); stepX(); }
+  rm.doors.push(arch);
+  rm.loop = true;
+  // the statue stands near the middle
+  const st = { id: "lps", type: "statue" };
+  const spots = freeTiles(rm).sort((a, b) => (Math.abs(a.x - cx) + Math.abs(a.y - cy)) - (Math.abs(b.x - cx) + Math.abs(b.y - cy)) || a.y - b.y || a.x - b.x);
+  for (const t of spots.slice(0, 20)) { st.x = t.x; st.y = t.y; rm.objs.push(st); if (roomOk(rm)) return; rm.objs.pop(); }
+  placeObj(R, rm, st, {});
+}
+function loopDone(s, rm) { return !!(s.map && s.map.trials && s.map.trials[rm.idx] === "done"); }
+// which door counts as the way out depends on the door you came in by
+function loopArm(s, rm, inId) {
+  const ms = s.map; ms.lp = ms.lp || {};
+  const ul = ms.ul || [], L = ms.lp[rm.idx] || (ms.lp[rm.idx] = { n: 0 });
+  const outs = rm.doors.filter(d => !d.fake && !d.boss && d.id !== inId && (!d.lock || ul.includes(d.id)));
+  L.in = inId;
+  L.to = outs.length ? outs[hashStr(inId + ":" + rm.idx + ":" + (s.created || 0)) % outs.length].id : null;
+  return L;
+}
+function loopState(s, rm) {
+  const L = s.map.lp && s.map.lp[rm.idx];
+  if (L && L.in) return L;
+  const near = rm.doors.filter(d => !d.fake).sort((a, b) => (Math.abs(a.x - MS.tx) + Math.abs(a.y - MS.ty)) - (Math.abs(b.x - MS.tx) + Math.abs(b.y - MS.ty)))[0];
+  return loopArm(s, rm, near ? near.id : "");
+}
+// where you pop back in: the spot across the room from the door you took
+function loopSpot(rm, d) {
+  const want = d.side === "n" ? { x: d.x, y: RH - 2 } : d.side === "s" ? { x: d.x, y: 1 } : d.side === "e" ? { x: 1, y: d.y } : { x: RW - 2, y: d.y };
+  const reach = flood(rm.g, rm.start.x, rm.start.y, roomBlocked(rm));
+  let best = rm.start, bd = 999;
+  for (let y = 1; y < RH - 1; y++) for (let x = 1; x < RW - 1; x++) {
+    if (!reach[y][x]) continue;
+    const dd = Math.abs(x - want.x) + Math.abs(y - want.y);
+    if (dd < bd) { bd = dd; best = { x, y }; }
+  }
+  return best;
+}
+function loopBack(d) {
+  const s = S.battle.s, ms = s.map, rm = curRoom(), L = loopState(s, rm);
+  MS.fadeTo = { r: ms.room }; MS.fade = 0; MS.path = []; MS.goal = null;
+  sfx.tick();
+  setTimeout(() => {
+    const t = loopSpot(rm, d);
+    MS.tx = MS.x = t.x; MS.ty = MS.y = t.y; MS.t = 1;
+    if (d.side === "e" || d.side === "w") MS.dir = d.side === "e" ? 1 : -1;
+    MS.parts = []; MS.fadeTo = null;
+    L.n = (L.n || 0) + 1;
+    persistMap();
+    say(LOOP_LINES[Math.min(L.n, LOOP_LINES.length) - 1], null, "The Winding Hall");
+  }, 220);
+}
+const _twEnterRoomG = enterRoomG;
+enterRoomG = function (d) {
+  const s = S.battle.s, tg = floorData(s).rooms[d.to];
+  if (!tg || !tg.loop || loopDone(s, tg)) return _twEnterRoomG(d);
+  const L = loopArm(s, tg, d.id), first = !L.seen;
+  L.seen = true;
+  const r = _twEnterRoomG(d);
+  if (first) setTimeout(() => say("A quiet hall with an old stone statue in the middle, one arm pointing. Something about this place feels a little off...", null, "The Winding Hall"), 260);
+  return r;
+};
+const _twArrive2 = arrive;
+arrive = function () {
+  const rm = curRoom(), s = S.battle.s;
+  if (rm.loop && !loopDone(s, rm)) {
+    const d = doorAt(rm, MS.tx, MS.ty);
+    if (d && !d.boss) {
+      const L = loopState(s, rm);
+      if (d.fake || (L.to && d.id !== L.in && d.id !== L.to)) { s.map.x = MS.tx; s.map.y = MS.ty; return loopBack(d); }
+      if (L.to && d.id === L.to) {
+        s.map.trials = s.map.trials || {}; s.map.trials[rm.idx] = "done"; grantXp(12);
+        sfx.bArm && sfx.bArm();
+        twToast("You followed the statue and found the real way out! (+12 XP)");
+      }
+    }
+  }
+  return _twArrive2();
+};
+// once the trick is solved, the arch is just painted stone
+const _twDoorPass = doorPass;
+doorPass = function (s, rm, d) { if (d.fake) return !loopDone(s, rm); return _twDoorPass(s, rm, d); };
+const _twBumpG = bumpG;
+bumpG = function (d) {
+  if (d && d.fake) { sfx.bBlock && sfx.bBlock(); return say("The arch is just painted stone now. The trick is broken."); }
+  return _twBumpG(d);
+};
+const _twInteract6 = interact;
+interact = function (o) {
+  if (o && o.type === "statue") {
+    const s = S.battle.s, rm = curRoom();
+    if (loopDone(s, rm)) return say("The old statue just stands there now. Its work is done.", null, "Statue");
+    const L = loopState(s, rm), to = rm.doors.find(d => d.id === L.to);
+    if (!to) return say("The statue's finger points at a locked door. Maybe come back with a key.", null, "Statue");
+    return say(`An old stone statue. Its finger points to the ${SIDE_WORD[to.side]}, and faint footprints in the dust lead the same way.`, null, "Statue");
+  }
+  return _twInteract6(o);
+};
+// the path the footprints take, from the statue to the real way out
+const _lpPath = {};
+function loopPath(rm, from, to) {
+  const key = rm.idx + ":" + from.x + "," + from.y + ">" + to.x + "," + to.y;
+  if (_lpPath[key]) return _lpPath[key];
+  const bl = roomBlocked(rm), prev = {}, q = [[from.x, from.y]]; prev[from.x + "," + from.y] = null;
+  while (q.length) {
+    const [x, y] = q.shift();
+    if (x === to.x && y === to.y) break;
+    for (const [dx, dy] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
+      const nx = x + dx, ny = y + dy, k = nx + "," + ny;
+      if (nx < 1 || ny < 1 || nx > RW - 2 || ny > RH - 2 || rm.g[ny][nx] || k in prev || bl[ny + "," + nx]) continue;
+      prev[k] = x + "," + y; q.push([nx, ny]);
+    }
+  }
+  const out = []; let k = to.x + "," + to.y;
+  while (k && k in prev) { out.unshift(k.split(",").map(Number)); k = prev[k]; }
+  return (_lpPath[key] = out);
+}
+function drawArch(g, d, done) {
+  const X = d.x * T, Y = d.y * T, ew = d.side === "e" || d.side === "w", t = MS.time;
+  g.fillStyle = "#0b0a12"; g.fillRect(X, Y, T, T);
+  if (!done) {                                               // a soft shimmer inside, spilling light into the room: it looks like the way to go
+    const a = 0.35 + 0.2 * Math.sin(t * 2), i = doorInner(d);
+    g.globalAlpha = 0.12 + 0.06 * Math.sin(t * 2); g.fillStyle = "#a5b4fc";
+    g.beginPath(); g.arc(i.x * T + 8, i.y * T + 8, 20, 0, Math.PI * 2); g.fill();
+    g.globalAlpha = a; g.fillStyle = "#818cf8"; g.fillRect(X + 2, Y + 2, T - 4, T - 4);
+    g.globalAlpha = a * 0.8; g.fillStyle = "#e0e7ff"; g.fillRect(X + 5, Y + 4 + Math.round(Math.sin(t * 3) * 2), 2, 2); g.fillRect(X + 9, Y + 9 + Math.round(Math.cos(t * 2.4) * 2), 2, 2);
+    g.globalAlpha = 1;
+  } else { g.fillStyle = "#57534e"; g.fillRect(X + 2, Y + 2, T - 4, T - 4); g.fillStyle = "#78716c"; g.fillRect(X + 2, Y + 7, T - 4, 1); }
+  // carved posts on both sides and a keystone
+  g.fillStyle = "#e7e5e4";
+  if (ew) { g.fillRect(X, Y - 4, T, 4); g.fillRect(X, Y + T, T, 4); g.fillStyle = "#a8a29e"; g.fillRect(X, Y - 1, T, 1); g.fillRect(X, Y + T + 3, T, 1); g.fillStyle = "#facc15"; g.fillRect(X + 5, Y - 4, 6, 2); g.fillRect(X + 5, Y + T + 2, 6, 2); }
+  else { g.fillRect(X - 4, Y, 4, T); g.fillRect(X + T, Y, 4, T); g.fillRect(X - 4, Y, T + 8, 3); g.fillStyle = "#a8a29e"; g.fillRect(X - 1, Y + 3, 1, T - 3); g.fillRect(X + T + 3, Y + 3, 1, T - 3); g.fillStyle = "#facc15"; g.fillRect(X + 5, Y, 6, 3); }
+}
+function drawLoopHall(g, rm, s) {
+  const st = rm.objs.find(o => o.type === "statue"); if (!st) return;
+  const done = loopDone(s, rm), L = done ? null : loopState(s, rm), to = L && rm.doors.find(d => d.id === L.to), t = MS.time;
+  // footprints toward the real door, with a slow shimmer running along them
+  if (to) {
+    const end = doorInner(to), start = [[0, 1], [1, 0], [-1, 0], [0, -1]].map(([dx, dy]) => ({ x: st.x + dx, y: st.y + dy })).find(p => !rm.g[p.y][p.x]) || st;
+    loopPath(rm, start, end).forEach(([x, y], i, arr) => {
+      const nx = (arr[i + 1] || [end.x, end.y]), dx = Math.sign(nx[0] - x), dy = Math.sign(nx[1] - y);
+      const a = 0.3 + 0.3 * Math.max(0, Math.sin(t * 2.2 - i * 0.6));
+      g.globalAlpha = a; g.fillStyle = "#292524";
+      const X = x * T + 6, Y = y * T + 6, side = i % 2 ? 3 : -3;
+      if (dx) { g.fillRect(X + dx * 2, Y + side, 4, 2); g.fillRect(X + dx * 2 + (dx > 0 ? 4 : -1), Y + side, 1, 2); }
+      else { g.fillRect(X + side, Y + (dy || 1) * 2, 2, 4); g.fillRect(X + side, Y + (dy || 1) * 2 + (dy > 0 ? 4 : -1), 2, 1); }
+    });
+    g.globalAlpha = 1;
+  }
+  // the statue: a stone figure on a plinth, one arm out toward the way out
+  const X = st.x * T, Y = st.y * T;
+  if (!done) { g.globalAlpha = 0.14 + 0.06 * Math.sin(t * 2); g.fillStyle = "#fde68a"; g.beginPath(); g.arc(X + 8, Y + 6, 14, 0, Math.PI * 2); g.fill(); g.globalAlpha = 1; }
+  g.fillStyle = "rgba(0,0,0,.3)"; g.fillRect(X + 2, Y + T - 3, T - 4, 3);
+  g.fillStyle = "#78716c"; g.fillRect(X + 2, Y + 11, 12, 4); g.fillStyle = "#a8a29e"; g.fillRect(X + 2, Y + 11, 12, 1);
+  g.fillStyle = "#44403c"; g.fillRect(X + 5, Y, 6, 12); g.fillRect(X + 4, Y - 5, 8, 7);
+  g.fillStyle = "#a8a29e"; g.fillRect(X + 6, Y + 1, 4, 10); g.fillRect(X + 5, Y - 4, 6, 5);
+  g.fillStyle = "#d6d3d1"; g.fillRect(X + 6, Y - 3, 2, 3); g.fillRect(X + 6, Y + 2, 1, 8);
+  g.fillStyle = "#57534e"; g.fillRect(X + 9, Y - 2, 1, 1);
+  const dir = to ? (Math.abs(to.x - st.x) > Math.abs(to.y - st.y) ? [Math.sign(to.x - st.x), 0] : [0, Math.sign(to.y - st.y)]) : [1, 1];
+  let tip;
+  const arm = (x, y, w, h) => { g.fillStyle = "#44403c"; g.fillRect(x - 1, y - 1, w + 2, h + 2); g.fillStyle = "#a8a29e"; g.fillRect(x, y, w, h); };
+  if (dir[0] > 0) { arm(X + 10, Y + 2, 7, 2); tip = [X + 17, Y + 2]; }
+  else if (dir[0] < 0) { arm(X - 1, Y + 2, 7, 2); tip = [X - 3, Y + 2]; }
+  else if (dir[1] < 0) { arm(X + 10, Y - 8, 2, 10); tip = [X + 10, Y - 10]; }
+  else if (dir[1] > 0) { arm(X + 10, Y + 2, 2, 8); tip = [X + 10, Y + 10]; }
+  else arm(X + 10, Y + 4, 2, 6);
+  if (tip && !done) { g.globalAlpha = 0.5 + 0.4 * Math.sin(t * 4); g.fillStyle = "#fde68a"; g.fillRect(tip[0], tip[1], 2, 2); g.globalAlpha = 1; }
+}
+
 /* ---------- drawing doors and braziers (hooked into the legacy door call) ---------- */
 function drawDoorG(g, d, open, kind, L) {
   const X = d.x * T, Y = d.y * T;
@@ -1484,7 +1920,9 @@ drawDoor = function (g, rm, side, open, kind) {
   if (!rm.graph) return _twDrawDoor(g, rm, side, open, kind);
   if (side !== "west") return;
   const s = S.battle.s, ms = s.map, sealed = trialOn(s, rm.idx);
+  if (rm.trial === "arena") drawArena(g, rm, s);
   rm.doors.forEach(d => {
+    if (d.fake) return drawArch(g, d, loopDone(s, rm));
     if (d.boss) return drawDoorG(g, d, !sealed && bossReady(s), "boss", ms && floorData(s).look);
     if (sealed) return drawDoorG(g, d, false, "sealed");
     if (d.lock && !(ms.ul || []).includes(d.id)) return drawDoorG(g, d, false, "lock");
@@ -1493,6 +1931,7 @@ drawDoor = function (g, rm, side, open, kind) {
   if (rm.trial === "echo") drawEchoHall(g, rm, s);
   if (rm.stones) drawStones(g, rm, s);
   if (rm.pit) drawChasm(g, rm, s);
+  if (rm.loop) drawLoopHall(g, rm, s);
   rm.objs.forEach(o => {
     if (o.type === "gate" || o.type === "rune" || o.type === "mkey") return drawMazeObj(g, o, ms);
     if (o.type !== "brazier") return;
