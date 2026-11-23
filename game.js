@@ -80,7 +80,7 @@ function spriteBurst(canvas, name, scale, flip, delay) {
    are known, the pick becomes Hone (+1 hit on every technique).      */
 const CLASSES = {
   knight: {
-    name: "Knight", sprite: "hero_knight", color: "#60a5fa", hp: 20, maxCharge: 9, gain: 1, basic: "slash", crit: 0.05,
+    name: "Knight", sprite: "hero_knight", color: "#60a5fa", charge: "#fbbf24", hp: 20, maxCharge: 9, gain: 1, basic: "slash", crit: 0.05,
     blurb: "Tough and steady. Built to survive bad streaks.",
     passive: { name: "Iron Guard", text: "Takes 30% less damage and has +20 max HP." },
     specials: [
@@ -318,6 +318,7 @@ function persist() {
   const b = S.battle; if (!b) return;
   b.s.enemyHits = b.enemy.hits;
   b.s.updated = Date.now();
+  if (b.s.fight) b.s.fight.at = Date.now();   // a map fight in progress: keep its "last touched" time fresh
   progress.battle.bestFloor = Math.max(progress.battle.bestFloor || 0, b.s.best);
   saveAdv();
   saveHeroes();
@@ -394,7 +395,7 @@ function openSlot(i) {
   resetQ();
   freshOrder(b.cur);
   if (s.picks > 0) b.lvl = { stage: "choose" };
-  if (typeof mapOn === "function" && mapOn()) { b.lvl = null; sfx.bStart(); return enterMap(); }
+  if (typeof mapOn === "function" && mapOn()) { b.lvl = null; sfx.bStart(); enterMap(); if (typeof resumeMapFight === "function") resumeMapFight(); return; }
   // quick mode: pick up where the map left off on this floor
   if (s.map && s.map.floor === s.floor && s.idx !== s.map.cleared.length) {
     s.idx = s.map.cleared.length; b.enemy = makeEnemy(s);
@@ -744,7 +745,7 @@ function submitBattle() {
       b.koFloor = s.floor; b.koEnemy = b.enemy.name; b.koBoss = b.enemy.boss;
       // respawn at the floor entrance; the run screen still shows the KO
       s.deaths++; h.deaths = (h.deaths || 0) + 1;
-      s.hp = mx(); s.idx = 0; s.enemyHits = null; s.charge = 0; s.guard = false; s.frozen = false;
+      s.hp = mx(); s.idx = 0; s.enemyHits = null; s.fight = null; s.charge = 0; s.guard = false; s.frozen = false;
       if (s.map && s.map.floor === s.floor) {
         const F0 = floorData(s).rooms[0];
         Object.assign(s.map, { cleared: [], room: 0, x: F0.start.x, y: F0.start.y, entered: false, quest: s.map.quest === 1 ? 0 : s.map.quest, items: 0 });
@@ -1420,7 +1421,7 @@ function viewBattle() {
 
   /* ---- technique bar (only what this run has learned) ---- */
   let seg = "";
-  for (let i = 0; i < C.maxCharge; i++) seg += `<i class="${i < s.charge ? "on" : ""}" style="${i < s.charge ? `background:${C.color}` : ""}"></i>`;
+  for (let i = 0; i < C.maxCharge; i++) seg += `<i class="${i < s.charge ? "on" : ""}" style="${i < s.charge ? `background:${C.charge || C.color}` : ""}"></i>`;
   const known = C.specials.filter(x => s.learned.includes(x.id));
   const specs = known.map(x => {
     const cost = costOf(x, m), ready = s.charge >= cost, armed = b.armed === x.id;
@@ -1431,7 +1432,7 @@ function viewBattle() {
   }).join("");
   const armedSp = b.armed ? specialOf(h.cls, b.armed) : null;
   const specbar = `<div class="specbar tex ${s.charge >= C.maxCharge && known.length ? "full" : ""}">
-    <div class="chargewrap"><span class="chargelbl" style="color:${C.color}">${BOLT}${s.charge}/${C.maxCharge}</span><div class="charge">${seg}</div></div>
+    <div class="chargewrap"><span class="chargelbl" style="color:${C.charge || C.color}">${BOLT}${s.charge}/${C.maxCharge}</span><div class="charge">${seg}</div></div>
     ${known.length ? `<div class="specbtns">${specs}</div>` : `<div class="armnote">No techniques yet. Level up to learn your first one.</div>`}
     ${armedSp ? `<div class="armnote"><b style="color:${C.color}">${esc(armedSp.name)} armed.</b> ${esc(armedSp.text)} Miss and it fizzles.</div>` : ""}
   </div>`;

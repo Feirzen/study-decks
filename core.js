@@ -785,6 +785,7 @@ function navMove(dir) {
     best = (S.navIdx + (fwd ? 1 : -1) + items.length) % items.length;
   }
   S.navIdx = best;
+  S.navEl = items[best];                                // the thing you actually arrowed onto
   paintNav();
   sfx.nav();
 }
@@ -814,7 +815,17 @@ document.addEventListener("keydown", ev => {
   if (k === "Enter" || k === " ") {
     const items = navItems();
     const el = items[S.navIdx];
-    if (document.body.classList.contains("kbd") && el) { ev.preventDefault(); el.click(); }
+    if (!document.body.classList.contains("kbd") || !el) return;
+    ev.preventDefault();
+    // After a screen change the highlight quietly lands on the first button, which is usually the
+    // back arrow. Only leave the screen if you arrowed onto it yourself; otherwise press the main button.
+    const isBack = x => x.classList.contains("backbtn") || BACK_ACTS.includes(x.dataset.act);
+    if (el !== S.navEl && isBack(el)) {
+      const main = items.find(x => x.classList.contains("primary") && !isBack(x));
+      if (main) main.click();
+      return;
+    }
+    el.click();
     return;
   }
   if (k === "Backspace") {

@@ -65,9 +65,10 @@ Object.assign(SPRITES, {
   m_shrine: { pal: { s: "#6b7280", S: "#9ca3af", d: "#4b5563", g: "#22d3ee", G: "#cffafe" }, rows: [
     ".....gg.....", "....gGGg....", ".....gg.....", "............", "..ssssssss..", "..sSSSSSSs..",
     "...sSSSSs...", "...sSddSs...", "...sSSSSs...", "...sSSSSs...", "..ssssssss..", ".ssSSSSSSss."] },
-  m_npc: { pal: { h: "#7c2d12", s: "#f5c9a5", e: "#1c1917", m: "#b85a4c", c: "#4d7c0f", C: "#65a30d", b: "#422006" }, rows: [
-    "....hhhh....", "...hhhhhh...", "..hhsssshh..", "..hsessesh..", "..hssssssh..", "...ssmmss...", "..ccccccc...",
-    ".cccCCcccc..", ".ccCCCCccc..", ".scCCCCcs...", "..cCCCCc....", "..cccccc....", "..cc..cc....", "..bb..bb...."] },
+  // hooded traveler with a walking staff (redrawn Nov 2026: the old one looked off)
+  m_npc: { pal: { o: "#1c1410", h: "#7c2d12", s: "#f5c9a5", e: "#1c1917", c: "#4d7c0f", C: "#65a30d", b: "#422006", g: "#c49b44", w: "#8a5a2b", y: "#fde68a" }, rows: [
+    "....oooo...y", "...ohhhho..y", "..ohhhhhho.w", "..ohssssho.w", "..ohesseho.w", "..ohssssho.w", "..ohhcchho.w",
+    "..occCCcco.w", ".occCCCCccow", ".osggggggsss", ".occCCCCccow", "..occCCcco.w", "..obboobbo.w", "..oooooooo.w"] },
 });
 Object.assign(VARIANTS, {
   "m_rock~lava":   { a: "#3b2a26", A: "#57403a", b: "#1c1412" },
@@ -341,11 +342,34 @@ function persistMap() {
   b.s.updated = Date.now();
   saveAdv(); saveHeroes(); saveProgress();
 }
+/* came back to the game partway through a map fight: drop you right back into it
+   with the foe's health where you left it, unless it's been more than 12 hours */
+function resumeMapFight() {
+  const b = S.battle, s = b.s, f = s.fight;
+  if (!f) return false;
+  s.fight = null;
+  const ms = s.map;
+  if (f.floor !== s.floor || Date.now() - (f.at || 0) > 12 * 3600e3) return false;
+  if (f.id !== "boss" && (!ms || ms.cleared.includes(f.id))) return false;
+  const hits = s.enemyHits, charge = s.charge, guard = s.guard;
+  s.carry = 0;
+  let o = { boss: true };
+  if (f.id !== "boss") {
+    const all = [].concat(...floorData(s).rooms.map(r => r.objs), ms.extra || []);
+    o = all.find(x => x.id === f.id) || { id: f.id, foe: f.foe };
+  }
+  startMapFight(o);
+  s.charge = charge; s.guard = guard;          // no free start-of-fight boons for coming back
+  if (hits != null) b.enemy.hits = Math.max(1, Math.min(b.enemy.maxHits, hits));
+  persist(); render();
+  return true;
+}
 /* back from a fight: drop the foe, maybe a new floor */
 function returnToMap() {
   const b = S.battle, s = b.s;
   const newFloor = !s.map || s.map.floor !== s.floor;
   b.pend = null; b.fx = null; b.armed = null; resetQ();
+  s.fight = null;
   if (typeof FX !== "undefined" && FX.parts) FX.parts = [];
   if (newFloor) { s.map = null; ensureMapState(s); }
   enterMap(newFloor ? null : null);
@@ -359,6 +383,7 @@ function startMapFight(o) {
   if (carried) b.enemy.hits = b.enemy.maxHits - carried;
   s.carry = 0;
   b.mapFight = o.boss ? "boss" : o.id;
+  s.fight = { id: b.mapFight, foe: o.foe, floor: s.floor, at: Date.now() };   // so leaving mid-fight brings you back into it
   b.pend = null; b.armed = null; b.note = null; b.lvl = null;
   fightStart(s, b.h);
   pickQuestion(); resetQ(); freshOrder(b.cur);
@@ -899,7 +924,8 @@ function mapLoop(now) {
       g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(o.x * T + 3, o.y * T + T - 3, T - 6, 3);
       g.drawImage(im, X, Y);
       if (o.type === "shrine" && ms.shrine === 0) { const ph = Math.floor(MS.time * 4) % 2; g.fillStyle = ph ? "#cffafe" : "#22d3ee"; g.fillRect(X + 5, Y - 3 - ph, 1, 1); g.fillRect(X + 7, Y - 2, 1, 1); }
-      if (o.type === "npc" && ms.quest !== 2) { const ph = Math.floor(MS.time * 2) % 2; g.fillStyle = "#facc15"; g.fillRect(X + 5, Y - 6 - ph, 2, 3); g.fillRect(X + 5, Y - 2 - ph, 2, 1); }
+      if (o.type === "npc" && (ms.quest === 0 || (ms.quest === 1 && ms.items >= ms.need))) { // ! only when he has something new for you
+        const ph = Math.floor(MS.time * 2) % 2; g.fillStyle = "#facc15"; g.fillRect(X + 5, Y - 6 - ph, 2, 3); g.fillRect(X + 5, Y - 2 - ph, 2, 1); }
       if (o.type === "chest" && !ms.opened.includes(o.id) && Math.floor(MS.time * 2) % 3 === 0) { g.fillStyle = "#fffbe6"; g.fillRect(X + 2 + Math.floor(MS.time * 7) % 6, Y + 1, 1, 1); }
     } });
   });
@@ -914,7 +940,10 @@ function mapLoop(now) {
   things.sort((a, c) => a.y - c.y).forEach(t => t.draw());
   // interaction hint over whatever you're next to
   const near = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => objAt(rm, MS.tx + dx, MS.ty + dy)).find(o => o && o.type !== "egg");
-  if (near && MS.t >= 1 && !mapBusy()) {
+  // no "!" over things you're done with: opened chests, a used shrine, the stranger once his quest is handed in or still running
+  const spent = o => (o.type === "chest" && ms.opened.includes(o.id)) || (o.type === "shrine" && ms.shrine !== 0)
+    || (o.type === "npc" && (ms.quest === 2 || (ms.quest === 1 && ms.items < ms.need)));
+  if (near && !spent(near) && MS.t >= 1 && !mapBusy()) {
     const ph = Math.floor(MS.time * 3) % 2, X = near.x * T + 6, Y = near.y * T - 12 - ph;
     g.fillStyle = "#000"; g.fillRect(X - 1, Y - 1, 6, 8);
     g.fillStyle = near.type === "foe" ? "#ef4444" : "#fde047"; g.fillRect(X + 1, Y, 2, 4); g.fillRect(X + 1, Y + 5, 2, 1);

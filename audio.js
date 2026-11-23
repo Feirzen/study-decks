@@ -113,12 +113,31 @@ function audPaint() {
   audMini();
 }
 
-/* mini bar: shows when something is playing and its full player isn't visible */
+/* is this track's full player actually on screen and usable right now?
+   With a pop-up open, only a player inside the pop-up counts (the page behind is covered),
+   and it has to be scrolled into view, not just somewhere in the page. */
+function audFullInView() {
+  const sel = `.au[data-aud="${CSS.escape(AUD.file)}"]`;
+  const inModal = typeof modalOpen === "function" && modalOpen();
+  const boxes = document.querySelectorAll((inModal ? "#overlay " : "#app ") + sel);
+  const vh = window.innerHeight || document.documentElement.clientHeight;
+  for (const box of boxes) {
+    if (box.offsetParent === null) continue;
+    const r = box.getBoundingClientRect();
+    let top = 0, bot = vh;
+    const sc = box.closest(".modal");
+    if (sc) { const m = sc.getBoundingClientRect(); top = Math.max(top, m.top); bot = Math.min(bot, m.bottom); }
+    if (r.bottom - 12 > top && r.top + 12 < bot) return true;
+  }
+  return false;
+}
+/* mini bar: shows whenever a track is going (or paused partway) and its full player isn't in view,
+   on every screen and on top of pop-ups, so play/pause/rewind is always in reach */
 function audMini() {
   let bar = document.getElementById("auMini");
   const a = AUD.el;
-  const show = a && AUD.file && !a.ended && (a.currentTime > 0 || !a.paused) &&
-    !document.querySelector(`#app .au[data-aud="${CSS.escape(AUD.file)}"]`);
+  const show = a && AUD.file && !a.ended && (a.currentTime > 0 || !a.paused) && !audFullInView();
+  document.body.classList.toggle("aum-up", !!show);
   if (!show) { if (bar) bar.classList.remove("up"); return; }
   if (!bar) {
     bar = document.createElement("div"); bar.id = "auMini";
@@ -223,6 +242,16 @@ viewSetHome = function () {
   const i = html.indexOf(anchor);
   return i < 0 ? html : html.slice(0, i) + block + html.slice(i);
 };
+// scrolling the page or a pop-up can move the full player out of view (or back), so re-check then
+let _audScrollRaf = 0;
+function audScrollCheck() {
+  if (_audScrollRaf || !AUD.file) return;
+  _audScrollRaf = requestAnimationFrame(() => { _audScrollRaf = 0; audMini(); });
+}
+window.addEventListener("scroll", audScrollCheck, { capture: true, passive: true });
+window.addEventListener("resize", audScrollCheck, { passive: true });
+// pop-ups open and close without a render, so watch the overlay too
+new MutationObserver(audScrollCheck).observe(document.getElementById("overlay") || document.body, { childList: true });
 const _audBaseRender = render;
 render = function () { _audBaseRender(); audPaint(); };
 
@@ -256,7 +285,7 @@ render = function () { _audBaseRender(); audPaint(); };
 .pk-au { position: sticky; bottom: -22px; z-index: 2; margin: 14px -20px -22px; padding: 10px 20px 14px; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -10px 18px -12px var(--shadow); }
 .pk-au .au { margin-bottom: 0; }
 #auMini { position: fixed; left: 50%; bottom: 14px; transform: translate(-50%, 140%); width: min(560px, calc(100% - 24px)); display: flex; align-items: center; gap: 12px;
-  background: var(--surface); border: 1.5px solid var(--accent); border-radius: 16px; padding: 8px 10px; box-shadow: 0 10px 30px var(--shadow); z-index: 60; overflow: hidden;
+  background: var(--surface); border: 1.5px solid var(--accent); border-radius: 16px; padding: 8px 10px; box-shadow: 0 10px 30px var(--shadow); z-index: 9995; overflow: hidden;
   transition: transform .4s cubic-bezier(.22,.8,.3,1); }
 #auMini.up { transform: translate(-50%, 0); }
 #auMini .au-btn { flex-basis: 36px; width: 36px; height: 36px; }
@@ -264,6 +293,9 @@ render = function () { _audBaseRender(); audPaint(); };
 .aum-t { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 12.5px; }
 .aum-t b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .aum-t span { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+body.aum-up #app { padding-bottom: 76px; }
+body.aum-up .modalbg { padding-bottom: 86px; }
+body.aum-up .modal.wide { max-height: calc(100vh - 120px); }
 .aum-x { background: none; border: none; color: var(--muted); font-size: 15px; cursor: pointer; padding: 6px 8px; }
 `;
   document.head.appendChild(st);

@@ -872,7 +872,13 @@ function mazeRoom(R, rm) {
     if (inner.some(i => Math.abs(i.x - x) + Math.abs(i.y - y) < 4) || Math.abs(best.x - x) + Math.abs(best.y - y) < 4) continue;
     ends.push({ x, y });
   }
-  if (ends.length) { const e = ends[Math.floor(R() * ends.length)]; rm.objs.push({ id: "k0", type: "mkey", x: e.x, y: e.y }); }
+  if (ends.length) {
+    const e = ends[Math.floor(R() * ends.length)]; rm.objs.push({ id: "k0", type: "mkey", x: e.x, y: e.y });
+    // and a riddle chest in the dead end farthest from the key, as a reward for exploring the dark
+    const far = ends.filter(c => Math.abs(c.x - e.x) + Math.abs(c.y - e.y) >= 4)
+      .sort((a, c) => (Math.abs(c.x - e.x) + Math.abs(c.y - e.y)) - (Math.abs(a.x - e.x) + Math.abs(a.y - e.y)))[0];
+    if (far) rm.objs.push({ id: "mc" + (rm.idx || 0), type: "chest", x: far.x, y: far.y });
+  }
 }
 // an opened gate is just floor
 const _twObjAt = objAt;
@@ -886,7 +892,7 @@ interact = function (o) {
   const s = S.battle.s, ms = s.map;
   if (o && o.type === "gate") return say("Iron bars block the passage. A riddle glows on the lock.", [{ label: "Answer it (1 question)", act: "mapQStart", arg: o.id }], "Riddle gate");
   if (o && o.type === "rune") {
-    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The rune hums quietly. Its light fills the labyrinth.");
+    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The rune hums quietly. Its work is done, but the dark remains.");
     (ms.lit = ms.lit || []).push(o.id);
     MS.burst = { x: o.x, y: o.y, t: 0 };
     return trialCheck();
@@ -918,7 +924,8 @@ mapSubmit = function () {
   }
   persistMap(); render();
 };
-function mazeDark(s, rm) { return rm && rm.trial === "maze" && !(s.map.trials && s.map.trials[rm.idx] === "done"); }
+// the labyrinth stays dark even after the rune breaks the seal: the torch key is the only light source
+function mazeDark(s, rm) { return !!rm && rm.trial === "maze"; }
 function mazeKeyLit(ms, rm) { return rm.objs.some(o => o.type === "mkey" && (ms.lit || []).includes(o.id)); }
 /* what the hero's light reaches: a few tiles, and never through a wall */
 const MZ = { at: "", t: 9, vis: null, eye: null, nextEye: 3, glow: 1 };

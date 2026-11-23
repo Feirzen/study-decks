@@ -572,7 +572,7 @@ body.kbd .kbfocus {
   background: rgba(255,255,255,.28);
 }
 .xpbar { position: relative; height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; border: 1px solid var(--border); }
-.xpbar > div { height: 100%; background: var(--accent); transition: width .5s var(--ease-out) .3s; }
+.xpbar > div { height: 100%; background: #3b82f6; transition: width .5s var(--ease-out) .3s; }
 .pips { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; min-height: 14px; }
 .pip {
   width: 14px; height: 14px; border-radius: 3px; background: var(--bad);
