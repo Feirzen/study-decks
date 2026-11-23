@@ -605,8 +605,13 @@ function mapSubmit() {
     if (ok) {
       ms.opened.push(o.id);
       grantXp(12);
-      let msg = "The chest clicks open! +12 XP";
-      if (o.key) { ms.keys++; msg += " and a rusty key"; }
+      let msg = "The chest clicks open! +12 XP", got = [];
+      if (o.key) { ms.keys++; got.push("a rusty key"); }
+      // rare: a mana crystal, +1 max charge for the rest of the run (riddle chests in dark dead ends are likelier)
+      if ((s.mana || 0) < MANA_CAP && Math.random() < (/^mc/.test(o.id) ? 0.5 : 0.15)) {
+        s.mana = (s.mana || 0) + 1; got.push("a glowing mana crystal (+1 max charge)");
+      }
+      if (got.length) msg += ", plus " + got.join(" and ");
       Q.result = { ok, text: msg + "." };
       sfx.bVictory();
     } else {

@@ -199,11 +199,11 @@ makeEnemy = function (run) {
   if (f.endless || !S.set) return _twMakeEnemy(run);
   const d = diffOf(run);
   if (f.throne || run.idx >= f.foes.length) {
-    const bh = Math.max(3, Math.round(f.boss.hits * d.hp));
+    const bh = Math.max(3, Math.round(f.boss.hits * d.hp * bossScale(run)));   // tougher as the run's hero grows (game.js)
     return { key: f.boss.key, name: f.boss.name, boss: true, final: !!f.throne, ward: !f.throne, hits: bh, maxHits: bh, scale: f.boss.scale || 5 };
   }
   const foe = f.foes[run.idx];
-  const h = clampN(Math.round(f.foeHits * d.hp * (foe.gold ? 0.5 : 1)), 1, 12);
+  const h = clampN(Math.round(f.foeHits * d.hp * foeScale(run) * (foe.gold ? 0.5 : 1)), 1, 16);
   return { key: foe.key, name: foe.name, boss: false, gold: !!foe.gold, hits: h, maxHits: h, scale: 4 };
 };
 campaignPct = function (s) {
@@ -737,7 +737,7 @@ function spawnCheck(ri, entering) {
   const b = S.battle, s = b.s, ms = s.map, k = chapterFloor();
   if (!k) return;
   const need = chapterLeft(s); if (!need) return;
-  const fi = floorInfo(s, s.floor), perFoe = Math.max(1.5, fi.foeHits * 0.8);
+  const fi = floorInfo(s, s.floor), perFoe = Math.max(1.5, fi.foeHits * foeScale(s) * 0.8);
   const alive = foesLeft(s);
   if (alive * perFoe >= need) return;
   if (!entering && alive > 0) return;                      // only pop in new foes mid-room when the floor is empty
