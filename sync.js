@@ -20,7 +20,7 @@ function sxDecks() {
   return out;
 }
 function sxDeckData(id) {
-  const d = { progress: sxRead("fc:" + id), exam: sxRead("fc:exam:" + id), adv: sxRead("fc:adv:" + id) };
+  const d = { progress: sxRead("fc:" + id), exam: sxRead("fc:exam:" + id), adv: sxRead("fc:adv:" + id), hl: sxRead("fc:hl:" + id) };
   return d;
 }
 /* how much is in a deck save, in plain words; 0 = nothing worth keeping */
@@ -97,7 +97,7 @@ function sxBuild() {
   sxDecks().forEach(d => {
     if (!SX.pick["d:" + d.id]) return;
     const data = sxDeckData(d.id);
-    out.decks[d.id] = { title: d.title, progress: data.progress, exam: data.exam, adv: data.adv };
+    out.decks[d.id] = { title: d.title, progress: data.progress, exam: data.exam, adv: data.adv, hl: data.hl };
     if (data.adv && Array.isArray(data.adv.slots)) data.adv.slots.forEach(s => { if (s && s.heroId) want.add(s.heroId); });
   });
   loadHeroes().heroes.forEach(h => { if (SX.pick["h:" + h.id] || want.has(h.id)) out.heroes.push(JSON.parse(JSON.stringify(h))); });
@@ -216,7 +216,7 @@ function sxApply() {
       const key = "d:" + id; if (!SX.pick[key]) return;
       if (SX.choice[key] === "mine") return;
       const D = d.decks[id];
-      sxWrite("fc:" + id, D.progress); sxWrite("fc:exam:" + id, D.exam); sxWrite("fc:adv:" + id, D.adv);
+      sxWrite("fc:" + id, D.progress); sxWrite("fc:exam:" + id, D.exam); sxWrite("fc:adv:" + id, D.adv); sxWrite("fc:hl:" + id, D.hl);
       if (D.adv && Array.isArray(D.adv.slots)) D.adv.slots.forEach(s => { if (s && s.heroId) need.add(s.heroId); });
     });
     (d.heroes || []).forEach(h => {
