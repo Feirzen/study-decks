@@ -60,6 +60,7 @@ recordAnswer = function (q, ok) {
 };
 function objDue(it) {
   if (!it.qs || !it.qs.length) return false;
+  if ((progress.readiness || {})[it.id] === "green") return false;   // you already said it's good to go: don't ask again
   const at = progress.lastAt || {}, ca = (progress.confAt || {})[it.id] || 0;
   return it.qs.every(id => (at[id] || (progress.results[id] ? 1 : 0)) > ca);
 }
@@ -104,6 +105,7 @@ function confReady() {
 function confDrain() {
   if (!confReady()) return;
   const id = S.confQ.shift();
+  if ((progress.readiness || {})[id] === "green") return confDrain();
   const html = confHtml(id); if (!html) return confDrain();
   showModal(html);
   const m = document.querySelector("#overlay .modal"); if (m) m.classList.add("wide", "cf-modal");
