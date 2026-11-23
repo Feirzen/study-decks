@@ -693,7 +693,7 @@ function trialEnter(rm) {
   if (rm.trial === "chasm") { setTimeout(() => say("The doors slam shut, and the floor falls away into the dark! Narrow bridges lead to an island with a lever. Cracked planks block the way: answer to brace one. Miss, and it snaps and drops you back by the door.", null, "The Chasm"), 240); return; }
   setTimeout(() => say(rm.trial === "torch"
     ? "The doors slam shut behind you! Three cold braziers stand in the room. Light them all (one question each) to break the seal."
-    : rm.trial === "maze" ? "A flash of light, then the doors slam shut and everything goes black. You're in a labyrinth! Feel your way to the glowing rune to break the seal. Riddle gates block the way: answer one to pass. Somewhere in a dead end, a key can light the torches."
+    : rm.trial === "maze" ? "A flash of light, then the doors slam shut and everything goes black. You're in a labyrinth! Feel your way to the glowing rune: touching it opens the doors. Riddle gates block the way: answer one to pass. Somewhere in a dead end, a key can light the torches."
     : "The doors slam shut behind you! Defeat everything in this room to break the seal.", null, rm.trial === "maze" ? "The Labyrinth" : "Sealed in"), 240);
 }
 function trialCheck() {
@@ -708,7 +708,9 @@ function trialCheck() {
   if (!done) return;
   ms.trials[rm.idx] = "done"; grantXp(15); persistMap();
   sfx.bVictory && sfx.bVictory();
-  say("The seal breaks and the doors grind open. (+15 XP)", null, "Trial cleared");
+  say(rm.trial === "maze"
+    ? "The rune flares under your hand. Somewhere in the dark you hear the sealed doors grind open: you're free to leave the labyrinth. (+15 XP)"
+    : "The seal breaks and the doors grind open. (+15 XP)", null, "Trial cleared");
 }
 
 /* ---------- keep the floor stocked until the chapter is covered ---------- */
@@ -892,7 +894,7 @@ interact = function (o) {
   const s = S.battle.s, ms = s.map;
   if (o && o.type === "gate") return say("Iron bars block the passage. A riddle glows on the lock.", [{ label: "Answer it (1 question)", act: "mapQStart", arg: o.id }], "Riddle gate");
   if (o && o.type === "rune") {
-    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The rune hums quietly. Its work is done, but the dark remains.");
+    if ((ms.lit || []).includes(o.id) || !trialOn(s, ms.room)) return say("The rune hums quietly. It already broke the seal, so the doors out of the labyrinth are open.");
     (ms.lit = ms.lit || []).push(o.id);
     MS.burst = { x: o.x, y: o.y, t: 0 };
     return trialCheck();
