@@ -1,7 +1,8 @@
 import json, os, subprocess, time, numpy as np, soundfile as sf
 from kokoro_onnx import Kokoro
-import scripts
-OUT = "/home/claude/study-decks/audio/exsc-362"; os.makedirs(OUT, exist_ok=True)
+import importlib
+scripts = importlib.import_module(os.environ.get("SCRIPTS", "scripts"))   # SCRIPTS=chem for biochem decks
+OUT = os.environ.get("OUT", "/home/claude/study-decks/audio/exsc-362"); os.makedirs(OUT, exist_ok=True)
 k = Kokoro("kokoro.onnx", "voices.bin")
 _, T = scripts.tracks()
 T = T + scripts.OVERVIEW
