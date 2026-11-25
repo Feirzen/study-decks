@@ -1743,13 +1743,15 @@ function arenaTick(dt) {
   }
   AR.engage = 0;
   AR.step -= dt; if (AR.step > 0 || AR.anim) return;
-  const n = arenaBeaten(ms, rm), every = [0.62, 0.52, 0.44][Math.min(2, n)];
+  const n = arenaBeaten(ms, rm), every = [0.5, 0.43, 0.37][Math.min(2, n)];
   AR.step = every;
   const p = bfs(rm, live.x, live.y, (x, y) => adjacent(x, y, MS.tx, MS.ty));
   if (!p || !p.length) return;
   const [nx, ny] = p[0];
   if ((nx === MS.tx && ny === MS.ty) || (nx === Math.round(MS.x) && ny === Math.round(MS.y))) return;
-  AR.anim = { o: live, fx: live.x, fy: live.y, t: 0, dur: Math.min(0.34, every * 0.7) };
+  AR.anim = { o: live, fx: live.x, fy: live.y, t: 0, dur: Math.min(0.34, every * 0.8) };
+  // start the slide from the old tile right away, so the next frame doesn't flash it a tile ahead
+  live.ox = (live.x - nx) * T; live.oy = (live.y - ny) * T;
   live.x = nx; live.y = ny; live.flip = MS.x < nx || (MS.x === nx && live.flip);
   const ex = (ms.extra || []).find(x => x.id === live.id); if (ex) { ex.x = nx; ex.y = ny; }
 }

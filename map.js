@@ -927,7 +927,7 @@ function mapLoop(now) {
       return;
     }
     let key = null, flip = false, bob = 0;
-    if (o.type === "foe") { key = o.key; flip = o.flip != null ? o.flip : true; bob = Math.round(Math.sin(MS.time * 3 + o.x) * 1); }
+    if (o.type === "foe") { key = o.key; flip = o.flip != null ? o.flip : true; bob = Math.round(Math.sin(MS.time * 3 + o.x + (o.ox || 0) / T) * 1); }
     else if (o.type === "chest") key = ms.opened.includes(o.id) ? "m_chestopen" : "m_chest";
     else if (o.type === "shrine") { key = ms.shrine === 0 ? "m_shrine" : "m_shrine~off"; bob = 0; }
     else if (o.type === "npc") { key = getSprite("m_npc~" + s.story) ? "m_npc~" + s.story : "m_npc"; flip = MS.x < o.x; }
